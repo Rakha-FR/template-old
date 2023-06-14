@@ -1,0 +1,56 @@
+# Default values for technoday.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: 
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+  hosts:
+    - host: data.doorv3-dev.neuron.id
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: data-tls
+      hosts:
+        - data.doorv3-dev.neuron.id
+
+image:
+  repository: registry.neuron.id/products/door-v3/data
+  secret: doorv3-pull-secret
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 50
+  targetMemoryUtilizationPercentage: 50
+
+volumeMounts:
+  name: php-configmap-elastic-apm
+  path: /opt/elastic/apm-agent-php/etc
+
+configMap:
+  name: apm-agent-php-data
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 500Mi
+
+secretref:
+  name: data-secret

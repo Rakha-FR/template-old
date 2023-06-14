@@ -1,0 +1,36 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: data-services
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+  labels:
+    app: data-services
+    app.kubernetes.io/managed-by: Helm
+  name: data-services
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: data-services
+  template:
+    metadata:
+      labels:
+        app: data-services
+    spec:
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: data-services
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretref.name }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}

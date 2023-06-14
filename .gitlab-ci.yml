@@ -1,0 +1,67 @@
+stages:
+  - helm-upgrade
+
+# ---------------------------------------------- Prepare Deploy -----------------------------------------------------
+
+.before_deploy:
+  stage: deploy
+  before_script:
+    - mkdir -p ~/.kube/
+    - cp ${KUBE_CONFIG} ~/.kube/config
+
+# -------------------------------------------------- Deploy ----------------------------------------------------------
+deploy-dev:
+  stage: helm-upgrade
+  extends: .before_deploy
+  environment: development
+  tags:
+    - docker
+    - internal
+  image:
+    name: dtzar/helm-kubectl
+    entrypoint: [""]
+  # script tahapan deploy
+  script:
+    # Do deploy
+    - kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
+    - if [ -z $APP_NAME ]; then echo "APP_NAME is required"; exit 1; fi
+    - if [ -z $APP_ENV ]; then echo "APP_ENV is required"; exit 1; fi
+    - if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
+    - echo "Deploying '$APP_NAME' to '$APP_ENV' using image.tag=$APP_VERSION"
+    - 'sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "chart/data/Chart.yaml"'
+    - >-
+      helm upgrade data-services ./chart/data/ --values ./chart/data/values-development.yaml --namespace=$NAMESPACE_KUBERNETES
+      --install
+      --set image.version=$APP_VERSION
+      --set name.space=$NAMESPACE_KUBERNETES
+  #trigger pipeline
+  rules:
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "development"'
+
+deploy-staging:
+  stage: helm-upgrade
+  extends: .before_deploy
+  environment: staging
+  tags:
+    - docker
+    - internal
+  image:
+    name: dtzar/helm-kubectl
+    entrypoint: [""]
+  # script tahapan deploy
+  script:
+    # Do deploy
+    - kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
+    - if [ -z $APP_NAME ]; then echo "APP_NAME is required"; exit 1; fi
+    - if [ -z $APP_ENV ]; then echo "APP_ENV is required"; exit 1; fi
+    - if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
+    - echo "Deploying '$APP_NAME' to '$APP_ENV' using image.tag=$APP_VERSION"
+    - 'sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "chart/data/Chart.yaml"'
+    - >-
+      helm upgrade data-services ./chart/data/ --values ./chart/data/values-staging.yaml --namespace=$NAMESPACE_KUBERNETES
+      --install
+      --set image.version=$APP_VERSION
+      --set name.space=$NAMESPACE_KUBERNETES
+  #trigger pipeline
+  rules:
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "staging-qa"'
