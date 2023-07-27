@@ -1,6 +1,24 @@
 stages:
   - helm-upgrade
 
+.release_rules:
+  rules:
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "development"'
+      variables:
+        FILE_VALUES: values-development.yaml
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "staging"'
+      variables:
+        FILE_VALUES: values-staging.yaml
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "production"'
+      variables:
+        FILE_VALUES: values-production.yaml
+
+.release_rules-client:
+  rules:
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "production" && $CLIENT_NAME == "jagooit"'
+      variables:
+        FILE_VALUES: values-production.yaml
+
 # ---------------------------------------------- Prepare Deploy -----------------------------------------------------
 
 .before_deploy:
@@ -10,10 +28,10 @@ stages:
     - cp ${KUBE_CONFIG} ~/.kube/config
 
 # -------------------------------------------------- Deploy ----------------------------------------------------------
-deploy-dev:
+deploy-data:
   stage: helm-upgrade
   extends: .before_deploy
-  environment: development
+  environment: $APP_ENV
   tags:
     - docker
     - internal
@@ -36,12 +54,12 @@ deploy-dev:
       --set name.space=$NAMESPACE_KUBERNETES
   #trigger pipeline
   rules:
-    - if: '$APP_NAME == "data-services" && $APP_ENV == "development"'
+    - !reference [.release_rules, rules]
 
-deploy-staging:
+deploy-data-client:
   stage: helm-upgrade
   extends: .before_deploy
-  environment: staging
+  environment: $APP_ENV-$CLIENT_NAME
   tags:
     - docker
     - internal
@@ -58,10 +76,35 @@ deploy-staging:
     - echo "Deploying '$APP_NAME' to '$APP_ENV' using image.tag=$APP_VERSION"
     - 'sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "chart/data/Chart.yaml"'
     - >-
-      helm upgrade data-services ./chart/data/ --values ./chart/data/values-staging.yaml --namespace=$NAMESPACE_KUBERNETES
+      helm upgrade data-services ./chart/data/ --values ./chart/data/values-development.yaml --namespace=$NAMESPACE_KUBERNETES
       --install
       --set image.version=$APP_VERSION
       --set name.space=$NAMESPACE_KUBERNETES
+      --set "ingress.hosts[0].host=$URL_DEPLOYMENT,ingress.tls[0].hosts[0]=$URL_DEPLOYMENT"
   #trigger pipeline
   rules:
-    - if: '$APP_NAME == "data-services" && $APP_ENV == "staging-qa"'
+    - !reference [.release_rules-client, rules]
+
+scan-security-app:
+  stage: automated-security
+  image: owasp/zap2docker-stable
+  tags:
+    - docker
+    - internal
+  needs: ['deploy-uam-client']
+  environment:
+    name: $APP_ENV-$CLIENT_NAME
+  script: 
+    - DATE_SCAN=$(date '+%Y-%m-%d')
+    - FILE_NAME=owasp-report-$CI_PROJECT_NAME-$DATE_SCAN.html
+    - echo $URL_DEPLOYMENT
+    - mkdir -p /zap/wrk
+    - zap-baseline.py -I -t https://$URL_DEPLOYMENT -r $FILE_NAME
+    - mv /zap/wrk/$FILE_NAME $CI_PROJECT_DIR
+  rules:
+    - !reference [.release_rules-client, rules]
+  artifacts:
+    expire_in: "7 days"
+    name: OWASP
+    paths:
+      - $CI_PROJECT_DIR/owasp-*.html
