@@ -1,5 +1,6 @@
 stages:
   - helm-upgrade
+  - automated-security
 
 .release_rules:
   rules:
@@ -91,7 +92,7 @@ scan-security-app:
   tags:
     - docker
     - internal
-  needs: ['deploy-uam-client']
+  needs: ['deploy-data-client']
   environment:
     name: $APP_ENV-$CLIENT_NAME
   script: 
