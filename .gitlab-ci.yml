@@ -94,7 +94,7 @@ scan-security-app:
     - internal
   needs: ['deploy-data-client']
   environment:
-    name: $APP_ENV-$CLIENT_NAME
+    name: $APP_ENV
   script: 
     - DATE_SCAN=$(date '+%Y-%m-%d')
     - FILE_NAME=owasp-report-$CI_PROJECT_NAME-$DATE_SCAN.html
@@ -103,7 +103,7 @@ scan-security-app:
     - zap-baseline.py -I -t https://$URL_DEPLOYMENT -r $FILE_NAME
     - mv /zap/wrk/$FILE_NAME $CI_PROJECT_DIR
   rules:
-    - !reference [.release_rules-client, rules]
+    - !reference [.release_rules, rules]
   artifacts:
     expire_in: "7 days"
     name: OWASP
