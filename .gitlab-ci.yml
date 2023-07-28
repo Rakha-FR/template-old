@@ -10,7 +10,7 @@ stages:
     - if: '$APP_NAME == "data-services" && $APP_ENV == "staging"'
       variables:
         FILE_VALUES: values-staging.yaml
-    - if: '$APP_NAME == "data-services" && $APP_ENV == "production" && $APP_VERSION =~ "/.*production-doorv3-v.*$/"'
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "production" && $APP_VERSION =~ "/.*production_doorv3-v.*$/"'
       variables:
         FILE_VALUES: values-production.yaml
 
