@@ -92,7 +92,7 @@ scan-security-app:
   tags:
     - docker
     - internal
-  needs: ['deploy-data-client']
+  needs: ['deploy-data']
   environment:
     name: $APP_ENV
   script: 
