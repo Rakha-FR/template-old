@@ -16,7 +16,7 @@ stages:
 
 .release_rules-client:
   rules:
-    - if: '$APP_NAME == "data-services" && $APP_ENV == "production" && $CLIENT_NAME == "jagooit"'
+    - if: '$APP_NAME == "data-services" && $APP_ENV == "production" && $CLIENT_NAME != null'
       variables:
         FILE_VALUES: values-production.yaml
 
