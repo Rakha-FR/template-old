@@ -49,3 +49,19 @@ resources:
 
 secretref:
   name: data-secret
+
+vault:
+  enabled: true
+  annotations:
+    vault.hashicorp.com/agent-inject: 'true'
+    vault.hashicorp.com/role: 'pgn-development'
+    vault.hashicorp.com/agent-inject-secret-.env: 'neuron/data/development/data/secret'
+    vault.hashicorp.com/secret-volume-path: '/vault/secret'
+    vault.hashicorp.com/template-static-secret-render-interval: '5'
+    vault.hashicorp.com/agent-share-process-namespace: 'true'
+    vault.hashicorp.com/agent-image: 'hub.pgn.co.id/base/vault-inject-custom:v1.2'
+    vault.hashicorp.com/agent-inject-command-.env: "sh /opt/restart_deployment.sh"
+    vault.hashicorp.com/agent-inject-template-.env: |
+            {{- with secret "neuron/data/development/data/secret" }}{{ range $k, $v := .Data.data -}}
+            {{- $k }}={{ $v }}
+            {{ end }}{{ end -}}

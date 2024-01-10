@@ -18,11 +18,20 @@ spec:
       app: data-services
   template:
     metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
       labels:
         app: data-services
     spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      shareProcessNamespace: true
       containers:
       - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        command: ["bash", "-c", "cat /vault/secret/.env > /data/data/.env && apache2-foreground"]
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: data-services
         resources:
