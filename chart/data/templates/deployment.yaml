@@ -38,8 +38,8 @@ spec:
           {{- toYaml .Values.resources | nindent 10 }}
         ports:
         - containerPort: {{ .Values.service.port }}
-#        envFrom:
-#        - secretRef:
-#            name: {{ .Values.secretref.name }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretref.name }}
       imagePullSecrets:
       - name: {{ .Values.image.secret }}
