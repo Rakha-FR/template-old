@@ -8,20 +8,15 @@ service:
 
 ingress:
   enabled: true
-  className: ""
-  annotations: 
-    kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
   hosts:
-    - host: data.doorv3.neuron.id
+    - host: data-pgnmobile.pgn.co.id
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: data-tls
+    - secretName: pgn.co.id-tls
       hosts:
-        - data.doorv3.neuron.id
+        - data-pgnmobile.pgn.co.id
 
 image:
   repository: registry.neuron.id/products/door-v3/data

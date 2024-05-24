@@ -17,12 +17,12 @@ pipeline {
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo development').trim()
                         break
                         case 'staging-qa':
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgn-development').trim()
+                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgn-staging').trim()
                            VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-staging.yaml').trim()
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo staging').trim()
                         break
                         case 'main':
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgn-development').trim()
+                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgn-production').trim()
                            VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-production.yaml').trim()
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo production').trim()
                         break
@@ -45,6 +45,7 @@ pipeline {
                     image 'dtzar/helm-kubectl'
                     args '--entrypoint='
                     args '--dns 10.129.1.3'
+                    label 'LinuxSlave01'
                 }
             }
 
