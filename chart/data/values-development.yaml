@@ -8,6 +8,7 @@ service:
 
 ingress:
   enabled: true
+  ingressClassName: traefik
   hosts:
     - host: dev-data-pgnmobile.pgn.co.id
       paths:
