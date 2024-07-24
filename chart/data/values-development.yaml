@@ -15,7 +15,7 @@ ingress:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: pgn.co.id-tls
+    - secretName: tls-secret
       hosts:
         - dev-data-pgnmobile.pgn.co.id
 

@@ -29,11 +29,6 @@ pipeline {
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo production').trim()
                            KUBE_CONFIG = sh(returnStdout: true, script: 'echo kube-config-prod').trim()
                         break
-                        case '1-devsecops-setup-cicd-use-jenkins':
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgn-development').trim()
-                           VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-development.yaml').trim()
-                           ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo development').trim()
-                        break
                         default:
                             println("Branch not defined for value ${STAGE}")
                             currentBuild.getRawBuild().getExecutor().interrupt(Result.FAILURE)

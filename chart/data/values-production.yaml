@@ -15,7 +15,7 @@ ingress:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: pgn.co.id-tls
+    - secretName: tls-secret
       hosts:
         - data-pgnmobile.pgn.co.id
 
@@ -29,7 +29,7 @@ replicaCount: 1
 autoscaling:
   enabled: true
   minReplicas: 1
-  maxReplicas: 1
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 50
   targetMemoryUtilizationPercentage: 50
 
@@ -59,14 +59,14 @@ vault:
   annotations:
     vault.hashicorp.com/agent-inject: 'true'
     vault.hashicorp.com/role: 'pgnmobile-production'
-    vault.hashicorp.com/agent-inject-secret-.env: 'neuron/data/production/data/secret'
+    vault.hashicorp.com/agent-inject-secret-.env: 'pgn_mobile/data/production/data/secret'
     vault.hashicorp.com/secret-volume-path: '/vault/secret'
-    vault.hashicorp.com/auth-path: 'auth/k8s'
+    vault.hashicorp.com/auth-path: 'auth/pgn-mobile-k8s'
     vault.hashicorp.com/template-static-secret-render-interval: '5'
     vault.hashicorp.com/agent-share-process-namespace: 'true'
     vault.hashicorp.com/agent-image: 'hub.pgn.co.id/base/vault-inject-custom:v1.2'
     vault.hashicorp.com/agent-inject-command-.env: "sh /opt/restart_deployment.sh"
     vault.hashicorp.com/agent-inject-template-.env: |
-            {{- with secret "neuron/data/production/data/secret" }}{{ range $k, $v := .Data.data -}}
+            {{- with secret "pgn_mobile/data/production/data/secret" }}{{ range $k, $v := .Data.data -}}
             {{- $k }}={{ $v }}
             {{ end }}{{ end -}}
