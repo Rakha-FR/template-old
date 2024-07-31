@@ -23,7 +23,7 @@ pipeline {
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo staging').trim()
                            KUBE_CONFIG = sh(returnStdout: true, script: 'echo kube-config-staging').trim()
                         break
-                        case 'main':
+                        case ~/^(v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)/:
                            NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgnmobile-production').trim()
                            VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-production.yaml').trim()
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo production').trim()
