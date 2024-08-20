@@ -42,11 +42,11 @@ configMap:
 
 resources:
   limits:
-    cpu: 2
-    memory: 2Gi
-  requests:
     cpu: 1
     memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 500Mi
 
 secretref:
   name: data-apm-secret
