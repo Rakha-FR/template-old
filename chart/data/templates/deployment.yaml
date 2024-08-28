@@ -5,6 +5,9 @@ metadata:
   annotations:
     meta.helm.sh/release-name: data-services
     meta.helm.sh/release-namespace: {{ .Values.name.space }}
+    co.elastic.logs.json-logging/json.keys_under_root: "true"
+    co.elastic.logs.json-logging/json.add_error_key: "true"
+    co.elastic.logs.json-logging/json.message_key: "message"
   labels:
     app: data-services
     app.kubernetes.io/managed-by: Helm
