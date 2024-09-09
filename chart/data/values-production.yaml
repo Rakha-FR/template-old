@@ -20,8 +20,8 @@ ingress:
         - data-pgnmobile.pgn.co.id
 
 image:
-  repository: hub.pgn.co.id/neuron/data
-  secret: uam-pull-secret
+  repository: registry.pgn.co.id/neuron/data
+  secret: new-pull-secret
   pullPolicy: IfNotPresent
 
 replicaCount: 1
@@ -64,7 +64,7 @@ vault:
     vault.hashicorp.com/auth-path: 'auth/pgn-mobile-k8s'
     vault.hashicorp.com/template-static-secret-render-interval: '5'
     vault.hashicorp.com/agent-share-process-namespace: 'true'
-    vault.hashicorp.com/agent-image: 'hub.pgn.co.id/base/vault-inject-custom:v1.2'
+    vault.hashicorp.com/agent-image: 'registry.pgn.co.id/base/vault-inject-custom:v1.2'
     vault.hashicorp.com/agent-inject-command-.env: "sh /opt/restart_deployment.sh"
     vault.hashicorp.com/agent-inject-template-.env: |
             {{- with secret "pgn_mobile/data/production/data/secret" }}{{ range $k, $v := .Data.data -}}

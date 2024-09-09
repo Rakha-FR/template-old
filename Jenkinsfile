@@ -12,7 +12,7 @@ pipeline {
                 script {
                     switch(STAGE) {
                         case 'development':
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgn-development').trim()
+                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo mobile-development').trim()
                            VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-development.yaml').trim()
                            ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo development').trim()
                            KUBE_CONFIG = sh(returnStdout: true, script: 'echo kube-config').trim()
