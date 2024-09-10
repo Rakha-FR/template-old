@@ -16,4 +16,5 @@ kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
 helm upgrade data-services ./chart/data/ --values $VALUES_CHART --namespace=$NAMESPACE_KUBERNETES \
 --install \
 --set image.version=$APP_VERSION \
---set name.space=$NAMESPACE_KUBERNETES
+--set name.space=$NAMESPACE_KUBERNETES \
+--wait
