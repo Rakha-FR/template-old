@@ -23,16 +23,16 @@ pipeline {
             steps {
                 script{
                     echo "${params.APP_VERSION} --./chart/data/values-${params.ENVIRONMENT_INFRA}.yaml -- ${params.NAMESPACE_KUBERNETES} -- ${header.split('-')[0]} --${params.URL} "
-                    // withKubeConfig([credentialsId: "${params.KUBE_CONFIG}" ]) {
-                    //     sh """
-                    //         ./deploy.sh \
-                    //         "${params.APP_VERSION}" \
-                    //         "./chart/frontend/values-${params.ENVIRONMENT_INFRA}.yaml" \
-                    //         "${params.NAMESPACE_KUBERNETES}" \
-                    //         "${header.split('-')[0]}" \
-                    //         "${params.URL}"
-                    //     """
-                    // }
+                    withKubeConfig([credentialsId: "${params.KUBE_CONFIG}" ]) {
+                        sh """
+                            ./deploy.sh \
+                            "${params.APP_VERSION}" \
+                            "./chart/frontend/values-${params.ENVIRONMENT_INFRA}.yaml" \
+                            "${params.NAMESPACE_KUBERNETES}" \
+                            "${header.split('-')[0]}" \
+                            "${params.URL}"
+                        """
+                    }
                 }
             }            
         }
