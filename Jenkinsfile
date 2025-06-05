@@ -1,56 +1,38 @@
-def NAMESPACE_KUBERNETES
-def VALUES_CHART
-def ENVIRONMENT_INFRA
 
 pipeline {
     agent any
-    
-    stages {
-
-        stage('Config Variables') {
-            steps {
-                script {
-                    switch(STAGE) {
-                        case 'development':
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo mobile-development').trim()
-                           VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-development.yaml').trim()
-                           ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo development').trim()
-                           KUBE_CONFIG = sh(returnStdout: true, script: 'echo kube-config').trim()
-                        break
-                        case 'staging-qa':
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgnmobile-staging').trim()
-                           VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-staging.yaml').trim()
-                           ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo staging').trim()
-                           KUBE_CONFIG = sh(returnStdout: true, script: 'echo kube-config-staging').trim()
-                        break
-                        case ~/^(v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)/:
-                           NAMESPACE_KUBERNETES = sh(returnStdout: true, script: 'echo pgnmobile-production').trim()
-                           VALUES_CHART = sh(returnStdout: true, script: 'echo ./chart/data/values-production.yaml').trim()
-                           ENVIRONMENT_INFRA = sh(returnStdout: true, script: 'echo production').trim()
-                           KUBE_CONFIG = sh(returnStdout: true, script: 'echo kube-config-prod').trim()
-                        break
-                        default:
-                            println("Branch not defined for value ${STAGE}")
-                            currentBuild.getRawBuild().getExecutor().interrupt(Result.FAILURE)
-                    }
-                }
-            }
+        parameters {
+            string(name: 'HEADER')
+            string(name: 'NAMESPACE_KUBERNETES')
+            string(name: 'KUBE_CONFIG')
+            string(name: 'APP_VERSION')
+            string(name: 'URL')
+            string(name: 'ENVIRONMENT_INFRA') 
         }
 
+    stages {
         stage('Deploy Apps') {
             agent {
                 docker {
                     image 'dtzar/helm-kubectl'
                     args '--entrypoint='
                     args '--dns 10.129.1.3'
-                    label 'LinuxSlave01'
                 }
             }
 
             steps {
-                withKubeConfig([credentialsId: "${KUBE_CONFIG}" ]) {
-                    sh "echo Deploying ${PROJECT_NAME} to ${ENVIRONMENT_INFRA} using image.tag=${APP_VERSION} && \
-                    ./deploy.sh ${APP_VERSION} ${VALUES_CHART} ${NAMESPACE_KUBERNETES}"
+                script{
+                    echo "${params.APP_VERSION} --./chart/data/values-${params.ENVIRONMENT_INFRA}.yaml -- ${params.NAMESPACE_KUBERNETES} -- ${header.split('-')[0]} --${params.URL} "
+                    // withKubeConfig([credentialsId: "${params.KUBE_CONFIG}" ]) {
+                    //     sh """
+                    //         ./deploy.sh \
+                    //         "${params.APP_VERSION}" \
+                    //         "./chart/frontend/values-${params.ENVIRONMENT_INFRA}.yaml" \
+                    //         "${params.NAMESPACE_KUBERNETES}" \
+                    //         "${header.split('-')[0]}" \
+                    //         "${params.URL}"
+                    //     """
+                    // }
                 }
             }            
         }
