@@ -11,6 +11,18 @@ pipeline {
         }
 
     stages {
+
+        stage('checkout'){
+            steps{
+                sh "rm -Rf *"
+                git branch: 'main',
+                    credentialsId: 'github-auth',
+                    url: "https://github.com/PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService.git"
+            }
+
+        }
+        
+
         stage('Deploy Apps') {
             agent {
                 docker {
