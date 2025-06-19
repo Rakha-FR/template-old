@@ -1,0 +1,48 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: data-services
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+    co.elastic.logs.json-logging/json.keys_under_root: "true"
+    co.elastic.logs.json-logging/json.add_error_key: "true"
+    co.elastic.logs.json-logging/json.message_key: "message"
+  labels:
+    app: data-services
+    app.kubernetes.io/managed-by: Helm
+  name: data-services
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: data-services
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      labels:
+        app: data-services
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      shareProcessNamespace: true
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        command: ["bash", "-c", "cat /vault/secret/.env > /data/data/.env && apache2-foreground"]
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: data-services
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        # envFrom:
+        # - secretRef:
+        #     name: {{ .Values.secretref.name }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}
