@@ -1,0 +1,41 @@
+name: Define Environment
+
+on:
+  push:
+    paths:
+      - 'neuron-actions/set-enviroment/**'
+  pull_request:
+    paths:
+      - 'neuron-actions/set-enviroment/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-set-enviroment:
+    runs-on:
+      group: Development
+      labels: [self-hosted,Linux,X64,Development]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Build set-enviroment
+        run: |
+          cd neuron-actions/set-enviroment
+          npm ci
+          npm run build
+
+      - name: Commit and push dist
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add neuron-actions/set-enviroment/dist
+          git commit -m "Build set-enviroment action [skip ci]" || echo "No changes to commit"
+          git push
