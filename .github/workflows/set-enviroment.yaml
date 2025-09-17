@@ -1,4 +1,4 @@
-name: Define Environment
+name: Define Env
 
 on:
   push:
