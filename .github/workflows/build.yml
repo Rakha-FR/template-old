@@ -1,20 +1,10 @@
-name: Call a reusable workflow
+name: Shared Build
 
 on:
-  push:
-    branches:
-      - 253-devops---move-jenkins-to-github-actions
+  workflow_call:
 
 jobs:
-  call-workflow:
-    uses: octo-org/example-repo/.github/workflows/workflow-A.yml@v1
-
-  call-workflow-passing-data:
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: octo-org/example-repo/.github/workflows/workflow-B.yml@main
-    with:
-      config-path: .github/labeler.yml
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Build dari reusable workflow!"
