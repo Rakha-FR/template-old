@@ -55,7 +55,6 @@ async function run() {
         environment = 'development';
       }
     }
-
     core.setOutput('environment', environment);
     core.info(`Environment set to: ${environment}`);
   } catch (error) {
