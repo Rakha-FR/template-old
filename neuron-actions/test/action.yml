@@ -1,0 +1,8 @@
+name: "Branch Decider"
+description: "Menentukan branch saat ini"
+outputs:
+  branch:
+    description: "Nama branch saat ini"
+runs:
+  using: "node20"
+  main: "dist/index.js"

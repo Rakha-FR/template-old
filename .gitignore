@@ -1,0 +1,19 @@
+# Node.js modules & logs
+**/node_modules/
+**/npm-debug.log
+**/yarn-debug.log
+**/yarn-error.log
+**/package-lock.json
+
+# Build cache
+**/.npm/
+**/.cache/
+
+# Ignore everything except dist
+# (kita commit dist/ supaya action bisa dipakai tanpa npm install)
+# Tapi pastikan hanya hasil build yang masuk, bukan source map
+**/dist/*.map
+
+# System files
+.DS_Store
+Thumbs.db
