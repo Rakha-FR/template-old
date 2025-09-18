@@ -31891,8 +31891,11 @@ async function run() {
         environment = 'development';
       }
     }
+    const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
     core.setOutput('environment', environment);
+    core.setOutput('runner_group', runnerGroup);
     core.info(`Environment set to: ${environment}`);
+    core.info(`Runner group set to: ${runnerGroup}`);
   } catch (error) {
     core.setFailed(error.message);
   }
