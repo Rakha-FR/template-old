@@ -8,7 +8,7 @@ async function run() {
     core.info(`Event: ${eventName}`);
     core.info(`Ref: ${ref}`);
 
-    let environment = 'demo';
+    let environment = 'development';
 
     // Regex untuk mendeteksi tag versi semantik (v1.2.3, V1.2.3, dst.)
     const semverTagRegex = /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
