@@ -1,0 +1,17 @@
+name: "Get Matching Environments"
+description: "Ambil daftar environments yang namanya mengandung target kata tertentu"
+inputs:
+  token:
+    description: "GitHub token dengan permission read:environments"
+    required: true
+  target:
+    description: "Kata target yang ingin dicari di nama environment"
+    required: true
+outputs:
+  list:
+    description: "Daftar environment dalam format JSON"
+  count:
+    description: "Jumlah environment yang cocok"
+runs:
+  using: "node20"
+  main: "dist/index.js"

@@ -1,0 +1,11 @@
+{
+  "name": "find-environments",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "node-fetch": "^3.3.2"
+  }
+}
