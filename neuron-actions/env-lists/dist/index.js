@@ -32,9 +32,11 @@ async function run() {
 
     const matched = (data.environments || [])
       .filter(env => env.name.includes(target))
-      .map(env => ({ project: env.name })); // <- array of objects
+      .map(env => ({ project: env.name }));
 
-    core.setOutput('matrix', JSON.stringify(matched)); // <- langsung array
+    const matrix = { include: matched };
+
+    core.setOutput('matrix', JSON.stringify(matrix));
     core.setOutput('count', matched.length);
 
     core.info(`Found ${matched.length} environments matching "${target}"`);
