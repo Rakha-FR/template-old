@@ -1,0 +1,73 @@
+name: Code Quality Scan
+
+on:
+  workflow_call:
+    inputs:
+      env_app:
+        required: true
+        type: string
+      grouprunner:
+        required: true
+        type: string
+      repoid:
+        required: true
+        type: string
+      SONAR_EXCLUSIONS:
+        required: true
+        type: string
+      SONAR_SOURCES:
+        required: true
+        type: string
+      SONAR_USER_HOME:
+        required: true
+        type: string
+      continue-on-error:
+        type: boolean
+        required: true
+        default: false
+      SONAR_HOST_URL:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      ref_name:
+        required: true
+        type: string
+      repository_owner:
+        required: true
+        type: string
+    secrets:
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+  code-quality:
+    name: Scan with SonarQube
+    environment:
+      name: ${{ inputs.env_app }}
+    runs-on:
+      group: ${{ inputs.grouprunner }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.grouprunner }}"]
+    continue-on-error: ${{ inputs.continue-on-error }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Scan
+        uses: ${{ inputs.IMAGE_NAME }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL:  ${{ inputs.SONAR_HOST_URL }}
+          SONAR_USER_HOME:  ${{ inputs.SONAR_USER_HOME }}/.sonar
+          projectBaseDir: "./"
+        with:
+          args: >
+            -Dsonar.projectKey=${{ inputs.repoid }}_${{ inputs.ref_name }}_${{ inputs.repository_owner }}
+            -Dsonar.exclusions=${{ inputs.SONAR_EXCLUSIONS }}
+            -Dsonar.sources=${{ inputs.SONAR_SOURCES }}
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=900
