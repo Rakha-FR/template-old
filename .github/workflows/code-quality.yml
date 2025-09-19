@@ -28,9 +28,6 @@ on:
       SONAR_HOST_URL:
         required: true
         type: string
-      IMAGE_NAME:
-        required: true
-        type: string
       ref_name:
         required: true
         type: string
@@ -58,7 +55,7 @@ jobs:
           fetch-depth: 0
 
       - name: SonarQube Scan
-        uses: ${{ inputs.IMAGE_NAME }}
+        uses: SonarSource/sonarqube-scan-action@v6.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL:  ${{ inputs.SONAR_HOST_URL }}
