@@ -47,7 +47,6 @@ jobs:
       group: ${{ inputs.grouprunner }}
       labels: [self-hosted, Linux, X64, "${{ inputs.grouprunner }}"]
     continue-on-error: ${{ inputs.continue-on-error }}
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
