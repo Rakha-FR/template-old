@@ -29922,6 +29922,14 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 5266:
+/***/ ((module) => {
+
+module.exports = eval("require")("node-fetch");
+
+
+/***/ }),
+
 /***/ 2613:
 /***/ ((module) => {
 
@@ -31828,80 +31836,154 @@ module.exports = parseParams
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-const core = __nccwpck_require__(7484);
-const github = __nccwpck_require__(3228);
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7484);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(3228);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5266);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
 
 async function run() {
   try {
-    const ref = github.context.ref;
-    const eventName = github.context.eventName;
-    core.info(`Event: ${eventName}`);
-    core.info(`Ref: ${ref}`);
+    const ref = (_actions_github__WEBPACK_IMPORTED_MODULE_1___default().context).ref;
+    const eventName = (_actions_github__WEBPACK_IMPORTED_MODULE_1___default().context).eventName;
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`Event: ${eventName}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`Ref: ${ref}`);
 
+
+    const multideploy = (_actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('MULTIDEPLOY') || 'false') === 'true';
     let environment = 'development';
 
-    // Regex untuk mendeteksi tag versi semantik (v1.2.3, V1.2.3, dst.)
+    // Regex semver untuk tag (v1.2.3, V1.2.3, v1.2.3-alpha+build)
     const semverTagRegex = /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
-    if (ref.startsWith('refs/tags/')) {
+    if (eventName === 'pull_request') {
+      const baseBranch = (_actions_github__WEBPACK_IMPORTED_MODULE_1___default().context).payload.pull_request.base.ref;
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`PR base branch: ${baseBranch}`);
+
+      if (baseBranch === 'main') environment = 'production';
+      else if (baseBranch === 'staging-qa') environment = 'staging';
+      else if (baseBranch === 'development') environment = 'development';
+    } else if (ref.startsWith('refs/heads/')) {
+      const branch = ref.replace('refs/heads/', '');
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`Branch: ${branch}`);
+
+      if (branch === 'main') environment = 'production';
+      else if (branch === 'staging-qa') environment = 'staging';
+      else if (branch === 'development') environment = 'development';
+    } else if (ref.startsWith('refs/tags/')) {
       const tagName = ref.replace('refs/tags/', '');
-      if (semverTagRegex.test(tagName)) {
-        environment = 'production';
-      }
-    } else if (eventName === 'pull_request') {
-      const baseBranch = github.context.payload.pull_request.base.ref;
-      core.info(`PR base branch: ${baseBranch}`);
-      if (baseBranch === 'main') {
-        environment = 'production';
-      }
-    } else if (ref.startsWith('refs/heads/')) {
-      const branch = ref.replace('refs/heads/', '');
-      core.info(`Branch: ${branch}`);
-      if (branch === 'main') {
-        environment = 'production';
-      }
-    }else if (eventName === 'pull_request') {
-      const baseBranch = github.context.payload.pull_request.base.ref;
-      core.info(`PR base branch: ${baseBranch}`);
-      if (baseBranch === 'staging-qa') {
-        environment = 'staging';
-      }
-    } else if (ref.startsWith('refs/heads/')) {
-      const branch = ref.replace('refs/heads/', '');
-      core.info(`Branch: ${branch}`);
-      if (branch === 'staging-qa') {
-        environment = 'staging';
-      }
-    }else if (eventName === 'pull_request') {
-      const baseBranch = github.context.payload.pull_request.base.ref;
-      core.info(`PR base branch: ${baseBranch}`);
-      if (baseBranch === 'development') {
-        environment = 'development';
-      }
-    } else if (ref.startsWith('refs/heads/')) {
-      const branch = ref.replace('refs/heads/', '');
-      core.info(`Branch: ${branch}`);
-      if (branch === 'development') {
-        environment = 'development';
-      }
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`Tag: ${tagName}`);
+
+      if (semverTagRegex.test(tagName)) environment = 'production';
     }
+
+    // ==== Runner group ====
     const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
-    core.setOutput('environment', environment);
-    core.setOutput('runner_group', runnerGroup);
-    core.info(`Environment set to: ${environment}`);
-    core.info(`Runner group set to: ${runnerGroup}`);
+
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('environment', environment);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('runner_group', runnerGroup);
+
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`✅ Environment set to: ${environment}`);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`✅ Runner group set to: ${runnerGroup}`);
+
+    // ==== Multi-deploy logic ====
+    if (multideploy) {
+      const token = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('token', { required: true });
+      const target = _actions_core__WEBPACK_IMPORTED_MODULE_0___default().getInput('target', { required: true });
+      const { owner, repo } = (_actions_github__WEBPACK_IMPORTED_MODULE_1___default().context).repo;
+
+      const url = `https://api.github.com/repos/${owner}/${repo}/environments?per_page=100`;
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`Fetching environments from: ${url}`);
+
+      const res = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(url, {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${token}`,
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Request failed: ${res.status} ${res.statusText} - ${text}`);
+      }
+
+      const data = await res.json();
+
+      const matched = (data.environments || [])
+        .filter(env => env.name.includes(target))
+        .map(env => ({ project: env.name }));
+
+      const matrix = { include: matched };
+
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('matrix', JSON.stringify(matrix));
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('count', matched.length.toString());
+
+      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`🔎 Found ${matched.length} environments matching "${target}"`);
+      matched.forEach(m => _actions_core__WEBPACK_IMPORTED_MODULE_0___default().info(`- ${m.project}`));
+    }
   } catch (error) {
-    core.setFailed(error.message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setFailed(error.message);
   }
 }
 
 run();
+
+})();
 
 module.exports = __webpack_exports__;
 /******/ })()
