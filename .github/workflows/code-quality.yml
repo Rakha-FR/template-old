@@ -41,8 +41,6 @@ on:
 jobs:
   code-quality:
     name: Scan with SonarQube
-    environment:
-      name: ${{ inputs.env_app }}
     runs-on:
       group: ${{ inputs.grouprunner }}
       labels: [self-hosted, Linux, X64, "${{ inputs.grouprunner }}"]
