@@ -1,8 +1,23 @@
-name: "Branch Decider"
-description: "Menentukan branch saat ini"
+name: "Set Environment"
+description: "Menentukan environment dan optional multi deploy matrix"
+
+inputs:
+  MULTIDEPLOY:
+    description: "Aktifkan multi deploy"
+    required: false
+    default: "false"
+  token:
+    description: "GitHub token untuk API"
+    required: false
 outputs:
-  branch:
-    description: "Nama branch saat ini"
+  environment:
+    description: "Nama environment (development, staging, production)"
+  runner_group:
+    description: "Runner group berdasarkan environment"
+  matrix:
+    description: "Matrix untuk multi deploy"
+  count:
+    description: "Jumlah environment yang cocok"
 runs:
   using: "node20"
   main: "dist/index.js"
