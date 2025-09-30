@@ -30,8 +30,8 @@ autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 1
-  targetCPUUtilizationPercentage: 50
-  targetMemoryUtilizationPercentage: 50
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
 
 volumeMounts:
   name: php-configmap-elastic-apm
@@ -42,11 +42,11 @@ configMap:
 
 resources:
   limits:
-    cpu: 1
-    memory: 1Gi
+    cpu: 200m
+    memory: 512Mi
   requests:
-    cpu: 500m
-    memory: 500Mi
+    cpu: 100m
+    memory: 320Mi
 
 secretref:
   name: data-apm-secret
@@ -60,6 +60,10 @@ vault:
     vault.hashicorp.com/auth-path: 'auth/kubernetes'
     vault.hashicorp.com/agent-inject: 'true'
     vault.hashicorp.com/role: 'relyon-development'
+    vault.hashicorp.com/agent-requests-cpu: "50m"
+    vault.hashicorp.com/agent-limits-cpu: "100m"
+    vault.hashicorp.com/agent-requests-mem: "64Mi"
+    vault.hashicorp.com/agent-limits-mem: "128Mi"
     vault.hashicorp.com/agent-inject-secret-.env: 'relyon_dev/data/data/secret'
     vault.hashicorp.com/secret-volume-path: '/vault/secret'
     vault.hashicorp.com/template-static-secret-render-interval: '5'
