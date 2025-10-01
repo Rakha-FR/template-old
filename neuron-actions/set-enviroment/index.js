@@ -68,7 +68,7 @@ async function run() {
     if (['main', 'master'].includes(currentBranch)) environment = 'production';
     else if (currentBranch === 'staging-qa') environment = 'staging';
     else if (currentBranch === 'development') environment = 'development';
-    else environment = currentBranch; // kalau branch custom, pakai nama branch-nya
+    else environment = development; // kalau branch custom, pakai nama branch-nya
 
     // --- Runner group ---
     const runnerGroup =
