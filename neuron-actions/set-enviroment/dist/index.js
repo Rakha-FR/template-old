@@ -39466,7 +39466,14 @@ async function run() {
     core.info(`Event: ${eventName}`);
     core.info(`Ref: ${ref}`);
 
-    const allowedBranches = ['development', 'staging-qa', 'main', 'master'];
+    const allowedBranchesInput = core.getInput('allowed_branches') || '';
+    const allowedBranches = allowedBranchesInput
+      .split(',')
+      .map(b => b.trim())
+      .filter(Boolean);
+
+    core.info(`Allowed branches: ${allowedBranches.join(', ')}`);
+
     const semverTagRegex = /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
     let environment = 'development';
