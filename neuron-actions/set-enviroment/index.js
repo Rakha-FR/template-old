@@ -10,15 +10,27 @@ async function run() {
     core.info(`Event: ${eventName}`);
     core.info(`Ref: ${ref}`);
 
+    // ✅ Default allowed branches
+    const defaultBranches = ['development', 'staging-qa', 'main', 'master'];
+
+    // ✅ Ambil input tambahan dari user (optional)
     const allowedBranchesInput = core.getInput('allowed_branches') || '';
-    const allowedBranches = allowedBranchesInput
-      .split(',')
-      .map(b => b.trim())
-      .filter(Boolean);
+
+    // ✅ Gabungkan default + input user (tanpa duplikat)
+    const allowedBranches = Array.from(
+      new Set([
+        ...defaultBranches,
+        ...allowedBranchesInput
+          .split(',')
+          .map(b => b.trim())
+          .filter(Boolean),
+      ])
+    );
 
     core.info(`Allowed branches: ${allowedBranches.join(', ')}`);
 
-    const semverTagRegex = /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
+    const semverTagRegex =
+      /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
     let environment = 'development';
     let currentBranch = null;
@@ -53,12 +65,14 @@ async function run() {
     }
 
     // --- Determine environment ---
-    if (currentBranch === 'main' || currentBranch === 'master') environment = 'production';
+    if (['main', 'master'].includes(currentBranch)) environment = 'production';
     else if (currentBranch === 'staging-qa') environment = 'staging';
     else if (currentBranch === 'development') environment = 'development';
+    else environment = currentBranch; // kalau branch custom, pakai nama branch-nya
 
     // --- Runner group ---
-    const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
+    const runnerGroup =
+      environment.charAt(0).toUpperCase() + environment.slice(1);
 
     // --- Output ---
     core.setOutput('environment', environment);
