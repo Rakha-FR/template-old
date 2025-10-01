@@ -1,0 +1,19 @@
+name: Data Services Pipelines
+
+on:
+  workflow_call:
+
+jobs:
+  define-environment:
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      branch_env: ${{ steps.branch.outputs.environment }}
+      runner_group: ${{ steps.branch.outputs.runner_group }}
+    steps:
+      - name: Define Env
+        id: branch
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
