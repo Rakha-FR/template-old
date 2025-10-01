@@ -6,34 +6,54 @@ async function run() {
   try {
     const ref = github.context.ref;
     const eventName = github.context.eventName;
+
     core.info(`Event: ${eventName}`);
     core.info(`Ref: ${ref}`);
 
-    const multideploy = (core.getInput('MULTIDEPLOY') || 'false') === 'true';
-    let environment = 'development';
-
+    const allowedBranches = ['development', 'staging-qa', 'main', 'master'];
     const semverTagRegex = /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
+    let environment = 'development';
+    let currentBranch = null;
+    let isAllowed = false;
+
+    // --- Detect branch / tag ---
     if (eventName === 'pull_request') {
       const baseBranch = github.context.payload.pull_request.base.ref;
+      currentBranch = baseBranch;
       core.info(`PR base branch: ${baseBranch}`);
-      if (baseBranch === 'main') environment = 'production';
-      else if (baseBranch === 'staging-qa') environment = 'staging';
-      else if (baseBranch === 'development') environment = 'development';
     } else if (ref.startsWith('refs/heads/')) {
-      const branch = ref.replace('refs/heads/', '');
-      core.info(`Branch: ${branch}`);
-      if (branch === 'main') environment = 'production';
-      else if (branch === 'staging-qa') environment = 'staging';
-      else if (branch === 'development') environment = 'development';
+      currentBranch = ref.replace('refs/heads/', '');
+      core.info(`Branch: ${currentBranch}`);
     } else if (ref.startsWith('refs/tags/')) {
       const tagName = ref.replace('refs/tags/', '');
       core.info(`Tag: ${tagName}`);
-      if (semverTagRegex.test(tagName)) environment = 'production';
+      if (semverTagRegex.test(tagName)) {
+        isAllowed = true;
+        environment = 'production';
+      }
     }
 
+    // --- Validate branch ---
+    if (currentBranch) {
+      isAllowed = allowedBranches.includes(currentBranch);
+    }
+
+    // --- Reject if not allowed ---
+    if (!isAllowed) {
+      core.setFailed(`⛔ This workflow is not allowed to run on branch/ref: ${ref}`);
+      return; // stop execution
+    }
+
+    // --- Determine environment ---
+    if (currentBranch === 'main' || currentBranch === 'master') environment = 'production';
+    else if (currentBranch === 'staging-qa') environment = 'staging';
+    else if (currentBranch === 'development') environment = 'development';
+
+    // --- Runner group ---
     const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
 
+    // --- Output ---
     core.setOutput('environment', environment);
     core.setOutput('runner_group', runnerGroup);
 
