@@ -2,6 +2,12 @@ name: Data Services Pipelines
 
 on:
   workflow_call:
+    inputs:
+      allowed_branches:
+        description: "List of allowed branches"
+        required: false
+        type: string
+        default: "development,staging-qa,main,master"
 
 jobs:
   define-environment:
@@ -17,3 +23,4 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_branches: ${{ inputs.allowed_branches }}
