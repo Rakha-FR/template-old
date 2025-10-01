@@ -9,6 +9,10 @@ inputs:
   token:
     description: "GitHub token untuk API"
     required: false
+  allowed_branches:
+    description: "List of allowed branches (comma separated)"
+    required: false
+    default: "development,staging-qa,main,master"
 outputs:
   environment:
     description: "Nama environment (development, staging, production)"
