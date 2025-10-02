@@ -14,10 +14,8 @@ on:
         type: string
     outputs:
       environment:
-        description: "The first output string"
         value: ${{ jobs.define-environment.outputs.branch_env }}
-      secondword:
-        description: "The second output string"
+      runner_group:
         value: ${{ jobs.define-environment.outputs.runner_group }}
 
 env:
