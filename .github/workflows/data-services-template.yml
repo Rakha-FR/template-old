@@ -24,6 +24,10 @@ on:
       SONAR_HOST_URL:
         type: string
         default: "http://10.129.2.232:9000"
+      multideploy:
+        required: false
+        type: boolean
+        default: false
     outputs:
       environment:
         value: ${{ jobs.define-environment.outputs.branch_env }}
