@@ -72,10 +72,15 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
+    needs: [define-environment, code-quality]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
     steps:
-      - name: test
-        run: |  
-          echo "test"
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+    - name: Install Dependencies
+      run: composer install --no-interaction --prefer-dist
+
