@@ -96,23 +96,22 @@ jobs:
         password: ${{ secrets.VAULT_PASSWORD }}
         exportEnv: true
         secrets: |
-          neuron/data/development/data/secret * ;
-
+          neuron/data/mobile-development/github-action/data/secret * ;
+  
     - name: Check if secret exists
       run: |
-        if [ -z "$APM_APPVERSION" ]; then
+        if [ -z "$VITE_APP_CMS_BASEPATH " ]; then
           echo "❌ Secret tidak ditemukan"
           exit 1
         else
           echo "✅ Secret ditemukan dan sudah terset"
         fi
 
+
     - name: Pre Build App fe
       uses: actions/setup-node@v5
       with:
         node-version: 20
         cache: 'npm'
-    - run: |
-        echo "APM_APPVERSION : $APM_APPVERSION"
     - run: npm install --legacy-peer-deps
     - run: npm run build
