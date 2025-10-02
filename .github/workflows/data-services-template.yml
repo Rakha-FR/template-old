@@ -24,10 +24,6 @@ on:
       SONAR_HOST_URL:
         type: string
         default: "http://10.129.2.232:9000"
-      multideploy:
-        required: false
-        type: boolean
-        default: false
     outputs:
       environment:
         value: ${{ jobs.define-environment.outputs.branch_env }}
@@ -50,7 +46,7 @@ jobs:
         id: branch
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.TOKEN }}
           multideploy: ${{ inputs.multideploy }}
           allowed_branches: "253-devops---move-jenkins-to-github-actions"
 
@@ -82,10 +78,15 @@ jobs:
     container:
       image: registry.pgn.co.id/base/php82:v0.0.1
     steps:
+    - name: Checkout
+      uses: actions/checkout@v5.0.0
+      with:
+        fetch-depth: 0
+
     - name: Pre Build App be
       run: |
         composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-  
+
     - name: Import All Secrets from Vault
       id: import-secrets
       uses: hashicorp/vault-action@v3.4.0
@@ -97,38 +98,23 @@ jobs:
         exportEnv: true
         secrets: |
           neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
-
-    - name: Check if secret exists
-      run: |
-        if [ -z "$VITE_APP_CMS_BASEPATH" ]; then
-          echo "❌ Secret tidak ditemukan"
-          exit 1
-        else
-          echo "✅ Secret ditemukan dan sudah terset"
-        fi
-
   
-    # - name: Pre Build App fe
-    #   uses: actions/setup-node@v5
-    #   with:
-    #     node-version: 20
-    #     cache: 'npm'
-    # - run: npm install --legacy-peer-deps
-    # - run: npm run build
+    - name: Pre Build App fe
+      uses: actions/setup-node@v5
+      with:
+        node-version: 20
+        cache: 'npm'
+    - run: npm install --legacy-peer-deps
+    - run: npm run build
 
-    # - name: Push Image
-    #   uses: actions/setup-node@v5
-    #   with:
-    #     node-version: 20
-    #     cache: 'npm'
-    # - run: npm install --legacy-peer-deps
-    # - run: npm run build
+    - name: Push Image
+      uses: actions/setup-node@v5
+      with:
+        node-version: 20
+        cache: 'npm'
+    - run: npm install --legacy-peer-deps
+    - run: npm run build
 
-
-    # - name: Checkout
-    #   uses: actions/checkout@v4
-    #   with:
-    #     fetch-depth: 0
     # - name: Set up QEMU
     #   uses: docker/setup-qemu-action@v3
     # - name: Set up Docker Buildx
