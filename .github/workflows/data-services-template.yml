@@ -70,3 +70,12 @@ jobs:
       repository_owner: ${{ inputs.repo_owner }}
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    steps:
+      - name: test
+        run: |  
+          echo "test"
