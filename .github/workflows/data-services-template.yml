@@ -76,11 +76,13 @@ jobs:
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+    container:
+      image: registry.pgn.co.id/base/php82:v0.0.1
     steps:
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.4'
-    - name: Install Dependencies
-      run: composer install --no-interaction --prefer-dist
+    - name: Pre Build App be
+      run: |
+        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
