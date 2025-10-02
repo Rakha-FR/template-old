@@ -31898,7 +31898,7 @@ async function run() {
 
     core.info(`Allowed branches: ${allowedBranches.join(', ')}`);
 
-    const multideploy = (core.getInput('MULTIDEPLOY') || 'false').toLowerCase() === 'true';
+    const multideploy = (core.getInput('multideploy') || 'false').toLowerCase() === 'true';
     const semverTagRegex =
       /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
