@@ -51,6 +51,7 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          multideploy: ${{ inputs.multideploy }}
           allowed_branches: "253-devops---move-jenkins-to-github-actions"
 
   code-quality:
