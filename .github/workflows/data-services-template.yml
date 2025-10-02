@@ -93,7 +93,7 @@ jobs:
         url: https://vault.pgn.co.id
         token: ${{ secrets.VAULT_TOKEN }}
         secrets: |
-          neuron/data/development/data/secret/APM_APPVERSION | APM_APPVERSION ;
+          neuron/development/data/secret/APM_APPVERSION | APM_APPVERSION ;
     - name: Pre Build App fe
       uses: actions/setup-node@v5
       with:
