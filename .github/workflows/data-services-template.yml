@@ -94,10 +94,11 @@ jobs:
         method: userpass
         username: ${{ secrets.VAULT_USERNAME }}
         password: ${{ secrets.VAULT_PASSWORD }}
-        secrets: |
+        secrets: >-
           secret/data/neuron/development-pdp/cp/secret APM_APPVERSION | APM_APPVERSION
           secret/data/neuron/development-pdp/cp/secret APIM_PGN_KEY | APIM_PGN_KEY
           secret/data/neuron/development-pdp/cp/secret API_DUMMY | API_DUMMY
+
 
     - name: Pre Build App fe
       uses: actions/setup-node@v5
