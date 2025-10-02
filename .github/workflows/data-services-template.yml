@@ -2,6 +2,13 @@ name: Data Services Pipelines
 
 on:
   workflow_call:
+    inputs:
+      repo_owner:
+        required: true
+        type: string
+      repo_id:
+        required: true
+        type: string
 
 jobs:
   define-environment:
