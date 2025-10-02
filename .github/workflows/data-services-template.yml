@@ -85,10 +85,21 @@ jobs:
     - name: Pre Build App be
       run: |
         composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+  
+    - name: Import Secrets
+      id: import-secrets
+      uses: hashicorp/vault-action@v2
+      with:
+        url: https://vault.pgn.co.id
+        token: ${{ secrets.VAULT_TOKEN }}
+        secrets: |
+          neuron/data/development-pdp/cp/secret/APIM_PGN_KEY | APIM_PGN_KEY ;
     - name: Pre Build App fe
       uses: actions/setup-node@v5
       with:
         node-version: 20
         cache: 'npm'
+    - run: |
+        echo "APIM_PGN_KEY : $APIM_PGN_KEY"
     - run: npm install --legacy-peer-deps
     - run: npm run build
