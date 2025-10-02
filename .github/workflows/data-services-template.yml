@@ -86,7 +86,7 @@ jobs:
       run: |
         composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
   
-    - name: Import Secrets from Vault
+    - name: Import All Secrets from Vault
       id: import-secrets
       uses: hashicorp/vault-action@v2
       with:
@@ -94,8 +94,19 @@ jobs:
         method: userpass
         username: ${{ secrets.VAULT_USERNAME }}
         password: ${{ secrets.VAULT_PASSWORD }}
-        secrets: >-
-          neuron/data/development/data/secret APM_APPVERSION | APM_APPVERSION
+        exportEnv: true
+        secrets: |
+          neuron/data/development/data/secret * ;
+
+    - name: Check if secret exists
+      run: |
+        if [ -z "$APM_APPVERSION" ]; then
+          echo "❌ Secret tidak ditemukan"
+          exit 1
+        else
+          echo "✅ Secret ditemukan dan sudah terset"
+        fi
+
     - name: Pre Build App fe
       uses: actions/setup-node@v5
       with:
