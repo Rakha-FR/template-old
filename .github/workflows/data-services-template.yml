@@ -29,6 +29,8 @@ on:
         value: ${{ jobs.define-environment.outputs.branch_env }}
       runner_group:
         value: ${{ jobs.define-environment.outputs.runner_group }}
+      environments_list:
+        value: ${{ jobs.define-environment.outputs.environments_list }}
 
 jobs:
   define-environment:
