@@ -6,6 +6,9 @@ on:
       repo_owner:
         required: true
         type: string
+      repo_name:
+        required: true
+        type: string
       repo_id:
         required: true
         type: string
@@ -27,8 +30,6 @@ on:
       runner_group:
         value: ${{ jobs.define-environment.outputs.runner_group }}
 
-
-
 jobs:
   define-environment:
     runs-on:
@@ -37,6 +38,7 @@ jobs:
     outputs:
       branch_env: ${{ steps.branch.outputs.environment }}
       runner_group: ${{ steps.branch.outputs.runner_group }}
+      environments_list: ${{ steps.branch.outputs.environments_list }}
     steps:
       - name: Define Env
         id: branch

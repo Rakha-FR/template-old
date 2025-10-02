@@ -1,6 +1,43 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const fetch = require('node-fetch');
+const { Octokit } = require('@octokit/core');
+
+async function getEnvironments(mainEnv) {
+  const token = core.getInput('token', { required: true });
+  const repoOwner = core.getInput('repo_owner') || github.context.repo.owner;
+  const repoName = core.getInput('repo_name') || github.context.repo.repo;
+
+  core.info(`🔍 Fetching environments from ${repoOwner}/${repoName}...`);
+
+  const octokit = new Octokit({ auth: token });
+
+  try {
+    const response = await octokit.request('GET /repos/{owner}/{repo}/environments', {
+      owner: repoOwner,
+      repo: repoName,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    });
+
+    const environments = response.data.environments || [];
+
+    if (environments.length === 0) {
+      core.warning('⚠️ No environments found in repository.');
+      return [];
+    }
+
+    const filtered = environments
+      .map(env => env.name)
+      .filter(name => name.toLowerCase().includes(mainEnv.toLowerCase()));
+
+    core.info(`✅ Found environments related to "${mainEnv}": ${filtered.join(', ') || 'None'}`);
+    return filtered;
+  } catch (err) {
+    core.error(`❌ Failed to fetch environments: ${err.message}`);
+    return [];
+  }
+}
 
 async function run() {
   try {
@@ -10,13 +47,9 @@ async function run() {
     core.info(`Event: ${eventName}`);
     core.info(`Ref: ${ref}`);
 
-    // ✅ Default allowed branches
+    // --- Default branches
     const defaultBranches = ['development', 'staging-qa', 'main', 'master'];
-
-    // ✅ Ambil input tambahan dari user (optional)
     const allowedBranchesInput = core.getInput('allowed_branches') || '';
-
-    // ✅ Gabungkan default + input user (tanpa duplikat)
     const allowedBranches = Array.from(
       new Set([
         ...defaultBranches,
@@ -29,6 +62,7 @@ async function run() {
 
     core.info(`Allowed branches: ${allowedBranches.join(', ')}`);
 
+    const multideploy = (core.getInput('MULTIDEPLOY') || 'false').toLowerCase() === 'true';
     const semverTagRegex =
       /^[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
@@ -58,28 +92,33 @@ async function run() {
       isAllowed = allowedBranches.includes(currentBranch);
     }
 
-    // --- Reject if not allowed ---
     if (!isAllowed) {
-      core.setFailed(`⛔ This workflow is not allowed to run on branch/ref: ${ref}`);
-      return; // stop execution
+      core.notice(`ℹ️ Skipping workflow because branch ${ref} is not in allowed list`);
+      process.exit(0); // exits successfully
     }
 
     // --- Determine environment ---
     if (['main', 'master'].includes(currentBranch)) environment = 'production';
     else if (currentBranch === 'staging-qa') environment = 'staging';
     else if (currentBranch === 'development') environment = 'development';
-    else environment = 'development'; 
+    else environment = 'development';
 
-    // --- Runner group ---
-    const runnerGroup =
-      environment.charAt(0).toUpperCase() + environment.slice(1);
+    const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
 
-    // --- Output ---
     core.setOutput('environment', environment);
     core.setOutput('runner_group', runnerGroup);
 
     core.info(`✅ Environment set to: ${environment}`);
     core.info(`✅ Runner group set to: ${runnerGroup}`);
+
+    // --- Multi-deploy mode ---
+    if (multideploy) {
+      core.info('🚀 Multi-deploy mode enabled!');
+      const environmentsList = await getEnvironments(environment);
+      core.setOutput('environments_list', JSON.stringify(environmentsList));
+    } else {
+      core.info('ℹ️ Multi-deploy disabled, skipping environment discovery.');
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

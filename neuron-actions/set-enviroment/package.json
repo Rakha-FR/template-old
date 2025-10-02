@@ -1,13 +1,15 @@
 {
-  "name": "set-eviroment",
+  "name": "set-environment",
   "version": "1.0.0",
+  "description": "GitHub Action untuk menentukan environment dan runner group berdasarkan branch/tag",
+  "main": "index.js",
   "scripts": {
     "build": "ncc build index.js -o dist"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
-    "node-fetch": "^3.3.2"
+    "@octokit/core": "^5.2.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.3"
