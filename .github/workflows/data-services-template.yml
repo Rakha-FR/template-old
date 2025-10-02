@@ -9,6 +9,21 @@ on:
       repo_id:
         required: true
         type: string
+      branch_name:
+        required: true
+        type: string
+    outputs:
+      environment:
+        description: "The first output string"
+        value: ${{ jobs.define-environment.outputs.branch_env }}
+      secondword:
+        description: "The second output string"
+        value: ${{ jobs.define-environment.outputs.runner_group }}
+
+env:
+  SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
+  SONAR_SOURCES: "./app/Models"
+  SONAR_HOST_URL: "http://10.129.2.232:9000"
 
 jobs:
   define-environment:
@@ -25,3 +40,20 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           allowed_branches: "253-devops---move-jenkins-to-github-actions"
+
+  code-quality:
+    needs: [define-environment]
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    with:
+      env_app: ${{ needs.define-environment.outputs.branch_env }}
+      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+      repoid: ${{ inputs.repo_id }}
+      SONAR_EXCLUSIONS: $SONAR_EXCLUSIONS
+      SONAR_SOURCES: $SONAR_SOURCES
+      SONAR_USER_HOME: ${{ github.workspace }}
+      continue-on-error: true
+      SONAR_HOST_URL: $SONAR_HOST_URL
+      ref_name: ${{ inputs.branch_name }}
+      repository_owner: ${{ inputs.repo_owner }}  
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
