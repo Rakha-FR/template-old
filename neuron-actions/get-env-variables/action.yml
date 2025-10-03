@@ -1,0 +1,21 @@
+name: "Get Environment Variables"
+description: "Fetch environment variables from GitHub Environment via API"
+inputs:
+  token:
+    description: "GitHub token with environment read access"
+    required: true
+  owner:
+    description: "Repository owner"
+    required: true
+  repo:
+    description: "Repository name"
+    required: true
+  environment:
+    description: "Environment name"
+    required: true
+outputs:
+  variables:
+    description: "JSON list of environment variables"
+runs:
+  using: "node20"
+  main: "index.js"

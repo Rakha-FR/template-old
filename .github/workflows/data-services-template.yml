@@ -98,7 +98,7 @@ jobs:
         exportEnv: true
         secrets: |
           neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
-  
+          
     - name: Pre Build App fe
       uses: actions/setup-node@v5
       with:
@@ -107,13 +107,13 @@ jobs:
     - run: npm install --legacy-peer-deps
     - run: npm run build
 
-    - name: Push Image
-      uses: actions/setup-node@v5
-      with:
-        node-version: 20
-        cache: 'npm'
-    - run: npm install --legacy-peer-deps
-    - run: npm run build
+    # - name: Push Image
+    #   uses: actions/setup-node@v5
+    #   with:
+    #     node-version: 20
+    #     cache: 'npm'
+    # - run: npm install --legacy-peer-deps
+    # - run: npm run build
 
     # - name: Set up QEMU
     #   uses: docker/setup-qemu-action@v3
