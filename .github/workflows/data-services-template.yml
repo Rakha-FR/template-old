@@ -88,7 +88,7 @@ jobs:
       run: |
         ENV_NAME=${{ matrix.deploy-to }}
         DATE=$(date +'%Y%m%d')
-        COMMIT_HASH=${GITHUB_SHA::7}
+        COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
         APP_VERSION="${ENV_NAME}-${DATE}-${COMMIT_HASH}"
         echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
 
