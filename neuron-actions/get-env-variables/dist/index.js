@@ -29017,28 +29017,21 @@ const { Octokit } = __nccwpck_require__(1897);
     const token = core.getInput('token');
     const owner = core.getInput('owner');
     const repo = core.getInput('repo');
-    const environment = core.getInput('environment');
+    const envName = core.getInput('environment_name');
 
     const octokit = new Octokit({ auth: token });
 
-    const response = await octokit.request(
+    const res = await octokit.request(
       'GET /repos/{owner}/{repo}/environments/{environment_name}/variables',
-      {
-        owner,
-        repo,
-        environment_name: environment,
-        headers: {
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      }
+      { owner, repo, environment_name: envName }
     );
 
-    const variables = response.data.variables || [];
+    const vars = res.data.variables;
 
-    console.log('✅ Variables found:', variables.map(v => v.name).join(', '));
-
-    // Set output ke GitHub Action
-    core.setOutput('variables', JSON.stringify(variables));
+    // Export ke env semua
+    for (const v of vars) {
+      core.exportVariable(v.name, v.value);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
