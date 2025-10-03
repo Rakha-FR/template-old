@@ -1,0 +1,41 @@
+name: get-env-variables
+
+on:
+  push:
+    paths:
+      - 'neuron-actions/get-env-variables/**'
+  pull_request:
+    paths:
+      - 'neuron-actions/get-env-variables/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-get-env-variables:
+    runs-on:
+      group: Development
+      labels: [self-hosted,Linux,X64,Development]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Build get-env-variables
+        run: |
+          cd neuron-actions/get-env-variables
+          npm install
+          npm run build
+
+      - name: Commit and push dist
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add neuron-actions/get-env-variables/dist
+          git commit -m "Build get-env-variables action [skip ci]" || echo "No changes to commit"
+          git push

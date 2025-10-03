@@ -1,5 +1,5 @@
 name: "Get Environment Variables"
-description: "Fetch environment variables from GitHub Environment via API"
+description: "Fetch environment variables from GitHub Environment"
 inputs:
   token:
     description: "GitHub token with environment read access"
