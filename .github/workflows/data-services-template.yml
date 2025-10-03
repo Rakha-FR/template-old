@@ -98,7 +98,18 @@ jobs:
         exportEnv: true
         secrets: |
           neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
-          
+
+    - name: Get All Variabel ENV
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/get-env-variables@migrasi
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        owner: ${{ inputs.repo_owner }}
+        repo: ${{ inputs.repo_name }}
+        environment: ${{ matrix.deploy-to }}
+    - run: |
+        echo " ============ $KUBE_CONFIG ============="
+        
+
     - name: Pre Build App fe
       uses: actions/setup-node@v5
       with:
