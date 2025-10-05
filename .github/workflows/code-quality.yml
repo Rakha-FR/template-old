@@ -28,9 +28,9 @@ on:
       repo_name:
         required: true
         type: string
-    # secrets:
-    #   SONAR_TOKEN:
-    #     required: true
+    secrets:
+      SONAR_TOKEN:
+        required: true
 
 jobs:
   code-quality:
