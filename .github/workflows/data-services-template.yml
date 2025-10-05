@@ -38,6 +38,8 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+
+
   deploy:
     needs: [define-environment, code-quality]
     runs-on:
@@ -52,16 +54,17 @@ jobs:
       with:
         fetch-depth: 0
         
-    # - name: Generate APP Versions
-    #   id: app_version
-    #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/generate-version.yml@migrasi
-    #   with:
-    #     deploy-to: ${{ matrix.deploy-to }}
-    #     grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-    #     repo_name: ${{ needs.define-environment.outputs.repo_name }}
 
-    # - name: Print version
-    #   run: echo "${{ steps.app_version.outputs.app-version }} ================"
+    - name: Generate App Version
+      id: app-version
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/generate-version@main
+      with:
+        deploy-to: ${{ matrix.deploy-to }}
+        repo-name: ${{ github.event.repository.name }}
+
+    - name: Print version
+      run: |
+       echo "Generated: ${{ steps.app-version.outputs.app-version }}"
 
 
         
