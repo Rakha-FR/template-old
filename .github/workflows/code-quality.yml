@@ -6,9 +6,6 @@ on:
       grouprunner:
         required: true
         type: string
-      # repoid:
-      #   required: true
-      #   type: string
       SONAR_EXCLUSIONS:
         required: true
         type: string
@@ -25,18 +22,15 @@ on:
       SONAR_HOST_URL:
         required: true
         type: string
-      # ref_name:
-      #   required: true
-      #   type: string
       repository_owner:
         required: true
         type: string
       repo_name:
         required: true
         type: string
-    secrets:
-      SONAR_TOKEN:
-        required: true
+    # secrets:
+    #   SONAR_TOKEN:
+    #     required: true
 
 jobs:
   code-quality:
