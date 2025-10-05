@@ -9,7 +9,7 @@ on:
       grouprunner:
         required: true
         type: string
-      ref_name:
+      repo_name:
         required: true
         type: string
     outputs:
@@ -29,7 +29,9 @@ jobs:
         id: app-version
         run: |
           ENV_NAME=${{ inputs.deploy-to }}
+          REPO_NAME=${{inputs.repo_name}}
+          BRANCH_NAME=${{ github.ref_name }}
           DATE=$(date +'%Y%m%d')
           COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-          APP_VERSION="${ENV_NAME}-${DATE}-${COMMIT_HASH}"
+          APP_VERSION="${REPO_NAME}-${ENV_NAME}-${BRANCH_NAME}-${DATE}-${COMMIT_HASH}"
           echo "value=$APP_VERSION" >> $GITHUB_OUTPUT
