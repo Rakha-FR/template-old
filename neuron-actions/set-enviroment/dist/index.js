@@ -31941,12 +31941,11 @@ async function run() {
 
     const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
 
-    const repoName = core.getInput('repo_name') || github.context.repo.repo;
-    const repoNameLower = repoName.toLowerCase();
-
     core.setOutput('environment', environment);
     core.setOutput('runner_group', runnerGroup);
-    core.setOutput('repo_name', repoNameLower);
+    core.setOutput('repo_name', github.context.repo.repo.toLowerCase());
+    core.setOutput('repo_owner', github.context.repo.owner.toLowerCase());
+
 
     core.info(`✅ Environment set to: ${environment}`);
     core.info(`✅ Runner group set to: ${runnerGroup}`);
