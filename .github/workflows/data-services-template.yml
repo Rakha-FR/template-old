@@ -30,7 +30,6 @@ jobs:
         run: |
           echo "${{ github.repository_owner }}"
           echo "${{ github.ref_name }}"
-          echo "${{ github.event.repository.name.toLowerCase() }}"
           echo "${{ github.event.repository.id }}"
         # id: branch
         # uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
