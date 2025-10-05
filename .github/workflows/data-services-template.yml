@@ -38,8 +38,6 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-
-
   deploy:
     needs: [define-environment, code-quality]
     runs-on:
@@ -53,48 +51,51 @@ jobs:
       uses: actions/checkout@v5.0.0
       with:
         fetch-depth: 0
-        
 
     - name: Generate App Version
       id: app-version
       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-version@migrasi
       with:
         deploy-to: ${{ matrix.deploy-to }}
-        repo-name: ${{ github.event.repository.name }}
+        repo-name: ${{ needs.define-environment.outputs.repo_name }}
 
-    - name: Print version
+
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
+
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        tools: composer
+        coverage: none
+
+    - name: Pre Build App (Backend)
       run: |
-       echo "Generated: ${{ steps.app-version.outputs.app-version }}"
+        composer install -q \
+          --no-ansi \
+          --no-interaction \
+          --no-scripts \
+          --no-progress \
+          --prefer-dist
 
-
-        
-
-
-
-  #   - name: Import All Secrets from Vault
-  #     id: import-secrets
-  #     uses: hashicorp/vault-action@v3.4.0
-  #     with:
-  #       url: ${{ secrets.VAULT_HOST_URL }}
-  #       method: userpass
-  #       username: ${{ secrets.VAULT_USERNAME }}
-  #       password: ${{ secrets.VAULT_PASSWORD }}
-  #       exportEnv: true
-  #       secrets: |
-  #         neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
-
-
-  #     - name: Pre Build App be
-  #     run: |
-  #       composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-  #   - name: Pre Build App fe
-  #     uses: actions/setup-node@v5
-  #     with:
-  #       node-version: 20
-  #       cache: 'npm'
-  #   - run: npm install --legacy-peer-deps
-  #   - run: npm run build
+    - name: Pre Build App fe
+      uses: actions/setup-node@v5
+      with:
+        node-version: 20
+        cache: 'npm'
+    - run: npm install --legacy-peer-deps
+    - run: npm run build
 
     # - name: Set up QEMU
     #   uses: docker/setup-qemu-action@v3
