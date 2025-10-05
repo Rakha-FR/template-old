@@ -28,7 +28,9 @@ jobs:
     steps:
       - name: Define Env
         run: |
-          echo " ${{ github.repository_owner }} ${{ toLower(github.event.repository.name) }}  ${{ github.ref_name }} ${{ github.event.repository.id }} "
+          echo "${{ github.repository_owner }}"
+          echo "${{ github.ref_name }}"
+          echo "${{ github.event.repository.id }}"
         # id: branch
         # uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         # with:
