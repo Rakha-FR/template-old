@@ -1,5 +1,6 @@
 name: "Generate App Version"
 description: "Generate version string from repo, env, branch, and commit hash"
+
 inputs:
   deploy-to:
     description: "Target environment (e.g., development, staging)"
@@ -7,9 +8,12 @@ inputs:
   repo-name:
     description: "Repository name (lowercase preferred)"
     required: true
+
 outputs:
   app-version:
     description: "Generated app version"
+    value: ${{ steps.generate.outputs.app-version }}
+
 runs:
   using: "composite"
   steps:
