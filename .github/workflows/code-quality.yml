@@ -25,9 +25,9 @@ on:
       SONAR_HOST_URL:
         required: true
         type: string
-      ref_name:
-        required: true
-        type: string
+      # ref_name:
+      #   required: true
+      #   type: string
       repository_owner:
         required: true
         type: string
