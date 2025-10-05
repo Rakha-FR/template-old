@@ -59,9 +59,10 @@ jobs:
         deploy-to: ${{ matrix.deploy-to }}
         grouprunner: ${{ needs.define-environment.outputs.runner_group }}
         repo_name: ${{ needs.define-environment.outputs.repo_name }}
-    
-    - run:
-        echo "${{ steps.app_version.outputs.app-version}} ================"
+
+    - name: Print version
+      run: echo "${{ steps.app_version.outputs.app-version }} ================"
+
 
         
 
