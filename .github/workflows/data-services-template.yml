@@ -87,7 +87,7 @@ jobs:
     - name: Login to Harbor
       uses: docker/login-action@v3
       with:
-        registry: ${{ env.HARBOR_HOST }}
+        registry: registry.pgn.co.id
         username: ${{ env.HARBOR_USERNAME }}
         password: ${{ env.HARBOR_PASSWORD }}
     - name: Build and push
