@@ -1,0 +1,35 @@
+name: Generate App Version
+
+on:
+  workflow_call:
+    inputs:
+      deploy-to:
+        required: true
+        type: string
+      grouprunner:
+        required: true
+        type: string
+      ref_name:
+        required: true
+        type: string
+    outputs:
+      app-version:
+        description: "Generated app version"
+        value: ${{ jobs.generate.outputs.app-version }}
+
+jobs:
+  generate:
+    runs-on:
+      group: ${{ inputs.grouprunner }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.grouprunner }}"]
+    outputs:
+      app-version: ${{ steps.app-version.outputs.value }}
+    steps:
+      - name: Generate App Version
+        id: app-version
+        run: |
+          ENV_NAME=${{ inputs.deploy-to }}
+          DATE=$(date +'%Y%m%d')
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          APP_VERSION="${ENV_NAME}-${DATE}-${COMMIT_HASH}"
+          echo "value=$APP_VERSION" >> $GITHUB_OUTPUT

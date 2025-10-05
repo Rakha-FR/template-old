@@ -2,119 +2,100 @@ name: Data Services Pipelines
 
 on:
   workflow_call:
-    inputs:
-      repo_owner:
-        required: true
-        type: string
-      repo_name:
-        required: true
-        type: string
-      repo_id:
-        required: true
-        type: string
-      branch_name:
-        required: true
-        type: string
-      SONAR_EXCLUSIONS:
-        type: string
-        default: "**/*.html,**/*.phtml,**/*.css,**/*.js"
-      SONAR_SOURCES:
-        type: string
-        default: "./app/Models"
-      SONAR_HOST_URL:
-        type: string
-        default: "http://10.129.2.232:9000"
-    outputs:
-      environment:
-        value: ${{ jobs.define-environment.outputs.branch_env }}
-      runner_group:
-        value: ${{ jobs.define-environment.outputs.runner_group }}
-      environments_list:
-        value: ${{ jobs.define-environment.outputs.environments_list }}
+    # inputs:
+    #   repo_owner:
+    #     required: true
+    #     type: string
+    #   repo_name:
+    #     required: true
+    #     type: string
+    #   repo_id:
+    #     required: true
+    #     type: string
+    #   branch_name:
+    #     required: true
+    #     type: string
 
 jobs:
   define-environment:
     runs-on:
       group: Development
       labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      branch_env: ${{ steps.branch.outputs.environment }}
-      runner_group: ${{ steps.branch.outputs.runner_group }}
-      environments_list: ${{ steps.branch.outputs.environments_list }}
+    # outputs:
+    #   branch_env: ${{ steps.branch.outputs.environment }}
+    #   runner_group: ${{ steps.branch.outputs.runner_group }}
+    #   environments_list: ${{ steps.branch.outputs.environments_list }}
     steps:
       - name: Define Env
-        id: branch
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          multideploy: true
-          allowed_branches: "253-devops---move-jenkins-to-github-actions"
+        run: |
+          echo " ${{ github.repository_owner }} ${{ toLower(github.event.repository.name) }}  ${{ github.ref_name }} ${{ github.event.repository.id }} "
+        # id: branch
+        # uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        # with:
+        #   token: ${{ secrets.GITHUB_TOKEN }}
+        #   multideploy: true
+        #   allowed_branches: "253-devops---move-jenkins-to-github-actions"
 
-  code-quality:
-    needs: [define-environment]
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
-    with:
-      env_app: ${{ needs.define-environment.outputs.branch_env }}
-      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-      repoid: ${{ inputs.repo_id }}
-      SONAR_EXCLUSIONS: ${{ inputs.SONAR_EXCLUSIONS }}
-      SONAR_SOURCES: ${{ inputs.SONAR_SOURCES }}
-      SONAR_USER_HOME: ${{ github.workspace }}
-      continue-on-error: true
-      SONAR_HOST_URL: ${{ inputs.SONAR_HOST_URL }}
-      ref_name: ${{ inputs.branch_name }}
-      repository_owner: ${{ inputs.repo_owner }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # code-quality:
+  #   needs: [define-environment]
+  #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+  #   with:
+  #     grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+  #     repoid: ${{ inputs.repo_id }}
+  #     SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
+  #     SONAR_SOURCES: "./app/Models"
+  #     SONAR_HOST_URL: "http://10.129.2.232:9000"
+  #     SONAR_USER_HOME: ${{ github.workspace }}
+  #     continue-on-error: true
+  #     ref_name: ${{ inputs.branch_name }}
+  #     repository_owner: ${{ inputs.repo_owner }}
+  #   secrets:
+  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  deploy:
-    needs: [define-environment, code-quality]
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    strategy:
-      matrix:
-        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
-    container:
-      image: registry.pgn.co.id/base/php82:v0.0.1
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v5.0.0
-      with:
-        fetch-depth: 0
+  # deploy:
+  #   needs: [define-environment, code-quality]
+  #   runs-on:
+  #     group: ${{ needs.define-environment.outputs.runner_group }}
+  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+  #   strategy:
+  #     matrix:
+  #       deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       fetch-depth: 0
+        
+  #   - uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/generate-version.yml@migrasi
+  #     with:
+  #       deploy-to: ${{ matrix.deploy-to }}
 
-    - name: Generate App Version
-      id: app-version
-      run: |
-        ENV_NAME=${{ matrix.deploy-to }}
-        DATE=$(date +'%Y%m%d')
-        COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-        APP_VERSION="${ENV_NAME}-${DATE}-${COMMIT_HASH}"
-        echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
 
-    - name: Pre Build App be
-      run: |
-        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-    - name: Import All Secrets from Vault
-      id: import-secrets
-      uses: hashicorp/vault-action@v3.4.0
-      with:
-        url: ${{ secrets.VAULT_HOST_URL }}
-        method: userpass
-        username: ${{ secrets.VAULT_USERNAME }}
-        password: ${{ secrets.VAULT_PASSWORD }}
-        exportEnv: true
-        secrets: |
-          neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
+  #   - name: Import All Secrets from Vault
+  #     id: import-secrets
+  #     uses: hashicorp/vault-action@v3.4.0
+  #     with:
+  #       url: ${{ secrets.VAULT_HOST_URL }}
+  #       method: userpass
+  #       username: ${{ secrets.VAULT_USERNAME }}
+  #       password: ${{ secrets.VAULT_PASSWORD }}
+  #       exportEnv: true
+  #       secrets: |
+  #         neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
 
-    - name: Pre Build App fe
-      uses: actions/setup-node@v5
-      with:
-        node-version: 20
-        cache: 'npm'
-    - run: npm install --legacy-peer-deps
-    - run: npm run build
+
+  #     - name: Pre Build App be
+  #     run: |
+  #       composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+  #   - name: Pre Build App fe
+  #     uses: actions/setup-node@v5
+  #     with:
+  #       node-version: 20
+  #       cache: 'npm'
+  #   - run: npm install --legacy-peer-deps
+  #   - run: npm run build
 
     # - name: Set up QEMU
     #   uses: docker/setup-qemu-action@v3
@@ -135,26 +116,4 @@ jobs:
     #     cache-from: type=registry,ref=$HARBOR_HOST/$HARBOR_PATH/${{ inputs.repo_name }}:buildcache
     #     cache-to: type=registry,ref=$HARBOR_HOST/$HARBOR_PATH/${{ inputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
   
-  docker-build:
-    needs: [define-environment, deploy]
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Copy Build Result from Workspace
-        run: |
-          ls -al ../_work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/
-          cp -r ../_work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/* .
-
-      - name: Login to Harbor
-        run: |
-          echo "$HARBOR_PASSWORD" | docker login "$HARBOR_HOST" -u "$HARBOR_USERNAME" --password-stdin
-
-      - name: Build and Push Image
-        run: |
-          docker build -t $HARBOR_HOST/$HARBOR_PATH/${{ github.event.repository.name }}:$APP_VERSION .
-          docker push $HARBOR_HOST/$HARBOR_PATH/${{ github.event.repository.name }}:$APP_VERSION

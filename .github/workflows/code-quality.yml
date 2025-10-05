@@ -3,9 +3,6 @@ name: Code Quality Scan
 on:
   workflow_call:
     inputs:
-      env_app:
-        required: true
-        type: string
       grouprunner:
         required: true
         type: string
