@@ -6,9 +6,9 @@ on:
       grouprunner:
         required: true
         type: string
-      repoid:
-        required: true
-        type: string
+      # repoid:
+      #   required: true
+      #   type: string
       SONAR_EXCLUSIONS:
         required: true
         type: string
@@ -29,6 +29,9 @@ on:
         required: true
         type: string
       repository_owner:
+        required: true
+        type: string
+      repo_name:
         required: true
         type: string
     secrets:
@@ -57,7 +60,7 @@ jobs:
           projectBaseDir: "./"
         with:
           args: >
-            -Dsonar.projectKey=${{ inputs.repoid }}_${{ inputs.ref_name }}_${{ inputs.repository_owner }}
+            -Dsonar.projectKey=${{ github.event.repository.id }}_${{ inputs.repository_owner }}_${{ inputs.repo_name }}_${{ github.ref_name }}
             -Dsonar.exclusions=${{ inputs.SONAR_EXCLUSIONS }}
             -Dsonar.sources=${{ inputs.SONAR_SOURCES }}
             -Dsonar.qualitygate.wait=true

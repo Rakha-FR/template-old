@@ -21,38 +21,37 @@ jobs:
     runs-on:
       group: Development
       labels: [self-hosted, Linux, X64, Development]
-    # outputs:
-    #   branch_env: ${{ steps.branch.outputs.environment }}
-    #   runner_group: ${{ steps.branch.outputs.runner_group }}
-    #   environments_list: ${{ steps.branch.outputs.environments_list }}
+    outputs:
+      branch_env: ${{ steps.branch.outputs.environment }}
+      runner_group: ${{ steps.branch.outputs.runner_group }}
+      environments_list: ${{ steps.branch.outputs.environments_list }}
+      repo_name: ${{ steps.branch.outputs.repo_name }}
+      repo_owner: ${{ steps.branch.outputs.repo_owner }}
     steps:
       - name: Define Env
-        run: |
-          echo "${{ github.repository_owner }}"
-          echo "${{ github.ref_name }}"
-          echo "${{ github.event.repository.id }}"
-        # id: branch
-        # uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
-        # with:
-        #   token: ${{ secrets.GITHUB_TOKEN }}
-        #   multideploy: true
-        #   allowed_branches: "253-devops---move-jenkins-to-github-actions"
+        id: branch
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          multideploy: true
+          allowed_branches: "253-devops---move-jenkins-to-github-actions"
 
-  # code-quality:
-  #   needs: [define-environment]
-  #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
-  #   with:
-  #     grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-  #     repoid: ${{ inputs.repo_id }}
-  #     SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
-  #     SONAR_SOURCES: "./app/Models"
-  #     SONAR_HOST_URL: "http://10.129.2.232:9000"
-  #     SONAR_USER_HOME: ${{ github.workspace }}
-  #     continue-on-error: true
-  #     ref_name: ${{ inputs.branch_name }}
-  #     repository_owner: ${{ inputs.repo_owner }}
-  #   secrets:
-  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  code-quality:
+    needs: [define-environment]
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    with:
+      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+      # repoid: ${{ github.event.repository.id }}
+      SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
+      SONAR_SOURCES: "./app/Models"
+      SONAR_HOST_URL: "http://10.129.2.232:9000"
+      SONAR_USER_HOME: ${{ github.workspace }}
+      continue-on-error: true
+      # ref_name: ${{ github.ref_name }}
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # deploy:
   #   needs: [define-environment, code-quality]
