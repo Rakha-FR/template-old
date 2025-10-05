@@ -57,7 +57,7 @@ jobs:
 
     - name: Generate App Version
       id: app-version
-      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/generate-version@main
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-version@migrasi
       with:
         deploy-to: ${{ matrix.deploy-to }}
         repo-name: ${{ github.event.repository.name }}
