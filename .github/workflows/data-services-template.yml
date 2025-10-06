@@ -70,7 +70,7 @@ jobs:
         password: ${{ secrets.VAULT_PASSWORD }}
         exportEnv: true
         secrets: |
-          neuron/data/${{ matrix.deploy-to }}/github-action/data/secret * ;
+          neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
     - name: Pre Build App fe
       uses: actions/setup-node@v5
@@ -80,12 +80,12 @@ jobs:
     - run: npm install --legacy-peer-deps
     - run: npm run build
 
-    - name: Checkout DevOps repository
-      uses: actions/checkout@v5.0.0
-      with:
-        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-        path: docker/${{ needs.define-environment.outputs.repo_name }}
-        ref: migrasi
+    # - name: Checkout DevOps repository
+    #   uses: actions/checkout@v5.0.0
+    #   with:
+    #     repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+    #     path: docker/${{ needs.define-environment.outputs.repo_name }}
+    #     ref: migrasi
     # - name: Copy .dockerignore from DevOps repo
     #   run: docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
@@ -104,7 +104,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile
+        # file: docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
