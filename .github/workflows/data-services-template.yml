@@ -91,7 +91,7 @@ jobs:
         path: devops-repo
         ref: migrasi
     - name: Copy .dockerignore from DevOps repo
-      run: devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
+      run: cp devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
