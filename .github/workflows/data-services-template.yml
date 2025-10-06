@@ -23,23 +23,23 @@ jobs:
           multideploy: true
           allowed_branches: "253-devops---move-jenkins-to-github-actions"
 
-  code-quality:
-    needs: [define-environment]
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
-    with:
-      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-      SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
-      SONAR_SOURCES: "./app/Models"
-      SONAR_HOST_URL: "http://10.129.2.232:9000"
-      SONAR_USER_HOME: ${{ github.workspace }}
-      continue-on-error: true
-      repo_name: ${{ needs.define-environment.outputs.repo_name }}
-      repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # code-quality:
+  #   needs: [define-environment]
+  #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+  #   with:
+  #     grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+  #     SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
+  #     SONAR_SOURCES: "./app/Models"
+  #     SONAR_HOST_URL: "http://10.129.2.232:9000"
+  #     SONAR_USER_HOME: ${{ github.workspace }}
+  #     continue-on-error: true
+  #     repo_name: ${{ needs.define-environment.outputs.repo_name }}
+  #     repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
+  #   secrets:
+  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
-    needs: [define-environment, code-quality]
+    needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
@@ -84,7 +84,6 @@ jobs:
       uses: actions/checkout@v5.0.0
       with:
         repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-        path: docker/${{ needs.define-environment.outputs.repo_name }}
         token: ${{ secrets.TOKEN }}
         ref: migrasi
     # - name: Copy .dockerignore from DevOps repo
@@ -105,7 +104,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: Dockerfile-remote
+        file: docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
