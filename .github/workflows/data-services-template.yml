@@ -38,8 +38,7 @@ jobs:
   #   secrets:
   #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  builds:
-    name: build and push image
+  Deploy:
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
@@ -114,5 +113,6 @@ jobs:
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
-
+    - name: Deploy Aplikasi
+      uses: docker/build-push-action@v6
 
