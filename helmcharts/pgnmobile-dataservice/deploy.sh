@@ -10,8 +10,6 @@ if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
 if [ -z $VALUES_CHART ]; then echo "VALUES_CHART is required"; exit 1; fi
 if [ -z $NAMESPACE_KUBERNETES ]; then echo "NAMESPACE_KUBERNETES is required"; exit 1; fi
 
-ls -al 
-
 kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
     sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./mobile/data/Chart.yaml"
     helm upgrade data-services ./mobile/data/ --values $VALUES_CHART --namespace=$NAMESPACE_KUBERNETES \
