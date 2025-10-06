@@ -122,6 +122,7 @@ jobs:
         /bin/bash deploy.sh \
           ${{ steps.app-version.outputs.app-version }} \
           mobile/data/values-development.yaml \
+          ${{ env.NAMESPACE_KUBERNETES }}
           mobile \
           null
 
