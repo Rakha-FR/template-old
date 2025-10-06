@@ -1,0 +1,40 @@
+FROM registry.pgn.co.id/base/php82:v0.0.1
+
+WORKDIR /data/data
+
+# replace docroot di config apache dari /var/www/html ke /app/public
+RUN sed -ri -e 's!/var/www/html!/data/data/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/data/data/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -s -i -e "s/80/8080/" /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
+RUN a2enmod rewrite
+
+# enchance security
+RUN sed -i -e '$aRedirectMatch 403 ^(.*/)?\.env+' /etc/apache2/conf-enabled/security.conf
+
+# enable mod headers dan mod rewrite di apache
+RUN a2enmod headers rewrite
+
+# config apm
+RUN echo "elastic_apm.enabled = "\"$"{APM_ACTIVE}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.api_key = "\"$"{APM_SECRETTOKEN}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.environment = "\"$"{APM_ENVIRONMENT}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.server_url = "\"$"{APM_SERVERURL}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.service_name = "\"$"{APM_APPNAME}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+
+##composer install 
+RUN composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+# copy APP
+COPY . ./
+COPY .env.example ./.env
+COPY ./vendor ./vendor
+
+RUN mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# open port 8080 agar aplikasi bisa diakses (http)
+EXPOSE 8080

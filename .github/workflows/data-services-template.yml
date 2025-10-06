@@ -80,6 +80,15 @@ jobs:
     - run: npm install --legacy-peer-deps
     - run: npm run build
 
+    - name: Checkout DevOps repository
+      uses: actions/checkout@v5.0.0
+      with:
+        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        path: docker/${{ needs.define-environment.outputs.repo_name }}
+        ref: migrasi
+    # - name: Copy .dockerignore from DevOps repo
+    #   run: docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
@@ -90,10 +99,12 @@ jobs:
         registry: ${{ env.HARBOR_HOST }}
         username: ${{ env.HARBOR_USERNAME }}
         password: ${{ env.HARBOR_PASSWORD }}
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
         context: .
+        file: docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
