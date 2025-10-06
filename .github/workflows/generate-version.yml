@@ -29,5 +29,5 @@ jobs:
           BRANCH_NAME=${{ github.ref_name }}
           DATE=$(date +'%Y%m%d')
           COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-          APP_VERSION="${REPO_NAME}-${BRANCH_NAME}-${DATE}-${COMMIT_HASH}"
+          APP_VERSION="${REPO_NAME}_${BRANCH_NAME}_${DATE}_${COMMIT_HASH}"
           echo "value=$APP_VERSION" >> $GITHUB_OUTPUT
