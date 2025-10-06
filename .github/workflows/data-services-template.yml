@@ -48,7 +48,7 @@ jobs:
       matrix:
         deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
     outputs:
-      app-version-${{ matrix.deploy-to }}: ${{ steps.app-version.outputs.app-version }}
+      app-version: ${{ steps.app-version.outputs.app-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
