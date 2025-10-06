@@ -38,7 +38,8 @@ jobs:
   #   secrets:
   #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  deploy:
+  builds:
+    name: build and push image
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
@@ -46,6 +47,8 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+    outputs:
+      app-version-${{ matrix.deploy-to }}: ${{ steps.app-version.outputs.app-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
@@ -87,11 +90,8 @@ jobs:
         token: ${{ secrets.TOKEN }}
         path: devops-repo
         ref: migrasi
-    # - name: Copy .dockerignore from DevOps repo
-    #   run: docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
-
-    - run: |
-        ls -al
+    - name: Copy .dockerignore from DevOps repo
+      run: devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3

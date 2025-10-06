@@ -21,13 +21,11 @@ RUN echo "elastic_apm.environment = "\"$"{APM_ENVIRONMENT}\"" >> /opt/elastic/ap
 RUN echo "elastic_apm.server_url = "\"$"{APM_SERVERURL}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
 RUN echo "elastic_apm.service_name = "\"$"{APM_APPNAME}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
 
-##composer install 
-RUN composer install --no-interaction --no-ansi --prefer-dist --no-scripts -v
-
 # copy APP
 COPY . ./
 COPY .env.example ./.env
-
+##composer install 
+RUN composer install --no-interaction --no-ansi --prefer-dist --no-scripts -v
 
 RUN mkdir -p storage/framework/cache/data \
     && mkdir -p storage/framework/sessions \
