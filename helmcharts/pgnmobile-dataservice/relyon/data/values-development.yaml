@@ -1,0 +1,76 @@
+# Default values for technoday.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - host: dev-relyon-data.pgn.co.id
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: tls-secret
+      hosts:
+        - dev-relyon-data.pgn.co.id
+
+image:
+  repository: registry.pgn.co.id/neuron/data
+  secret: new-pull-secret
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+volumeMounts:
+  name: php-configmap-elastic-apm
+  path: /opt/elastic/apm-agent-php/etc
+
+configMap:
+  name: apm-agent-php-data
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 320Mi
+
+secretref:
+  name: data-apm-secret
+
+serviceAccount:
+  name: relyon-vault
+
+vault:
+  enabled: true
+  annotations:
+    vault.hashicorp.com/auth-path: 'auth/kubernetes'
+    vault.hashicorp.com/agent-inject: 'true'
+    vault.hashicorp.com/role: 'relyon-development'
+    vault.hashicorp.com/agent-requests-cpu: "50m"
+    vault.hashicorp.com/agent-limits-cpu: "100m"
+    vault.hashicorp.com/agent-requests-mem: "64Mi"
+    vault.hashicorp.com/agent-limits-mem: "128Mi"
+    vault.hashicorp.com/agent-inject-secret-.env: 'relyon_dev/data/data/secret'
+    vault.hashicorp.com/secret-volume-path: '/vault/secret'
+    vault.hashicorp.com/template-static-secret-render-interval: '5'
+    vault.hashicorp.com/agent-share-process-namespace: 'true'
+    vault.hashicorp.com/agent-image: 'registry.pgn.co.id/base/vault-inject-custom:v1.2'
+    vault.hashicorp.com/agent-inject-command-.env: "sh /opt/restart_deployment.sh"
+    vault.hashicorp.com/agent-inject-template-.env: |
+            {{- with secret "relyon_dev/data/data/secret" }}{{ range $k, $v := .Data.data -}}
+            {{- $k }}={{ $v }}
+            {{ end }}{{ end -}}

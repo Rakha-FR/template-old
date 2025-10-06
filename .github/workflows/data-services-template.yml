@@ -111,6 +111,18 @@ jobs:
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
-    - name: Deploy Aplikasi
-      uses: docker/build-push-action@v6
+    - name: Set up Kubernetes context
+      uses: azure/k8s-set-context@v4.0.1 
+      with:
+        kubeconfig: ${{ env.KUBECONFIG }} 
+
+    - name: Deploy Helm chart
+      run: |
+        cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} \
+        /bin/bash /deploy.sh \
+        ${{steps.app-version.outputs.app-version}} \
+        mobile/data/values-development.yaml \
+        mobile \
+        null
+
 
