@@ -38,7 +38,7 @@ jobs:
   #   secrets:
   #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  Deploy:
+  Build:
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
@@ -58,7 +58,6 @@ jobs:
       with:
         deploy-to: ${{ matrix.deploy-to }}
         repo-name: ${{ needs.define-environment.outputs.repo_name }}
-
 
     - name: Import All Secrets from Vault
       id: import-secrets
@@ -111,6 +110,39 @@ jobs:
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
+  Deploy:
+    needs: [define-environment, Build]
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+    steps: 
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+
+    - name: Download App Version Artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: app-version-${{ matrix.deploy-to }}
+        path: ./artifact/${{ matrix.deploy-to }}
+
+    - name: Set App Version variable
+      id: set-app-version
+      run: |
+        APP_VERSION=$(cat ./artifact/${{ matrix.deploy-to }}/app-version.txt)
+        echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+
     - name: Set up Kubernetes context
       uses: azure/k8s-set-context@v4.0.1 
       with:
@@ -120,7 +152,7 @@ jobs:
       run: |
         cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
         /bin/bash deploy.sh \
-          ${{ steps.app-version.outputs.app-version }} \
+          ${{env.APP_VERSION}} \
           mobile/data/values-development.yaml \
           ${{ env.NAMESPACE_KUBERNETES }} \
           mobile \
