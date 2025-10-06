@@ -119,7 +119,15 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
-    steps: 
+    steps:
+    - name: Checkout DevOps repository
+      uses: actions/checkout@v5.0.0
+      with:
+        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        token: ${{ secrets.TOKEN }}
+        path: devops-repo
+        ref: migrasi
+
     - name: Import All Secrets from Vault
       id: import-secrets
       uses: hashicorp/vault-action@v3.4.0
