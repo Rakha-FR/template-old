@@ -111,39 +111,39 @@ jobs:
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
-  # Deploy:
-  #   needs: [define-environment, Build]
-  #   runs-on:
-  #     group: ${{ needs.define-environment.outputs.runner_group }}
-  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-  #   strategy:
-  #     matrix:
-  #       deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
-  #   steps: 
-  #   - name: Import All Secrets from Vault
-  #     id: import-secrets
-  #     uses: hashicorp/vault-action@v3.4.0
-  #     with:
-  #       url: ${{ secrets.VAULT_HOST_URL }}
-  #       method: userpass
-  #       username: ${{ secrets.VAULT_USERNAME }}
-  #       password: ${{ secrets.VAULT_PASSWORD }}
-  #       exportEnv: true
-  #       secrets: |
-  #         neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+  Deploy:
+    needs: [define-environment, Build]
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+    steps: 
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-  #   - name: Set up Kubernetes context
-  #     uses: azure/k8s-set-context@v4.0.1 
-  #     with:
-  #       kubeconfig: ${{ env.KUBECONFIG }} 
+    - name: Set up Kubernetes context
+      uses: azure/k8s-set-context@v4.0.1 
+      with:
+        kubeconfig: ${{ env.KUBECONFIG }} 
         
-  #   - name: Deploy Helm chart
-  #     run: |
-  #       cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
-  #       /bin/bash deploy.sh \
-  #         ${{needs.Build.outputs.app_version}} \
-  #         mobile/data/values-development.yaml \
-  #         ${{ env.NAMESPACE_KUBERNETES }} \
-  #         mobile \
-  #         null
+    - name: Deploy Helm chart
+      run: |
+        cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
+        /bin/bash deploy.sh \
+          ${{needs.Build.outputs.app_version}} \
+          mobile/data/values-development.yaml \
+          ${{ env.NAMESPACE_KUBERNETES }} \
+          mobile \
+          null
 
