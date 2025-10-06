@@ -80,12 +80,13 @@ jobs:
     - run: npm install --legacy-peer-deps
     - run: npm run build
 
-    # - name: Checkout DevOps repository
-    #   uses: actions/checkout@v5.0.0
-    #   with:
-    #     repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-    #     path: docker/${{ needs.define-environment.outputs.repo_name }}
-    #     ref: migrasi
+    - name: Checkout DevOps repository
+      uses: actions/checkout@v5.0.0
+      with:
+        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        path: docker/${{ needs.define-environment.outputs.repo_name }}
+        token: ${{ secrets.TOKEN }}
+        ref: migrasi
     # - name: Copy .dockerignore from DevOps repo
     #   run: docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
