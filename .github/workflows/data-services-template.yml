@@ -46,6 +46,8 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+    outputs:
+      app_version: ${{ steps.app-version.outputs.app-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
@@ -56,7 +58,6 @@ jobs:
       id: app-version
       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-version@migrasi
       with:
-        deploy-to: ${{ matrix.deploy-to }}
         repo-name: ${{ needs.define-environment.outputs.repo_name }}
 
     - name: Import All Secrets from Vault
@@ -131,18 +132,6 @@ jobs:
         secrets: |
           neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: Download App Version Artifact
-      uses: actions/download-artifact@v5
-      with:
-        name: app-version-${{ matrix.deploy-to }}
-        path: ./artifact/${{ matrix.deploy-to }}
-
-    - name: Set App Version variable
-      id: set-app-version
-      run: |
-        APP_VERSION=$(cat ./artifact/${{ matrix.deploy-to }}/app-version.txt)
-        echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
-
     - name: Set up Kubernetes context
       uses: azure/k8s-set-context@v4.0.1 
       with:
@@ -152,7 +141,7 @@ jobs:
       run: |
         cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
         /bin/bash deploy.sh \
-          ${{env.APP_VERSION}} \
+          ${{needs.Build.outputs.app_version}} \
           mobile/data/values-development.yaml \
           ${{ env.NAMESPACE_KUBERNETES }} \
           mobile \

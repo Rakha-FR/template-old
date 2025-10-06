@@ -28,18 +28,9 @@ jobs:
       - name: Generate App Version
         id: app-version
         run: |
-          ENV_NAME=${{ inputs.deploy-to }}
           REPO_NAME=${{ inputs.repo_name }}
           BRANCH_NAME=${{ github.ref_name }}
           DATE=$(date +'%Y%m%d')
           COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-          APP_VERSION="${REPO_NAME}-${ENV_NAME}-${BRANCH_NAME}-${DATE}-${COMMIT_HASH}"
+          APP_VERSION="${REPO_NAME}-${BRANCH_NAME}-${DATE}-${COMMIT_HASH}"
           echo "value=$APP_VERSION" >> $GITHUB_OUTPUT
-          mkdir -p artifact
-          echo "$APP_VERSION" > artifact/app-version.txt
-
-      - name: Upload App Version Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-version-${{ inputs.deploy-to }}
-          path: artifact/app-version.txt
