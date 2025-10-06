@@ -87,7 +87,7 @@ jobs:
     - name: Login to Harbor
       uses: docker/login-action@v3
       with:
-        registry: registry.pgn.co.id
+        registry: ${{ env.HARBOR_HOST }}
         username: ${{ env.HARBOR_USERNAME }}
         password: ${{ env.HARBOR_PASSWORD }}
     - name: Build and push
@@ -95,9 +95,9 @@ jobs:
       with:
         context: .
         push: true
-        tags: registry.pgn.co.id/neuron/data:123
-        # cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
-        # cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
+        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}
+        cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
+        cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
 
 
