@@ -2,10 +2,7 @@ name: "Generate App Version"
 description: "Generate version string from repo, env, branch, and commit hash"
 
 inputs:
-  deploy-to:
-    description: "Target environment (e.g., development, staging)"
-    required: true
-  repo-name:
+  repo_name:
     description: "Repository name (lowercase preferred)"
     required: true
 
@@ -21,10 +18,10 @@ runs:
       id: generate
       shell: bash
       run: |
-        ENV_NAME="${{ inputs.deploy-to }}"
+        REPO_NAME="${{ inputs.repo_name }}"
         BRANCH_NAME="${GITHUB_REF_NAME}"
         DATE=$(date +'%Y%m%d')
         COMMIT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-7)
-        APP_VERSION="${ENV_NAME}-${BRANCH_NAME}-${DATE}-${COMMIT_HASH}"
+        APP_VERSION="${REPO_NAME}-${BRANCH_NAME}-${DATE}-${COMMIT_HASH}"
         echo "✅ APP_VERSION=$APP_VERSION"
         echo "app-version=$APP_VERSION" >> $GITHUB_OUTPUT

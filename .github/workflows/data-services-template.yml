@@ -54,12 +54,11 @@ jobs:
       with:
         fetch-depth: 0
         
-    # - name: Generate App Version
-    #   id: app-version
-    #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-versions@migrasi
-    #   with:
-    #     repo_name: ${{ needs.define-environment.outputs.repo_name }}
-    #     grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+    - name: Generate App Version
+      id: app-version
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-version@migrasi
+      with:
+        repo_name: ${{ needs.define-environment.outputs.repo_name }}
 
 
     # - name: Import All Secrets from Vault
