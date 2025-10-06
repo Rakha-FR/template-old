@@ -89,6 +89,9 @@ jobs:
     # - name: Copy .dockerignore from DevOps repo
     #   run: docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
+    - run: |
+        ls -al
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
