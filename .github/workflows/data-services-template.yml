@@ -85,6 +85,7 @@ jobs:
       with:
         repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
         token: ${{ secrets.TOKEN }}
+        path: devops-repo
         ref: migrasi
     # - name: Copy .dockerignore from DevOps repo
     #   run: docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
@@ -107,7 +108,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
+        file: devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
