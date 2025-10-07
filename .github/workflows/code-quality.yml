@@ -54,7 +54,7 @@ jobs:
           projectBaseDir: "./"
         with:
           args: >
-            -Dsonar.projectKey=${{ github.event.repository.id }}_${{ inputs.repository_owner }}_${{ inputs.repo_name }}_${{ github.ref_name }}
+            -Dsonar.projectKey=${{ github.event.repository.id }}_${{ inputs.repository_owner }}_${{ inputs.repo_name }}
             -Dsonar.exclusions=${{ inputs.SONAR_EXCLUSIONS }}
             -Dsonar.sources=${{ inputs.SONAR_SOURCES }}
             -Dsonar.qualitygate.wait=true
