@@ -24,6 +24,7 @@ if [[ "$PROJECT_NAME" == *mobile* ]]; then
     --wait
 
 else
+  echo "==== $PROJECT_NAME    ===="
   sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/data/Chart.yaml"
 
   helm upgrade data-services ./relyon/data/ \
