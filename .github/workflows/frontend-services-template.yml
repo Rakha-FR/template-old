@@ -77,8 +77,10 @@ jobs:
         node-version: 20
         cache: 'yarn'
 
-    - name: Enable Corepack
-      run: corepack enable
+    - name: Enable Corepack and Prepare Yarn
+      run: |
+        corepack enable
+        corepack prepare yarn@stable --activate
       
     - run: |
         yarn --immutable
