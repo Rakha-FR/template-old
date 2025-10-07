@@ -154,12 +154,4 @@ jobs:
           ${{ env.NAMESPACE_KUBERNETES }} \
           mobile \
           null
-          
-        /bin/bash deploy.sh \
-          ${{needs.Build.outputs.app_version}} \
-          mobile/data/values-development.yaml \
-          ${{ env.NAMESPACE_KUBERNETES }} \
-          ${{matrix.deploy-to}} \
-          null
-      
 
