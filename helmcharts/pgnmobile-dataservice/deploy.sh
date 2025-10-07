@@ -10,7 +10,7 @@ if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
 if [ -z $VALUES_CHART ]; then echo "VALUES_CHART is required"; exit 1; fi
 if [ -z $NAMESPACE_KUBERNETES ]; then echo "NAMESPACE_KUBERNETES is required"; exit 1; fi
 
-    echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx $APP_VERSION"
+    echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx $APP_VERSION $VALUES_CHART"
 
   sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/data/Chart.yaml"
   
