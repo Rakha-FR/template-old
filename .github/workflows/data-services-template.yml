@@ -145,13 +145,18 @@ jobs:
       with:
         kubeconfig: ${{ env.KUBECONFIG }} 
 
-    - name: Deploy Helm chart
+    - name: Deploy Helm Chart
       run: |
+        VALUES_FILE="mobile/data/values-development.yaml"
+        if [[ "${{ matrix.deploy-to }}" == *relyon* ]]; then
+          VALUES_FILE="relyon/data/values-development.yaml"
+        fi
         cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
         /bin/bash deploy.sh \
-          ${{needs.Build.outputs.app_version}}-${{ matrix.deploy-to }} \
-          mobile/data/values-development.yaml \
-          ${{ env.NAMESPACE_KUBERNETES }} \
+          ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
+          "$VALUES_FILE" \
+          "${{ env.NAMESPACE_KUBERNETES }}" \
           mobile \
           null
+
 
