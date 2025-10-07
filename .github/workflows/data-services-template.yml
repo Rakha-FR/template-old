@@ -147,6 +147,7 @@ jobs:
 
     - name: Deploy Helm Chart
       run: |
+        echo "${{ matrix.deploy-to }}"
         VALUES_FILE="mobile/data/values-development.yaml"
         if [[ "${{ matrix.deploy-to }}" == *relyon* ]]; then
           VALUES_FILE="relyon/data/values-development.yaml"
