@@ -149,7 +149,7 @@ jobs:
       run: |
         cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
         /bin/bash deploy.sh \
-          ${{needs.Build.outputs.app_version}} \
+          ${{needs.Build.outputs.app_version}}-${{ matrix.deploy-to }} \
           mobile/data/values-development.yaml \
           ${{ env.NAMESPACE_KUBERNETES }} \
           mobile \
