@@ -107,7 +107,7 @@ jobs:
         context: .
         file: devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
-        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}
+        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
@@ -154,4 +154,12 @@ jobs:
           ${{ env.NAMESPACE_KUBERNETES }} \
           mobile \
           null
+          
+        /bin/bash deploy.sh \
+          ${{needs.Build.outputs.app_version}} \
+          mobile/data/values-development.yaml \
+          ${{ env.NAMESPACE_KUBERNETES }} \
+          ${{matrix.deploy-to}} \
+          null
+      
 
