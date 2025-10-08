@@ -1,0 +1,36 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: frontend-services
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+    co.elastic.logs.json-logging/json.keys_under_root: "true"
+    co.elastic.logs.json-logging/json.add_error_key: "true"
+    co.elastic.logs.json-logging/json.message_key: "message"
+  labels:
+    app: frontend-services
+    app.kubernetes.io/managed-by: Helm
+  name: frontend-services
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: frontend-services
+  template:
+    metadata:
+      labels:
+        app: frontend-services
+    spec:
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: frontend-services
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}
