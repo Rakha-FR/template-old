@@ -11,13 +11,12 @@ if [ -z $NAMESPACE_KUBERNETES ]; then echo "NAMESPACE_KUBERNETES is required"; e
 if [ -z $PROJECT_NAME ]; then echo "PROJECT_NAME is required"; exit 1; fi
 
 kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
-ls -al
 
 if [[ "$PROJECT_NAME" == *mobile* ]]; then
   echo "$PROJECT_NAME mobile"
-  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./mobile/data/Chart.yaml"  
-  helm upgrade data-services ./mobile/data/ \
-    --values ./mobile/data/values-$ENV_SERVER.yaml \
+  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./mobile/frontend/Chart.yaml"  
+  helm upgrade frontend-services ./mobile/frontend/ \
+    --values ./mobile/frontend/values-$ENV_SERVER.yaml \
     --namespace "$NAMESPACE_KUBERNETES" \
     --install \
     --set image.version="$APP_VERSION" \
@@ -25,9 +24,9 @@ if [[ "$PROJECT_NAME" == *mobile* ]]; then
     --wait
 elif [[ "$PROJECT_NAME" == *pdp* ]]; then
   echo "$PROJECT_NAME pdp"
-  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./pdp/data/Chart.yaml"  
-  helm upgrade data-services ./pdp/data/ \
-    --values ./pdp/data/values-$ENV_SERVER.yaml \
+  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./pdp/frontend/Chart.yaml"  
+  helm upgrade frontend-services-pdp ./pdp/frontend/ \
+    --values ./pdp/frontend/values-$ENV_SERVER.yaml \
     --namespace "$NAMESPACE_KUBERNETES" \
     --install \
     --set image.version="$APP_VERSION" \
@@ -35,9 +34,9 @@ elif [[ "$PROJECT_NAME" == *pdp* ]]; then
     --wait
 else
   echo "$PROJECT_NAME relyon"
-  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/data/Chart.yaml"  
-  helm upgrade data-services ./relyon/data/ \
-    --values ./relyon/data/values-$ENV_SERVER.yaml \
+  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/frontend/Chart.yaml"  
+  helm upgrade frontend-services ./relyon/frontend/ \
+    --values ./relyon/frontend/values-$ENV_SERVER.yaml \
     --namespace "$NAMESPACE_KUBERNETES" \
     --install \
     --set image.version="$APP_VERSION" \
