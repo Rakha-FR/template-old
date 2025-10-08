@@ -16,7 +16,9 @@ WORKDIR /usr/share/nginx/html
 
 COPY --from=build /app/build .
 
-RUN addgroup -g 33 -S www-data && adduser -u 33 -S www-data -G www-data
+RUN addgroup -S www-data || true \
+ && adduser -S -G www-data www-data || true
+
 
 USER www-data
 
