@@ -6,7 +6,7 @@ NAMESPACE_KUBERNETES="$3"
 PROJECT_NAME="$4"
 
 if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
-if [ -z $VALUES_CHART ]; then echo "VALUES_CHART is required"; exit 1; fi
+if [ -z $ENV_SERVER ]; then echo "ENV_SERVER is required"; exit 1; fi
 if [ -z $NAMESPACE_KUBERNETES ]; then echo "NAMESPACE_KUBERNETES is required"; exit 1; fi
 if [ -z $PROJECT_NAME ]; then echo "PROJECT_NAME is required"; exit 1; fi
 

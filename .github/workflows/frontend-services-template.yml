@@ -71,21 +71,6 @@ jobs:
         secrets: |
           neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: setup node
-      uses: actions/setup-node@v5
-      with:
-        node-version: 20
-        cache: 'yarn'
-
-    - name: Enable Corepack and Prepare Yarn
-      run: |
-        corepack enable
-        corepack prepare yarn@stable --activate
-      
-    - run: |
-        yarn --immutable
-        CI=false GENERATE_SOURCEMAP=false REACT_APP_HOST_API_KEY=https://api-dev-minimal-v4.vercel.app yarn build
-
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
       with:
@@ -93,8 +78,8 @@ jobs:
         token: ${{ secrets.TOKEN }}
         path: devops-repo
         ref: migrasi
-    # - name: Copy .dockerignore from DevOps repo
-    #   run: cp devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
+    - name: Copy .dockerignore from DevOps repo
+      run: cp devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
