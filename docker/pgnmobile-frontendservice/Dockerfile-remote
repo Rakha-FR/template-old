@@ -14,7 +14,7 @@ RUN sed '/index.html/a try_files $uri $uri/ /index.html;' -i /etc/nginx/conf.d/d
 
 WORKDIR /usr/share/nginx/html
 
-COPY ./build/ ./
+COPY --from=build /app/build .
 
 USER www-data
 
