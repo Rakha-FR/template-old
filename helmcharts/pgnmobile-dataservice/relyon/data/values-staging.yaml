@@ -20,7 +20,7 @@ ingress:
         - stg-relyon-data.pgn.co.id
 
 image:
-  repository: registry.pgn.co.id/neuron/data
+  repository: registry.pgn.co.id/neuron/pgnmobile-dataservice
   secret: new-pull-secret
   pullPolicy: IfNotPresent
 
