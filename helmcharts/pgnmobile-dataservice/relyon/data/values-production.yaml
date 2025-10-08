@@ -10,14 +10,14 @@ ingress:
   enabled: true
   ingressClassName: nginx
   hosts:
-    - host: data-pgnmobile.pgn.co.id
+    - host: relyon-data.pgn.co.id
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: tls-secret
       hosts:
-        - data-pgnmobile.pgn.co.id
+        - relyon-data.pgn.co.id
 
 image:
   repository: registry.pgn.co.id/neuron/pgnmobile-dataservice

@@ -11,6 +11,7 @@ if [ -z $NAMESPACE_KUBERNETES ]; then echo "NAMESPACE_KUBERNETES is required"; e
 if [ -z $PROJECT_NAME ]; then echo "PROJECT_NAME is required"; exit 1; fi
 
 kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
+ls -al
 
 if [[ "$PROJECT_NAME" == *mobile* ]]; then
   echo "$PROJECT_NAME mobile"
