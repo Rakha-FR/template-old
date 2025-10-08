@@ -16,7 +16,7 @@ if [[ "$PROJECT_NAME" == *mobile* ]]; then
   echo "$PROJECT_NAME mobile"
   sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./mobile/data/Chart.yaml"  
   helm upgrade data-services ./mobile/data/ \
-    --values "$VALUES_CHART" \
+    --values ./mobile/data/values-$ENV_SERVER.yaml \
     --namespace "$NAMESPACE_KUBERNETES" \
     --install \
     --set image.version="$APP_VERSION" \
@@ -26,7 +26,7 @@ else
   echo "$PROJECT_NAME relyon"
   sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/data/Chart.yaml"  
   helm upgrade data-services ./relyon/data/ \
-    --values "$VALUES_CHART" \
+    --values ./relyon/data/values-$ENV_SERVER.yaml \
     --namespace "$NAMESPACE_KUBERNETES" \
     --install \
     --set image.version="$APP_VERSION" \
