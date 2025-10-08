@@ -1,36 +1,41 @@
-# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    meta.helm.sh/release-name: frontend-services
-    meta.helm.sh/release-namespace: {{ .Values.name.space }}
-    co.elastic.logs.json-logging/json.keys_under_root: "true"
-    co.elastic.logs.json-logging/json.add_error_key: "true"
-    co.elastic.logs.json-logging/json.message_key: "message"
+  name: {{ .Release.Name }}
   labels:
-    app: frontend-services
+    app: {{ .Release.Name }}
     app.kubernetes.io/managed-by: Helm
-  name: frontend-services
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: frontend-services
+      app: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
       labels:
-        app: frontend-services
+        app: {{ .Release.Name }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
-      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        name: frontend-services
-        resources:
-          {{- toYaml .Values.resources | nindent 10 }}
-        ports:
-        - containerPort: {{ .Values.service.port }}
+        - name: {{ .Release.Name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+          command: ["bash", "-c", "cat /vault/secret/.env > /data/retail/.env && apache2-foreground"]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.service.porthttp }}
+              name: http
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretref.name }}
       imagePullSecrets:
-      - name: {{ .Values.image.secret }}
+        - name: {{ .Values.image.secret }}
