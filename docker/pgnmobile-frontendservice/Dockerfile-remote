@@ -1,5 +1,5 @@
 
-FROM registry.pgn.co.id/base/node:20-alpine AS build
+FROM registry.pgn.co.id/base/node:lts-slim AS build
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
