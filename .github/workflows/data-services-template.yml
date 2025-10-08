@@ -147,17 +147,11 @@ jobs:
 
     - name: Deploy Helm Chart
       run: |
-        echo "${{ matrix.deploy-to }}"
-        VALUES_FILE="mobile/data/values-development.yaml"
-        if [[ "${{ matrix.deploy-to }}" == *relyon* ]]; then
-          VALUES_FILE="relyon/data/values-development.yaml"
-        fi
         cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
         /bin/bash deploy.sh \
           ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
-          "$VALUES_FILE" \
-          "${{ env.NAMESPACE_KUBERNETES }}" \
-          mobile \
-          null
+          ${{ needs.define-environment.outputs.branch_env }} \
+          ${{ env.NAMESPACE_KUBERNETES }} \
+          ${{ matrix.deploy-to }}
 
 
