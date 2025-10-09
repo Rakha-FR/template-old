@@ -103,7 +103,7 @@ jobs:
         username: ${{ env.HARBOR_USERNAME }}
         password: ${{ env.HARBOR_PASSWORD }}
 
-    - run: ls -al
+    - run: ls -al public
 
     - name: Build and push
       uses: docker/build-push-action@v6
@@ -115,7 +115,7 @@ jobs:
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
-    - run: ls -al
+    - run: ls -al public
 
   Deploy:
     needs: [define-environment, Build]
