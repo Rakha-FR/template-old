@@ -12,16 +12,17 @@ COPY . .
 # Terima secret multiline dari build arg
 ARG REACT_APP_SECRET_PUBLIC_KEY
 
-# Simpan secret ke file multiline & export ke .env.local
-RUN echo "$REACT_APP_SECRET_PUBLIC_KEY" > /tmp/public_key.pem && \
-    echo "REACT_APP_SECRET_PUBLIC_KEY=\"$(cat /tmp/public_key.pem)\"" > .env.local && \
-    echo "✅ Injected multiline REACT_APP_SECRET_PUBLIC_KEY into .env.local"
+# Buat .env.local dengan key multiline
+# Gunakan printf agar newline tetap terjaga
+RUN printf "REACT_APP_SECRET_PUBLIC_KEY=\"%s\"\n" "$REACT_APP_SECRET_PUBLIC_KEY" > .env.local && \
+    echo "✅ Injected REACT_APP_SECRET_PUBLIC_KEY to .env.local"
 
-# Copy file .env (berisi variabel React lain)
+# Copy file .env untuk variabel lain (opsional)
 COPY .env .env
 
-# Build React
+# Build React (CRA atau Vite)
 RUN yarn build
+
 
 
 # ---------- STAGE 2: SERVE ----------

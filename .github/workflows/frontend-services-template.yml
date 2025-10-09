@@ -111,7 +111,7 @@ jobs:
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
         build-args: |
-         REACT_APP_SECRET_PUBLIC_KEY=${{ env.REACT_APP_SECRET_PUBLIC_KEY }}
+         REACT_APP_SECRET_PUBLIC_KEY=${{ secrets.REACT_APP_SECRET_PUBLIC_KEY }}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
