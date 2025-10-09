@@ -89,7 +89,7 @@ jobs:
         ref: migrasi
     - name: Copy .dockerignore from DevOps repo
       run: |
-        ls -al
+        ls -al public
          cp devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
     - name: Set up QEMU
