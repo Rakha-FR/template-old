@@ -22,20 +22,20 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           multideploy: true
 
-  code-quality:
-    needs: [define-environment]
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
-    with:
-      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-      SONAR_EXCLUSIONS: ""
-      SONAR_SOURCES: "./src"
-      SONAR_HOST_URL: "http://10.129.2.232:9000"
-      SONAR_USER_HOME: ${{ github.workspace }}
-      continue-on-error: true
-      repo_name: ${{ needs.define-environment.outputs.repo_name }}
-      repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # code-quality:
+  #   needs: [define-environment]
+  #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+  #   with:
+  #     grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+  #     SONAR_EXCLUSIONS: ""
+  #     SONAR_SOURCES: "./src"
+  #     SONAR_HOST_URL: "http://10.129.2.232:9000"
+  #     SONAR_USER_HOME: ${{ github.workspace }}
+  #     continue-on-error: true
+  #     repo_name: ${{ needs.define-environment.outputs.repo_name }}
+  #     repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
+  #   secrets:
+  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   Build:
     needs: [define-environment]
@@ -74,6 +74,13 @@ jobs:
     - name: Dump secrets to .env
       run: |
         export -p | grep REACT_APP_ | grep -v REACT_APP_SECRET_PUBLIC_KEY | sed 's/declare -x //g' > .env
+
+
+    - name: Decode REACT_APP_SECRET_PUBLIC_KEY
+      run: |
+        echo "${{ env.REACT_APP_SECRET_PUBLIC_KEY }}" | base64 -d > public_key.pem
+        echo "REACT_APP_SECRET_PUBLIC_KEY=\"$(cat public_key.pem)\"" > .env.local
+
 
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
