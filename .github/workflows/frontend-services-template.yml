@@ -75,13 +75,6 @@ jobs:
       run: |
         export -p | grep REACT_APP_ | grep -v REACT_APP_SECRET_PUBLIC_KEY | sed 's/declare -x //g' > .env
 
-
-    - name: Decode REACT_APP_SECRET_PUBLIC_KEY
-      run: |
-        echo "${{ env.REACT_APP_SECRET_PUBLIC_KEY }}" | base64 -d > public_key.pem
-        echo "REACT_APP_SECRET_PUBLIC_KEY=\"$(cat public_key.pem)\"" > .env.local
-
-
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
       with:
