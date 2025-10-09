@@ -7,6 +7,9 @@ RUN yarn install --immutable
 
 # Copy source & build
 COPY . .
+ARG REACT_APP_SECRET_PUBLIC_KEY
+ENV REACT_APP_SECRET_PUBLIC_KEY=$REACT_APP_SECRET_PUBLIC_KEY
+RUN echo "Public key preview: $(echo $REACT_APP_SECRET_PUBLIC_KEY | cut -c1-30)..."
 COPY .env .env
 RUN yarn build
 
