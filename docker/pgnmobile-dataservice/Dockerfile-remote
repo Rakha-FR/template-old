@@ -24,6 +24,7 @@ RUN echo "elastic_apm.service_name = "\"$"{APM_APPNAME}\"" >> /opt/elastic/apm-a
 # copy APP
 COPY . ./
 COPY .env.example ./.env
+COPY public/build .
 ##composer install 
 RUN composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
