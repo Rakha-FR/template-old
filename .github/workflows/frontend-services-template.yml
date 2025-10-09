@@ -72,7 +72,8 @@ jobs:
           neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
     - name: Dump secrets to .env
-      run: export -p | grep REACT_APP_ | sed 's/declare -x //g' > .env
+      run: |
+        export -p | grep REACT_APP_ | grep -v REACT_APP_SECRET_PUBLIC_KEY | sed 's/declare -x //g' > .env
 
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
