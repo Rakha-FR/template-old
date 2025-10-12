@@ -72,8 +72,7 @@ jobs:
         secrets: |
           neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: Pre Build App fe
-      uses: actions/setup-node@v5
+    - uses: actions/setup-node@v5
       with:
         node-version: 20
         cache: 'npm'
