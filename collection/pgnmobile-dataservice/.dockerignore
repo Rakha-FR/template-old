@@ -1,21 +1,33 @@
+# Dependencies & vendor
 /node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
 /vendor
+
+# Environment & secrets
 .env
 .env.backup
 .env.production
-.phpunit.result.cache
+
+# Laravel specific
+/storage/*.key
+/storage/documents
+/phpunit.result.cache
+.phpunit.cache/
 Homestead.json
 Homestead.yaml
 auth.json
-npm-debug.log
-yarn-error.log
+
+# Local development tools & IDE
 /.fleet
 /.idea
 /.vscode
 /.history
-.phpunit.cache/
-/storage/documents
+
+# Logs & debug outputs
+npm-debug.log
+yarn-error.log
+
+# Public exceptions (keep build)
+# Ignore everything inside /public except /public/build
+/public/*
+!/public/build
+!/public/.htaccess
