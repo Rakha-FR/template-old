@@ -147,7 +147,7 @@ jobs:
 
     - name: Deploy Helm Chart
       run: |
-        cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
+        cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
         /bin/bash deploy.sh \
           ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
           ${{ needs.define-environment.outputs.branch_env }} \
