@@ -1,9 +1,4 @@
 
-FROM registry.pgn.co.id/base/php82:v0.0.1 AS composer-builder
-WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-
 FROM registry.pgn.co.id/base/php82:v0.0.1
 
 WORKDIR /data/data
@@ -20,7 +15,7 @@ RUN echo "elastic_apm.enabled = \"\$APM_ACTIVE\"" >> /opt/elastic/apm-agent-php/
     echo "elastic_apm.server_url = \"\$APM_SERVERURL\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini && \
     echo "elastic_apm.service_name = \"\$APM_APPNAME\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
 COPY . ./
-COPY --from=composer-builder /app/vendor ./vendor
+RUN composer install
 RUN chown -R www-data:www-data ./storage ./bootstrap/cache
 EXPOSE 8080
 CMD ["apache2-foreground"]
