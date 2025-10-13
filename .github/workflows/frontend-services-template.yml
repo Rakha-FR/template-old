@@ -83,7 +83,8 @@ jobs:
         path: devops-repo
         ref: migrasi
     - name: Copy .dockerignore from DevOps repo
-      run: cp devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
+      run: |
+         cp devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -100,7 +101,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: devops-repo/docker/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
+        file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
         build-args: |
@@ -144,7 +145,7 @@ jobs:
 
     - name: Deploy Helm Chart
       run: |
-        cd devops-repo/helmcharts/${{ needs.define-environment.outputs.repo_name }} && \
+        cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
         /bin/bash deploy.sh \
           ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
           ${{ needs.define-environment.outputs.branch_env }} \

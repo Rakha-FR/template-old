@@ -1,6 +1,5 @@
 # Dependencies & vendor
 /node_modules
-/vendor
 
 # Environment & secrets
 .env
@@ -25,9 +24,3 @@ auth.json
 # Logs & debug outputs
 npm-debug.log
 yarn-error.log
-
-# Public exceptions (keep build)
-# Ignore everything inside /public except /public/build
-/public/*
-!/public/build
-!/public/.htaccess
