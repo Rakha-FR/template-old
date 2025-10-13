@@ -75,9 +75,18 @@ jobs:
       with:
         node-version: 20
         cache: 'yarn'
-    - run: npm install -g yarn
-    - run: yarn --immutable
-    - run: CI=false GENERATE_SOURCEMAP=false REACT_APP_HOST_API_KEY=https://api-dev-minimal-v4.vercel.app yarn build
+
+    # aktifkan yarn bawaan node (tanpa install global)
+    - run: corepack enable
+
+    # cek versi yarn biar yakin aktif
+    - run: yarn --version
+
+    # install dependency (gunakan --immutable kalau yarn modern)
+    - run: yarn install --immutable
+
+    # build app
+    - run: CI=false GENERATE_SOURCEMAP=false yarn build
 
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
