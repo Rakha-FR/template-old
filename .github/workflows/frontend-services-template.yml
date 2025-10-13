@@ -37,130 +37,130 @@ jobs:
   #   secrets:
   #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  Build:
-    needs: [define-environment]
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    strategy:
-      matrix:
-        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
-    outputs:
-      app_version: ${{ steps.app-version.outputs.app-version }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v5.0.0
-      with:
-        fetch-depth: 0
+  # Build:
+  #   needs: [define-environment]
+  #   runs-on:
+  #     group: ${{ needs.define-environment.outputs.runner_group }}
+  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+  #   strategy:
+  #     matrix:
+  #       deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+  #   outputs:
+  #     app_version: ${{ steps.app-version.outputs.app-version }}
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       fetch-depth: 0
         
-    - name: Generate App Version
-      id: app-version
-      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-version@migrasi
-      with:
-        repo_name: ${{ needs.define-environment.outputs.repo_name }}
+  #   - name: Generate App Version
+  #     id: app-version
+  #     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/generate-version@migrasi
+  #     with:
+  #       repo_name: ${{ needs.define-environment.outputs.repo_name }}
 
-    - name: Import All Secrets from Vault
-      id: import-secrets
-      uses: hashicorp/vault-action@v3.4.0
-      with:
-        url: ${{ secrets.VAULT_HOST_URL }}
-        method: userpass
-        username: ${{ secrets.VAULT_USERNAME }}
-        password: ${{ secrets.VAULT_PASSWORD }}
-        exportEnv: true
-        secrets: |
-          neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+  #   - name: Import All Secrets from Vault
+  #     id: import-secrets
+  #     uses: hashicorp/vault-action@v3.4.0
+  #     with:
+  #       url: ${{ secrets.VAULT_HOST_URL }}
+  #       method: userpass
+  #       username: ${{ secrets.VAULT_USERNAME }}
+  #       password: ${{ secrets.VAULT_PASSWORD }}
+  #       exportEnv: true
+  #       secrets: |
+  #         neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - uses: actions/setup-node@v5
-      with:
-        node-version: 20
-        cache: 'yarn'
+  #   - uses: actions/setup-node@v5
+  #     with:
+  #       node-version: 20
+  #       cache: 'yarn'
 
-    # aktifkan yarn bawaan node (tanpa install global)
-    - run: corepack enable
+  #   # aktifkan yarn bawaan node (tanpa install global)
+  #   - run: corepack enable
 
-    # cek versi yarn biar yakin aktif
-    - run: yarn --version
+  #   # cek versi yarn biar yakin aktif
+  #   - run: yarn --version
 
-    # install dependency (gunakan --immutable kalau yarn modern)
-    - run: yarn install --immutable
+  #   # install dependency (gunakan --immutable kalau yarn modern)
+  #   - run: yarn install --immutable
 
-    # build app
-    - run: CI=false GENERATE_SOURCEMAP=false yarn build
+  #   # build app
+  #   - run: CI=false GENERATE_SOURCEMAP=false yarn build
 
-    - name: Checkout DevOps repository
-      uses: actions/checkout@v5.0.0
-      with:
-        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-        token: ${{ secrets.TOKEN }}
-        path: devops-repo
-        ref: migrasi
-    - name: Copy .dockerignore from DevOps repo
-      run: |
-         cp devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
+  #   - name: Checkout DevOps repository
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+  #       token: ${{ secrets.TOKEN }}
+  #       path: devops-repo
+  #       ref: migrasi
+  #   - name: Copy .dockerignore from DevOps repo
+  #     run: |
+  #        cp devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to Harbor
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.HARBOR_HOST }}
-        username: ${{ env.HARBOR_USERNAME }}
-        password: ${{ env.HARBOR_PASSWORD }}
+  #   - name: Set up QEMU
+  #     uses: docker/setup-qemu-action@v3
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v3
+  #   - name: Login to Harbor
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ${{ env.HARBOR_HOST }}
+  #       username: ${{ env.HARBOR_USERNAME }}
+  #       password: ${{ env.HARBOR_PASSWORD }}
 
-    - name: Build and push
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
-        push: true
-        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
-        build-args: |
-         REACT_APP_SECRET_PUBLIC_KEY=${{ secrets.REACT_APP_SECRET_PUBLIC_KEY }}
-        cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
-        cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
+  #   - name: Build and push
+  #     uses: docker/build-push-action@v6
+  #     with:
+  #       context: .
+  #       file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
+  #       push: true
+  #       tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
+  #       build-args: |
+  #        REACT_APP_SECRET_PUBLIC_KEY=${{ secrets.REACT_APP_SECRET_PUBLIC_KEY }}
+  #       cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
+  #       cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
-  Deploy:
-    needs: [define-environment, Build]
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    strategy:
-      matrix:
-        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
-    steps:
-    - name: Checkout DevOps repository
-      uses: actions/checkout@v5.0.0
-      with:
-        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-        token: ${{ secrets.TOKEN }}
-        path: devops-repo
-        ref: migrasi
+  # Deploy:
+  #   needs: [define-environment, Build]
+  #   runs-on:
+  #     group: ${{ needs.define-environment.outputs.runner_group }}
+  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+  #   strategy:
+  #     matrix:
+  #       deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+  #   steps:
+  #   - name: Checkout DevOps repository
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+  #       token: ${{ secrets.TOKEN }}
+  #       path: devops-repo
+  #       ref: migrasi
 
-    - name: Import All Secrets from Vault
-      id: import-secrets
-      uses: hashicorp/vault-action@v3.4.0
-      with:
-        url: ${{ secrets.VAULT_HOST_URL }}
-        method: userpass
-        username: ${{ secrets.VAULT_USERNAME }}
-        password: ${{ secrets.VAULT_PASSWORD }}
-        exportEnv: true
-        secrets: |
-          neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+  #   - name: Import All Secrets from Vault
+  #     id: import-secrets
+  #     uses: hashicorp/vault-action@v3.4.0
+  #     with:
+  #       url: ${{ secrets.VAULT_HOST_URL }}
+  #       method: userpass
+  #       username: ${{ secrets.VAULT_USERNAME }}
+  #       password: ${{ secrets.VAULT_PASSWORD }}
+  #       exportEnv: true
+  #       secrets: |
+  #         neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: Set up Kubernetes context
-      uses: azure/k8s-set-context@v4.0.1 
-      with:
-        kubeconfig: ${{ env.KUBECONFIG }} 
+  #   - name: Set up Kubernetes context
+  #     uses: azure/k8s-set-context@v4.0.1 
+  #     with:
+  #       kubeconfig: ${{ env.KUBECONFIG }} 
 
-    - name: Deploy Helm Chart
-      run: |
-        cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
-        /bin/bash deploy.sh \
-          ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
-          ${{ needs.define-environment.outputs.branch_env }} \
-          ${{ env.NAMESPACE_KUBERNETES }} \
-          ${{ matrix.deploy-to }}
+  #   - name: Deploy Helm Chart
+  #     run: |
+  #       cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
+  #       /bin/bash deploy.sh \
+  #         ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
+  #         ${{ needs.define-environment.outputs.branch_env }} \
+  #         ${{ env.NAMESPACE_KUBERNETES }} \
+  #         ${{ matrix.deploy-to }}
