@@ -24,7 +24,6 @@ RUN echo "elastic_apm.service_name = "\"$"{APM_APPNAME}\"" >> /opt/elastic/apm-a
 RUN composer install
 # copy APP
 COPY . ./
-COPY ./vendor ./vendor
 RUN chown -R www-data. ./storage ./bootstrap/cache
 
 # open port 8080 agar aplikasi bisa diakses (http)
