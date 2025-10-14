@@ -1,7 +1,8 @@
 APP_VERSION="$1"
-VALUES_CHART="$2"
+ENV_SERVER="$2"
 NAMESPACE_KUBERNETES="$3"
 PROJECT_NAME="$4"
+
 
 if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
 if [ -z $VALUES_CHART ]; then echo "VALUES_CHART is required"; exit 1; fi
@@ -17,7 +18,8 @@ if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]
 elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
     echo "relyon ===="
     sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/proxy/Chart.yaml"
-    helm upgrade proxy-services ./relyon/proxy/ --values $VALUES_CHART --namespace=$NAMESPACE_KUBERNETES \
+    helm upgrade proxy-services ./relyon/proxy/ \
+    --values ./relyon/proxy/values-$ENV_SERVER.yaml \ --namespace=$NAMESPACE_KUBERNETES \
     --install \
     --set image.version=$APP_VERSION \
     --set name.space=$NAMESPACE_KUBERNETES \
