@@ -98,7 +98,7 @@ jobs:
         context: .
         file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
-        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
+        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
@@ -140,7 +140,7 @@ jobs:
       run: |
         cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
         /bin/bash deploy.sh \
-          ${{ needs.Build.outputs.app_version }}-${{ matrix.deploy-to }} \
+          ${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }} \
           ${{ needs.define-environment.outputs.branch_env }} \
           ${{ env.NAMESPACE_KUBERNETES }} \
           ${{ matrix.deploy-to }}
