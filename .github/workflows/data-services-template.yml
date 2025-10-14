@@ -44,7 +44,7 @@ jobs:
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
     strategy:
       matrix:
-        deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
+        deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}-${{needs.define-environment.outputs.branch_env}}
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
