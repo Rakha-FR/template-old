@@ -1,8 +1,7 @@
 name: Data Services Pipelines
 on:
   workflow_call:
-env:
-  DEPLOY_TO: '["RELYON", "MOBILE"]'
+
 jobs:
   define-environment:
     runs-on:
@@ -15,24 +14,28 @@ jobs:
       repo_name: ${{ steps.branch.outputs.repo_name }}
       repo_owner: ${{ steps.branch.outputs.repo_owner }}
       app_version: ${{ steps.branch.outputs.app_version }}
+      deploy_targets: ${{ steps.branch.outputs.deploy_targets }}
     steps:
       - name: Define Env
         id: branch
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
           # multideploy: true
+          deploy_to: RELYON
           allowed_branches: "253-devops---move-jenkins-to-github-actions"
 
   deploy:
-    runs-on: ubuntu-latest
+    needs: [define-environment]
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
     strategy:
       matrix:
-        target: ${{ fromJSON(env.DEPLOY_TO) }}
+        target: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
     steps:
       - name: Show current target
         run: echo "🚀 Deploying to ${{ matrix.target }}"
-        
+
   # code-quality:
   #   needs: [define-environment]
   #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi

@@ -12,7 +12,11 @@ inputs:
   allowed_branches:
     description: "List of allowed branches (comma separated)"
     required: false
-    default: "development,staging-qa,main,master"
+    default: "development,staging-qa"
+  deploy_to:
+    description: "List of deploy targets (JSON array)"
+    required: false 
+    default: '[]'   
 outputs:
   environment:
     description: "Nama environment (development, staging, production)"

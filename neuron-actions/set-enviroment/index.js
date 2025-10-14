@@ -45,6 +45,7 @@ async function run() {
   try {
     const ref = github.context.ref;
     const eventName = github.context.eventName;
+    const deployToInput = core.getInput('deploy_to') || ''; 
 
     core.info(`Event: ${eventName}`);
     core.info(`Ref: ${ref}`);
@@ -116,6 +117,27 @@ async function run() {
     else if (currentBranch === 'development') environment = 'development';
     else environment = 'development';
 
+    try {
+      // Coba parse JSON kalau valid
+      if (deployToInput.trim().startsWith('[')) {
+        deployTargets = JSON.parse(deployToInput);
+      } else {
+        // Fallback ke split by comma
+        deployTargets = deployToInput
+          .split(',')
+          .map(x => x.trim())
+          .filter(Boolean);
+      }
+    } catch (err) {
+      core.warning(`⚠️ Failed to parse deploy_to input, fallback to comma split`);
+      deployTargets = deployToInput
+        .split(',')
+        .map(x => x.trim())
+        .filter(Boolean);
+    }
+    
+    core.info(`🚀 Deploy targets: ${deployTargets.join(', ')}`);
+
     const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
     const repoName = github.context.repo.repo.toLowerCase();
 
@@ -132,6 +154,7 @@ async function run() {
     core.setOutput('repo_name', repoName);
     core.setOutput('repo_owner', github.context.repo.owner.toLowerCase());
     core.setOutput('app_version', appVersion);
+    core.setOutput('deploy_targets', JSON.stringify(deployTargets));
 
     core.info(`✅ Environment set to: ${environment}`);
     core.info(`✅ Runner group set to: ${runnerGroup}`);
