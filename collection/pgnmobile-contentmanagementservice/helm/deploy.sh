@@ -23,5 +23,6 @@ else
     --install \
     --set image.version="$APP_VERSION" \
     --set name.space="$NAMESPACE_KUBERNETES" \
+    --set type=all \
     --wait
 fi
