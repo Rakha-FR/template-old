@@ -1,0 +1,28 @@
+FROM registry.pgn.co.id/base/php82:v0.0.1 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+
+FROM registry.pgn.co.id/base/php82:v0.0.1
+
+WORKDIR /data/proxy
+
+# replace docroot di config apache dari /var/www/html ke /app/public
+RUN sed -ri -e 's!/var/www/html!/data/proxy/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/data/proxy/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -s -i -e "s/80/8080/" /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
+RUN a2enmod rewrite
+
+# enable mod headers dan mod rewrite di apache
+RUN a2enmod headers rewrite
+
+# copy APP
+COPY . ./
+COPY .env.example ./.env
+COPY --from=vendor /app/vendor ./vendor
+
+RUN chown -R www-data. ./storage ./bootstrap/cache
+
+# open port 8080 agar aplikasi bisa diakses (http)
+EXPOSE 8080
