@@ -31842,6 +31842,7 @@ async function run() {
     const ref = github.context.ref;
     const eventName = github.context.eventName;
     const deployToInput = core.getInput('deploy_to') || ''; 
+    let deployTargets = [];
 
     console.log(deployToInput);
 
@@ -31918,24 +31919,23 @@ async function run() {
     try {
       // Coba parse JSON kalau valid
       if (deployToInput.trim().startsWith('[')) {
-        deployTargets = JSON.parse(deployToInput);
+        deployTargets = JSON.parse(deployToInput).map(x => x.toLowerCase().trim());
       } else {
         // Fallback ke split by comma
         deployTargets = deployToInput
           .split(',')
-          .map(x => x.trim())
+          .map(x => x.trim().toLowerCase())
           .filter(Boolean);
       }
     } catch (err) {
       core.warning(`⚠️ Failed to parse deploy_to input, fallback to comma split`);
       deployTargets = deployToInput
         .split(',')
-        .map(x => x.trim())
+        .map(x => x.trim().toLowerCase())
         .filter(Boolean);
     }
-    core.info(`🚀 Deploy targets: ${deployTargets.join(', ')}`);
-    const deployTargetsWithEnv = deployTargets.map(t => `${t}-${environment}`);
 
+    core.info(`🚀 Deploy targets: ${deployTargets.join(', ')}`);
     // --- Generate APP_VERSION ---
     const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
     const repoName = github.context.repo.repo.toLowerCase();
@@ -31950,7 +31950,7 @@ async function run() {
     core.setOutput('repo_name', repoName);
     core.setOutput('repo_owner', github.context.repo.owner.toLowerCase());
     core.setOutput('app_version', appVersion);
-    core.setOutput('deploy_targets', JSON.stringify(deployTargetsWithEnv));
+    core.setOutput('deploy_targets', JSON.stringify(deployTargets));
 
     core.info(`✅ Environment set to: ${environment}`);
     core.info(`✅ Runner group set to: ${runnerGroup}`);
