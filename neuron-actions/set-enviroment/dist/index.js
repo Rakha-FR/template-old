@@ -31934,6 +31934,7 @@ async function run() {
         .filter(Boolean);
     }
     core.info(`🚀 Deploy targets: ${deployTargets.join(', ')}`);
+    const deployTargetsWithEnv = deployTargets.map(t => `${t}-${environment}`);
 
     // --- Generate APP_VERSION ---
     const runnerGroup = environment.charAt(0).toUpperCase() + environment.slice(1);
@@ -31949,7 +31950,7 @@ async function run() {
     core.setOutput('repo_name', repoName);
     core.setOutput('repo_owner', github.context.repo.owner.toLowerCase());
     core.setOutput('app_version', appVersion);
-    core.setOutput('deploy_targets', JSON.stringify(deployTargets));
+    core.setOutput('deploy_targets', JSON.stringify(deployTargetsWithEnv));
 
     core.info(`✅ Environment set to: ${environment}`);
     core.info(`✅ Runner group set to: ${runnerGroup}`);
