@@ -17,7 +17,7 @@ ingress:
   tls:
     - secretName: tls-secret
       hosts:
-        - dev-proxy-pgnmobile.pgn.co.id
+        - dev-relyon-proxy.pgn.co.id
 
 image:
   repository: registry.pgn.co.id/neuron/pgnmobile-proxyservice
