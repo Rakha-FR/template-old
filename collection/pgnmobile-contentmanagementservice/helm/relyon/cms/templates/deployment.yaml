@@ -1,0 +1,55 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: cms-services-{{ .Values.type }}
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+    co.elastic.logs.json-logging/json.keys_under_root: "true"
+    co.elastic.logs.json-logging/json.add_error_key: "true"
+    co.elastic.logs.json-logging/json.message_key: "message"
+  labels:
+    app: cms-services-{{ .Values.type }}
+    app.kubernetes.io/managed-by: Helm
+  name: cms-services-{{ .Values.type }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: cms-services-{{ .Values.type }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      labels:
+        app: cms-services-{{ .Values.type }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+      - image: {{ .Values.image.repository }}/{{ .Values.type }}:{{ .Values.image.version }}
+        command: ["bash", "-c", "cat /vault/secret/.env > /data/cms/.env && apache2-foreground"]
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: cms-services-{{ .Values.type }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.porthttp }}
+          name: http
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretref.name }}
+        volumeMounts:
+        - name: {{ .Values.volumeMounts.name }}
+          mountPath: {{ .Values.volumeMounts.mountPath }}
+      volumes:
+        - name: {{ .Values.volumeMounts.name }}
+          secret:
+            secretName: {{ .Values.secretref.name }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}

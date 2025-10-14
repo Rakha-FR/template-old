@@ -1,0 +1,18 @@
+# k8s service manifest
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: cms-services-{{ .Values.type }}
+    app.kubernetes.io/managed-by: Helm
+  name: doorv3-cms-services-{{ .Values.type }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.porthttp }}
+      targetPort: {{ .Values.service.targetPorthttp }}
+      protocol: TCP
+      name: http
+  selector:
+    app: cms-services-{{ .Values.type }}
