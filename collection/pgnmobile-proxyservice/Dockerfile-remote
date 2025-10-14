@@ -1,7 +1,7 @@
 FROM registry.pgn.co.id/base/php82:v0.0.1 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction --prefer-dist
 
 
 FROM registry.pgn.co.id/base/php82:v0.0.1
