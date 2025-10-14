@@ -7,14 +7,14 @@ if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
 if [ -z $VALUES_CHART ]; then echo "VALUES_CHART is required"; exit 1; fi
 if [ -z $NAMESPACE_KUBERNETES ]; then echo "NAMESPACE_KUBERNETES is required"; exit 1; fi
 kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
-if [[ "$PROJECT_NAME" != *"development-pdp"* ]]; then
+if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]; then
     sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./chart/proxy/Chart.yaml"
     helm upgrade proxy-services ./chart/proxy/ --values $VALUES_CHART --namespace=$NAMESPACE_KUBERNETES \
     --install \
     --set image.version=$APP_VERSION \
     --set name.space=$NAMESPACE_KUBERNETES \
     --wait
-elif [[ "$PROJECT_NAME" != *"relyon"* ]]; then
+elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
     echo "relyon ===="
     sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/proxy/Chart.yaml"
     helm upgrade proxy-services ./relyon/proxy/ --values $VALUES_CHART --namespace=$NAMESPACE_KUBERNETES \
@@ -22,7 +22,7 @@ elif [[ "$PROJECT_NAME" != *"relyon"* ]]; then
     --set image.version=$APP_VERSION \
     --set name.space=$NAMESPACE_KUBERNETES \
     --wait
-else 
+elif [[ "$PROJECT_NAME" == *"development-pdp"* ]]; then
     sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./pdp/proxy/Chart.yaml"
     helm upgrade proxy-services-pdp ./pdp/proxy/ --values ./pdp/proxy/values-development.yaml --namespace=$NAMESPACE_KUBERNETES \
     --install \
