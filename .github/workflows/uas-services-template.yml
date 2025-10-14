@@ -27,8 +27,8 @@ jobs:
     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
     with:
       grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-      SONAR_EXCLUSIONS: "**/*.html,**/*.phtml,**/*.css,**/*.js"
-      SONAR_SOURCES: "./app/Models"
+      SONAR_EXCLUSIONS: '**/*.html,**/*.phtml,**/*.css,**/*.js'
+      SONAR_SOURCES: './backend/application/Neuron/Application/Uservices,./frontend/src'
       SONAR_HOST_URL: "http://10.129.2.232:9000"
       SONAR_USER_HOME: ${{ github.workspace }}
       continue-on-error: true
