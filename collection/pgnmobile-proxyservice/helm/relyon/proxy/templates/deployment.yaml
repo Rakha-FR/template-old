@@ -1,0 +1,56 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: proxy-services
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+    co.elastic.logs.json-logging/json.keys_under_root: "true"
+    co.elastic.logs.json-logging/json.add_error_key: "true"
+    co.elastic.logs.json-logging/json.message_key: "message"
+  labels:
+    app: proxy-services
+    app.kubernetes.io/managed-by: Helm
+  name: proxy-services
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: proxy-services
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      labels:
+        app: proxy-services
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # {{- if .Values.vault.enabled }}
+        command: ["bash", "-c", "cat /vault/secret/.env > /data/proxy/.env && apache2-foreground"]
+        # {{- end }}
+        name: proxy-services
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+#        volumeMounts:
+#        - name: {{ .Values.volumeMounts.name }}
+#          mountPath: {{ .Values.volumeMounts.path }}
+        # envFrom:
+        # - secretRef:
+        #     name: {{ .Values.secretref.name }}
+#      volumes:
+#      - name: {{ .Values.volumeMounts.name }}
+#        configMap:
+#          name: {{ .Values.configMap.name }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}

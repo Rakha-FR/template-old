@@ -10,17 +10,17 @@ ingress:
   enabled: true
   ingressClassName: nginx
   hosts:
-    - host: stg-relyon-data.pgn.co.id
+    - host: dev-relyon-proxy.pgn.co.id
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: tls-secret
       hosts:
-        - stg-relyon-data.pgn.co.id
+        - dev-proxy-pgnmobile.pgn.co.id
 
 image:
-  repository: registry.pgn.co.id/neuron/pgnmobile-dataservice
+  repository: registry.pgn.co.id/neuron/proxy
   secret: new-pull-secret
   pullPolicy: IfNotPresent
 
@@ -38,7 +38,7 @@ volumeMounts:
   path: /opt/elastic/apm-agent-php/etc
 
 configMap:
-  name: apm-agent-php-data
+  name: apm-agent-php-proxy
 
 resources:
   limits:
@@ -48,9 +48,8 @@ resources:
     cpu: 100m
     memory: 320Mi
 
-
 secretref:
-  name: data-apm-secret
+  name: proxy-apm-secret
 
 serviceAccount:
   name: relyon-vault
@@ -60,18 +59,18 @@ vault:
   annotations:
     vault.hashicorp.com/auth-path: 'auth/kubernetes'
     vault.hashicorp.com/agent-inject: 'true'
-    vault.hashicorp.com/role: 'relyon-staging'
+    vault.hashicorp.com/role: 'relyon-development'
     vault.hashicorp.com/agent-requests-cpu: "50m"
     vault.hashicorp.com/agent-limits-cpu: "100m"
     vault.hashicorp.com/agent-requests-mem: "64Mi"
     vault.hashicorp.com/agent-limits-mem: "128Mi"
-    vault.hashicorp.com/agent-inject-secret-.env: 'relyon_stg/data/data/secret'
+    vault.hashicorp.com/agent-inject-secret-.env: 'relyon_dev/data/proxy/secret'
     vault.hashicorp.com/secret-volume-path: '/vault/secret'
     vault.hashicorp.com/template-static-secret-render-interval: '5'
     vault.hashicorp.com/agent-share-process-namespace: 'true'
     vault.hashicorp.com/agent-image: 'registry.pgn.co.id/base/vault-inject-custom:v1.2'
     vault.hashicorp.com/agent-inject-command-.env: "sh /opt/restart_deployment.sh"
     vault.hashicorp.com/agent-inject-template-.env: |
-            {{- with secret "relyon_stg/data/data/secret" }}{{ range $k, $v := .Data.data -}}
+            {{- with secret "relyon_dev/data/proxy/secret" }}{{ range $k, $v := .Data.data -}}
             {{- $k }}={{ $v }}
             {{ end }}{{ end -}}
