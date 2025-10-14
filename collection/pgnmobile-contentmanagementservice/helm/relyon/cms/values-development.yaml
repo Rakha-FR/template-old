@@ -11,14 +11,14 @@ ingressall:
   enabled: true
   ingressClassName: nginx
   hosts:
-    - host: dev-cms-pgnmobile.pgn.co.id
+    - host: dev-relyon-cms.pgn.co.id
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: tls-secret
       hosts:
-        - dev-cms-pgnmobile.pgn.co.id
+        - dev-relyon-cms.pgn.co.id
 
 image:
   repository: registry.pgn.co.id/neuron/cms

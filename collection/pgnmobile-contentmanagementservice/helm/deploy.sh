@@ -16,12 +16,12 @@ if [[ "$PROJECT_NAME" == *mobile* ]]; then
   echo "$PROJECT_NAME mobile"
 else
   echo "$PROJECT_NAME relyon"
-#   sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/data/Chart.yaml"  
-#   helm upgrade data-services ./relyon/data/ \
-#     --values ./relyon/data/values-$ENV_SERVER.yaml \
-#     --namespace "$NAMESPACE_KUBERNETES" \
-#     --install \
-#     --set image.version="$APP_VERSION" \
-#     --set name.space="$NAMESPACE_KUBERNETES" \
-#     --wait
+  sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./relyon/cms/Chart.yaml"  
+  helm upgrade cms-services-all ./relyon/cms/ \
+    --values ./relyon/cms/values-$ENV_SERVER.yaml \
+    --namespace "$NAMESPACE_KUBERNETES" \
+    --install \
+    --set image.version="$APP_VERSION" \
+    --set name.space="$NAMESPACE_KUBERNETES" \
+    --wait
 fi
