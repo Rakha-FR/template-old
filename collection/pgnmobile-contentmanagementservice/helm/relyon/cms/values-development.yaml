@@ -21,7 +21,7 @@ ingressall:
         - dev-relyon-cms.pgn.co.id
 
 image:
-  repository: registry.pgn.co.id/neuron/cms
+  repository: registry.pgn.co.id/neuron/pgnmobile-contentmanagementservice
   secret: new-pull-secret
   pullPolicy: IfNotPresent
 

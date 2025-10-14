@@ -32,7 +32,7 @@ spec:
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
-      - image: {{ .Values.image.repository }}/{{ .Values.type }}:{{ .Values.image.version }}
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
         command: ["bash", "-c", "cat /vault/secret/.env > /data/cms/.env && apache2-foreground"]
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: cms-services-{{ .Values.type }}
