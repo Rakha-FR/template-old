@@ -18,7 +18,7 @@ if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]
     --wait
 elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
     echo "relyon ===="
-    helm upgrade proxy-services ./relyon/proxy/ \\
+    helm upgrade proxy-services ./relyon/proxy/ \
         --values ./relyon/proxy/values-$ENV_SERVER.yaml \
         --namespace "$NAMESPACE_KUBERNETES" \
         --install \
