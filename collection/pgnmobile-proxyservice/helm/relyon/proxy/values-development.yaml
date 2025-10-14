@@ -20,7 +20,7 @@ ingress:
         - dev-proxy-pgnmobile.pgn.co.id
 
 image:
-  repository: registry.pgn.co.id/neuron/proxy
+  repository: registry.pgn.co.id/neuron/pgnmobile-proxyservice
   secret: new-pull-secret
   pullPolicy: IfNotPresent
 
