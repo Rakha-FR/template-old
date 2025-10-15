@@ -1,9 +1,13 @@
-# base docker registry php 7 apache
-FROM registry.pgn.co.id/base/php8:v1.1.1 as backend
-ENV CI true
+# Base image PHP 8 Apache
+FROM registry.pgn.co.id/base/php8:v1.1.1 AS backend
+
+ENV CI=true
 WORKDIR /app
-COPY install-module.sh ./install-module.sh
-RUN bash install-module.sh
+
+COPY install-module.sh .
+RUN chmod +x install-module.sh && \
+    ./install-module.sh
+
 RUN ls -al
 
 # base docker registry php 7 apache
