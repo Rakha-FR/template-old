@@ -51,7 +51,7 @@ jobs:
       app_version: ${{ needs.define-environment.outputs.app_version }}
       deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
     secrets: inherit
-  
+
   # Build:
   #   if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
   #   needs: [define-environment]
@@ -123,49 +123,49 @@ jobs:
   #       cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}}
   #       cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}},image-manifest=true,oci-mediatypes=true,mode=max
 
-  Deploy:
-    if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
-    needs: [define-environment, Build]
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    strategy:
-      matrix:
-        deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
-        monorepo: [frontend, backend]
-    steps:
-    - name: Checkout DevOps repository
-      uses: actions/checkout@v5.0.0
-      with:
-        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-        token: ${{ secrets.TOKEN }}
-        path: devops-repo
-        ref: migrasi
+  # Deploy:
+  #   if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
+  #   needs: [define-environment, Build]
+  #   runs-on:
+  #     group: ${{ needs.define-environment.outputs.runner_group }}
+  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+  #   strategy:
+  #     matrix:
+  #       deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
+  #       monorepo: [frontend, backend]
+  #   steps:
+  #   - name: Checkout DevOps repository
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+  #       token: ${{ secrets.TOKEN }}
+  #       path: devops-repo
+  #       ref: migrasi
 
-    - name: Import All Secrets from Vault
-      id: import-secrets
-      uses: hashicorp/vault-action@v3.4.0
-      with:
-        url: ${{ secrets.VAULT_HOST_URL }}
-        method: userpass
-        username: ${{ secrets.VAULT_USERNAME }}
-        password: ${{ secrets.VAULT_PASSWORD }}
-        exportEnv: true
-        secrets: |
-          neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+  #   - name: Import All Secrets from Vault
+  #     id: import-secrets
+  #     uses: hashicorp/vault-action@v3.4.0
+  #     with:
+  #       url: ${{ secrets.VAULT_HOST_URL }}
+  #       method: userpass
+  #       username: ${{ secrets.VAULT_USERNAME }}
+  #       password: ${{ secrets.VAULT_PASSWORD }}
+  #       exportEnv: true
+  #       secrets: |
+  #         neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: Set up Kubernetes context
-      uses: azure/k8s-set-context@v4.0.1 
-      with:
-        kubeconfig: ${{ env.KUBECONFIG }} 
+  #   - name: Set up Kubernetes context
+  #     uses: azure/k8s-set-context@v4.0.1 
+  #     with:
+  #       kubeconfig: ${{ env.KUBECONFIG }} 
 
-    - name: Deploy Helm Chart
-      run: |
-        cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
-        /bin/bash deploy.sh \
-          ${{matrix.monorepo}}-${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }} \
-          ${{ needs.define-environment.outputs.branch_env }} \
-          ${{ env.NAMESPACE_KUBERNETES }} \
-          ${{ matrix.deploy-to }} \
-          ${{ matrix.monorepo }}
+  #   - name: Deploy Helm Chart
+  #     run: |
+  #       cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
+  #       /bin/bash deploy.sh \
+  #         ${{matrix.monorepo}}-${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }} \
+  #         ${{ needs.define-environment.outputs.branch_env }} \
+  #         ${{ env.NAMESPACE_KUBERNETES }} \
+  #         ${{ matrix.deploy-to }} \
+  #         ${{ matrix.monorepo }}
 

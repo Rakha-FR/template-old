@@ -20,22 +20,7 @@ on:
         type: string
       deploy_targets:
         required: true
-        type: string  # JSON string
-    secrets:
-      VAULT_HOST_URL:
-        required: true
-      VAULT_USERNAME:
-        required: true
-      VAULT_PASSWORD:
-        required: true
-      TOKEN:
-        required: true
-      HARBOR_HOST:
-        required: true
-      HARBOR_USERNAME:
-        required: true
-      HARBOR_PASSWORD:
-        required: true
+        type: string 
 
 jobs:
   Build:
@@ -103,9 +88,9 @@ jobs:
       - name: Login to Harbor
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.HARBOR_HOST }}
-          username: ${{ secrets.HARBOR_USERNAME }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
+          registry: ${{ env.HARBOR_HOST }}
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ env.HARBOR_PASSWORD }}
 
       # Build and Push
       - name: Build and push Docker image
@@ -114,5 +99,5 @@ jobs:
           context: .
           file: devops-repo/collection/${{ inputs.repo_name }}/Dockerfile-${{ matrix.monorepo }}
           push: true
-          tags: ${{ secrets.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:${{ matrix.monorepo }}-${{ inputs.app_version }}-${{ matrix.deploy-to }}
-          cache-from: type=registry,ref=${{ secrets.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:buildcache-${{ matrix.monorepo }}
+          tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:${{ matrix.monorepo }}-${{ inputs.app_version }}-${{ matrix.deploy-to }}
+          cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:buildcache-${{ matrix.monorepo }}
