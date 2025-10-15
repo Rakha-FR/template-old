@@ -38,6 +38,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
   Build:
+    name: Build FE
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
@@ -45,6 +46,7 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
+        monorepo: [frontend, backend]
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
@@ -63,12 +65,44 @@ jobs:
         secrets: |
           neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - uses: actions/setup-node@v5
+    - name: BUILD FE
+      if: matrix.monorepo == 'frontend'    
+      uses: actions/setup-node@v5
       with:
         node-version: 20
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+        cache-dependency-path: ${{matrix.monorepo}}/package-lock.json
     - run: npm install --legacy-peer-deps
-      working-directory: frontend
+      working-directory: ${{matrix.monorepo}}
     - run: npm run build
-      working-directory: frontend
+      working-directory: ${{matrix.monorepo}}
+
+    - name: Checkout DevOps repository
+      uses: actions/checkout@v5.0.0
+      with:
+        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        token: ${{ secrets.TOKEN }}
+        path: devops-repo
+        ref: migrasi
+        
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Login to Harbor
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.HARBOR_HOST }}
+        username: ${{ env.HARBOR_USERNAME }}
+        password: ${{ env.HARBOR_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-${{matrix.monorepo}}
+        push: true
+        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{matrix.monorepo}}-${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }}
+        cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}}
+        cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}},image-manifest=true,oci-mediatypes=true,mode=max
+

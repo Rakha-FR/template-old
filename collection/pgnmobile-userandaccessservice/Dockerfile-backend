@@ -1,0 +1,52 @@
+# base docker registry php 7 apache
+FROM registry.pgn.co.id/base/php8:v1.1.1 as backend
+ENV CI true
+WORKDIR /app
+COPY install-module.sh ./install-module.sh
+RUN bash install-module.sh
+RUN ls -al
+
+# base docker registry php 7 apache
+FROM registry.pgn.co.id/base/php8:v1.1.1
+
+# environment ci
+ENV CI true
+
+# main application directory (docroot)
+WORKDIR /app
+
+# replace docroot di config apache dari /var/www/html ke /app/public
+RUN sed -ri -e 's!/var/www/html!/app/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/app/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -s -i -e "s/80/8080/" /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
+RUN a2enmod rewrite
+
+# enable mod headers dan mod rewrite di apache
+RUN a2enmod headers rewrite
+
+# config apm
+RUN echo "elastic_apm.enabled = "\"$"{APM_ENABLED}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.api_key = "\"$"{APM_KEY}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.environment = "\"$"{APM_ENVIRONMENT}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.log_level = "\"$"{APM_LOG_LEVEL}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.log_level_stderr = "\"$"{APM_LOG_LEVEL_STDERR}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.server_timeout = "\"$"{APM_LOG_SERVER_TIMEOUT}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.server_url = "\"$"{APM_LOG_SERVER_URL}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+RUN echo "elastic_apm.service_name = "\"$"{APM_LOG_SERVICE_NAME}\"" >> /opt/elastic/apm-agent-php/etc/elastic-apm-custom.ini
+
+# copy file aplikasi ke docroot
+RUN mkdir -vp ./cache/ ./temp/ ./theme/
+COPY ./backend/*.php ./
+COPY ./backend/application/ ./application/
+COPY ./backend/compatibility/ ./compatibility/
+COPY ./backend/config/ ./config/
+COPY ./backend/public/ ./public/
+COPY ./backend/theme/ ./theme/
+COPY ./backend/vendor/ ./vendor/
+
+# change owner supaya bisa di write oleh aplikasi dan webserver
+RUN bash -c "chown -Rc www-data:root ./vendor/ ./temp/ ./config/ ./theme/ ./public/assets/ ./public/libraries/ ./application/Neuron/Application/Framework/config/autoload/ ./cache/ &> /dev/null" && \
+    bash -c "chmod -R g+rwX ./vendor/ ./temp/ ./config/ ./theme/ ./public/assets/ ./public/libraries/ ./application/Neuron/Application/Framework/config/autoload/ &> /dev/null"
+
+# open port 8080 agar aplikasi bisa diakses (http)
+EXPOSE 8080

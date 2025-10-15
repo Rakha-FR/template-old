@@ -1,11 +1,20 @@
 name: "Build Frontend"
 description: "Simple echo test for frontend build"
 inputs:
-  deploy_to:
-    description: "Target environment"
+  node-version:
+    description: ""
     required: true
-  monorepo:
-    description: "Project type"
+  cache:
+    description: ""
+    required: true
+  cache-dependency-path:
+    description: ""
+    required: false
+  working-directory:
+    description: ""
+    required: true
+  token:
+    description: ""
     required: true
 
 runs:
