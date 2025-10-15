@@ -1,7 +1,7 @@
 name: UAS Services Pipelines
 on:
   workflow_call:
-    
+
 jobs:
   define-environment:
     runs-on:
@@ -37,77 +37,91 @@ jobs:
       repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  
-  Build:
-    if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
+
+
+  build:
     needs: [define-environment]
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    strategy:
-      matrix:
-        deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
-        monorepo: [frontend, backend]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v5.0.0
-      with:
-        fetch-depth: 0
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/uas/build-uas.yaml@migrasi
+    if: ${{ needs.define-environment.result == 'success' }}
+    with:
+      runner_group: ${{ needs.define-environment.outputs.runner_group }}
+      branch_env: ${{ needs.define-environment.outputs.branch_env }}
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      repo_owner: ${{ needs.define-environment.outputs.repo_owner }}
+      app_version: ${{ needs.define-environment.outputs.app_version }}
+      deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
+    secrets: inherit
+  
+  # Build:
+  #   if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
+  #   needs: [define-environment]
+  #   runs-on:
+  #     group: ${{ needs.define-environment.outputs.runner_group }}
+  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+  #   strategy:
+  #     matrix:
+  #       deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
+  #       monorepo: [frontend, backend]
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       fetch-depth: 0
 
-    - name: Import All Secrets from Vault
-      id: import-secrets
-      uses: hashicorp/vault-action@v3.4.0
-      with:
-        url: ${{ secrets.VAULT_HOST_URL }}
-        method: userpass
-        username: ${{ secrets.VAULT_USERNAME }}
-        password: ${{ secrets.VAULT_PASSWORD }}
-        exportEnv: true
-        secrets: |
-          neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+  #   - name: Import All Secrets from Vault
+  #     id: import-secrets
+  #     uses: hashicorp/vault-action@v3.4.0
+  #     with:
+  #       url: ${{ secrets.VAULT_HOST_URL }}
+  #       method: userpass
+  #       username: ${{ secrets.VAULT_USERNAME }}
+  #       password: ${{ secrets.VAULT_PASSWORD }}
+  #       exportEnv: true
+  #       secrets: |
+  #         neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: BUILD FE
-      if: matrix.monorepo == 'frontend'    
-      uses: actions/setup-node@v5
-      with:
-        node-version: 20
-        cache: 'npm'
-        cache-dependency-path: ${{matrix.monorepo}}/package-lock.json
-    - run: npm install --legacy-peer-deps
-      if: matrix.monorepo == 'frontend'  
-      working-directory: ${{matrix.monorepo}}
-    - run: npm run build
-      if: matrix.monorepo == 'frontend'  
-      working-directory: ${{matrix.monorepo}}
+  #   - name: BUILD FE
+  #     if: matrix.monorepo == 'frontend'    
+  #     uses: actions/setup-node@v5
+  #     with:
+  #       node-version: 20
+  #       cache: 'npm'
+  #       cache-dependency-path: ${{matrix.monorepo}}/package-lock.json
+  #   - run: npm install --legacy-peer-deps
+  #     if: matrix.monorepo == 'frontend'  
+  #     working-directory: ${{matrix.monorepo}}
+  #   - run: npm run build
+  #     if: matrix.monorepo == 'frontend'  
+  #     working-directory: ${{matrix.monorepo}}
 
-    - name: Checkout DevOps repository
-      uses: actions/checkout@v5.0.0
-      with:
-        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
-        token: ${{ secrets.TOKEN }}
-        path: devops-repo
-        ref: migrasi
+  #   - name: Checkout DevOps repository
+  #     uses: actions/checkout@v5.0.0
+  #     with:
+  #       repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+  #       token: ${{ secrets.TOKEN }}
+  #       path: devops-repo
+  #       ref: migrasi
         
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to Harbor
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.HARBOR_HOST }}
-        username: ${{ env.HARBOR_USERNAME }}
-        password: ${{ env.HARBOR_PASSWORD }}
+  #   - name: Set up QEMU
+  #     uses: docker/setup-qemu-action@v3
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v3
+  #   - name: Login to Harbor
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ${{ env.HARBOR_HOST }}
+  #       username: ${{ env.HARBOR_USERNAME }}
+  #       password: ${{ env.HARBOR_PASSWORD }}
 
-    - name: Build and push
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-${{matrix.monorepo}}
-        push: true
-        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{matrix.monorepo}}-${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }}
-        cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}}
-        cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}},image-manifest=true,oci-mediatypes=true,mode=max
+  #   - name: Build and push
+  #     uses: docker/build-push-action@v6
+  #     with:
+  #       context: .
+  #       file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-${{matrix.monorepo}}
+  #       push: true
+  #       tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{matrix.monorepo}}-${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }}
+  #       cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}}
+  #       cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}},image-manifest=true,oci-mediatypes=true,mode=max
 
   Deploy:
     if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
