@@ -38,7 +38,6 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
   Build:
-    name: Build FE
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
@@ -73,8 +72,10 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ${{matrix.monorepo}}/package-lock.json
     - run: npm install --legacy-peer-deps
+      if: matrix.monorepo == 'frontend'  
       working-directory: ${{matrix.monorepo}}
     - run: npm run build
+      if: matrix.monorepo == 'frontend'  
       working-directory: ${{matrix.monorepo}}
 
     - name: Checkout DevOps repository
