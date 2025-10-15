@@ -146,7 +146,7 @@ jobs:
       run: |
         cd devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/helm && \
         /bin/bash deploy.sh \
-          ${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }} \
+          ${{matrix.monorepo}}-${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }} \
           ${{ needs.define-environment.outputs.branch_env }} \
           ${{ env.NAMESPACE_KUBERNETES }} \
           ${{ matrix.deploy-to }} \
