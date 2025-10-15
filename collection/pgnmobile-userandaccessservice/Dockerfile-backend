@@ -3,7 +3,7 @@ FROM registry.pgn.co.id/base/php8:v1.1.1 AS backend
 
 ENV CI=true
 WORKDIR /app
-
+COPY backend ./backend
 COPY install-module.sh .
 RUN chmod +x install-module.sh && \
     ./install-module.sh
