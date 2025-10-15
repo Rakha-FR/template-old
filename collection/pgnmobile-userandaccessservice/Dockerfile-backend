@@ -40,13 +40,13 @@ RUN echo "elastic_apm.service_name = "\"$"{APM_LOG_SERVICE_NAME}\"" >> /opt/elas
 
 # copy file aplikasi ke docroot
 RUN mkdir -vp ./cache/ ./temp/ ./theme/
-COPY --from=backend ./backend/*.php ./
-COPY --from=backend ./backend/application/ ./application/
-COPY --from=backend ./backend/compatibility/ ./compatibility/
-COPY --from=backend ./backend/config/ ./config/
-COPY --from=backend ./backend/public/ ./public/
-COPY --from=backend ./backend/theme/ ./theme/
-COPY --from=backend ./backend/vendor/ ./vendor/
+COPY --from=backend /app/backend/*.php ./
+COPY --from=backend /app/backend/application/ ./application/
+COPY --from=backend /app/backend/compatibility/ ./compatibility/
+COPY --from=backend /app/backend/config/ ./config/
+COPY --from=backend /app/backend/public/ ./public/
+COPY --from=backend /app/backend/theme/ ./theme/
+COPY --from=backend /app/backend/vendor/ ./vendor/
 
 # change owner supaya bisa di write oleh aplikasi dan webserver
 RUN bash -c "chown -Rc www-data:root ./vendor/ ./temp/ ./config/ ./theme/ ./public/assets/ ./public/libraries/ ./application/Neuron/Application/Framework/config/autoload/ ./cache/ &> /dev/null" && \
