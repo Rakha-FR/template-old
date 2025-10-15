@@ -67,7 +67,7 @@ jobs:
 
     - name: Build & Push Frontend
       if: matrix.monorepo == 'fe'
-      uses: ./.github/workflows/build-frontend.yaml
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/build-frontend@migrasi
       with:
         deploy_to: ${{ matrix.deploy-to }}
         monorepo: ${{ matrix.monorepo }}
