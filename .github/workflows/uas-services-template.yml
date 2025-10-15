@@ -39,7 +39,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
   Build:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged || github.event_name != 'pull_request'
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
@@ -110,7 +110,7 @@ jobs:
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache-${{matrix.monorepo}},image-manifest=true,oci-mediatypes=true,mode=max
 
   Deploy:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged || github.event_name != 'pull_request'
     needs: [define-environment, Build]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
