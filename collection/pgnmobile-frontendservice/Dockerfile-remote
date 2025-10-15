@@ -8,6 +8,8 @@ ENV GENERATE_SOURCEMAP=false
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
+COPY .env .env
+RUN cat .env
 COPY . .
 RUN printenv | grep REACT_APP_ || true
 RUN yarn build && ls -alh build/
