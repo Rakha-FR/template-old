@@ -44,7 +44,7 @@ jobs:
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
     strategy:
       matrix:
-        deploy-to: ${{ fromJson(needs.define-environment.outputs.environments_list) }}
+        deploy-to: ${{ fromJson(needs.define-environment.outputs.deploy_targets) }}
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
@@ -69,7 +69,7 @@ jobs:
         printenv | grep '^REACT_APP_' > .env
         echo "Isi .env:"
         cat .env
-        
+
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
       with:
