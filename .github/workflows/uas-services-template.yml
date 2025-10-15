@@ -41,7 +41,7 @@ jobs:
 
   build:
     needs: [define-environment]
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/uas/build-uas.yaml@migrasi
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yaml@migrasi
     if: ${{ needs.define-environment.result == 'success' }}
     with:
       runner_group: ${{ needs.define-environment.outputs.runner_group }}
