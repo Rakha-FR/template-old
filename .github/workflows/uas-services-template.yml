@@ -2,6 +2,9 @@ name: UAS Services Pipelines
 on:
   workflow_call:
 
+env:
+  CD: ${{ (github.event.pull_request.merged || github.event_name != 'pull_request') && (needs.define-environment.result == 'success') }}
+  
 jobs:
   define-environment:
     runs-on:
@@ -39,7 +42,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
   Build:
-    if: (github.event.pull_request.merged || github.event_name != 'pull_request') && needs.define-environment.result == 'success'
+    if: ${{ env.CD }}
     needs: [define-environment]
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
