@@ -1,0 +1,21 @@
+name: Build Frontend (Test)
+
+on:
+  workflow_call:
+    inputs:
+      deploy_to:
+        required: true
+        type: string
+      monorepo:
+        required: true
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo testing info
+        run: |
+          echo "🚀 Building FRONTEND"
+          echo "Deploy to: ${{ inputs.deploy_to }}"
+          echo "Monorepo: ${{ inputs.monorepo }}"

@@ -36,3 +36,53 @@ jobs:
       repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
+  Build:
+    needs: [define-environment]
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
+        monorepo: [be, fe]  
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5.0.0
+      with:
+        fetch-depth: 0
+
+    # - name: Import All Secrets from Vault
+    #   id: import-secrets
+    #   uses: hashicorp/vault-action@v3.4.0
+    #   with:
+    #     url: ${{ secrets.VAULT_HOST_URL }}
+    #     method: userpass
+    #     username: ${{ secrets.VAULT_USERNAME }}
+    #     password: ${{ secrets.VAULT_PASSWORD }}
+    #     exportEnv: true
+    #     secrets: |
+    #       neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+
+    - name: Build & Push Frontend
+      if: matrix.monorepo == 'fe'
+      uses: ./.github/workflows/build-frontend.yaml
+      with:
+        deploy_to: ${{ matrix.deploy-to }}
+        monorepo: ${{ matrix.monorepo }}
+
+    # - name: Build & Push Backend
+    #   if: matrix.monorepo == 'be'
+    #   uses: ./.github/workflows/build-backend.yaml
+
+      
+    # - uses: hashicorp/vault-action@v3.4.0
+    #   with:
+    #     url: ${{ secrets.VAULT_HOST_URL }}
+    #     method: userpass
+    #     username: ${{ secrets.VAULT_USERNAME }}
+    #     password: ${{ secrets.VAULT_PASSWORD }}
+    #     exportEnv: true
+    #     secrets: |
+    #       neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
