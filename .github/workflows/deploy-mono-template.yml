@@ -1,0 +1,69 @@
+name: Deploy MONO Template
+
+on:
+  workflow_call:
+    inputs:
+      runner_group:
+        required: true
+        type: string
+      deploy_targets:
+        required: true
+        type: string
+      branch_env:
+        required: true
+        type: string
+      repo_name:
+        required: true
+        type: string
+      app_version:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ (github.event.pull_request.merged || github.event_name != 'pull_request') }}
+    name: Deploy to Kubernetes
+    runs-on:
+      group: ${{ inputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.runner_group }}"]
+
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJSON(inputs.deploy_targets) }}
+        monorepo: [frontend, backend]
+
+    steps:
+      - name: Checkout DevOps repository
+        uses: actions/checkout@v5
+        with:
+          repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+          token: ${{ secrets.TOKEN }}
+          path: devops-repo
+          ref: migrasi
+
+      - name: Import All Secrets from Vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v3.4.0
+        with:
+          url: ${{ secrets.VAULT_HOST_URL }}
+          method: userpass
+          username: ${{ secrets.VAULT_USERNAME }}
+          password: ${{ secrets.VAULT_PASSWORD }}
+          exportEnv: true
+          secrets: |
+            neuron/data/${{ matrix.deploy-to }}-${{ inputs.branch_env }}/github-action/${{ inputs.repo_name }}/secret * ;
+
+      - name: Set up Kubernetes context
+        uses: azure/k8s-set-context@v4.0.1
+        with:
+          kubeconfig: ${{ env.KUBECONFIG }}
+
+      - name: Deploy Helm Chart
+        run: |
+          cd devops-repo/collection/${{ inputs.repo_name }}/helm && \
+          /bin/bash deploy.sh \
+            ${{ matrix.monorepo }}-${{ inputs.app_version }}-${{ matrix.deploy-to }} \
+            ${{ inputs.branch_env }} \
+            ${{ env.NAMESPACE_KUBERNETES }} \
+            ${{ matrix.deploy-to }} \
+            ${{ matrix.monorepo }}
