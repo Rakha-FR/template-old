@@ -1,4 +1,4 @@
-FROM node:lts-slim AS build
+FROM node:lts-slim AS buil
 ARG REACT_APP_SECRET_PUBLIC_KEY
 ARG REACT_APP_HOST_API_KEY=https://api-dev-minimal-v4.vercel.app
 ENV REACT_APP_SECRET_PUBLIC_KEY=$REACT_APP_SECRET_PUBLIC_KEY
@@ -7,15 +7,15 @@ ENV CI=false
 ENV GENERATE_SOURCEMAP=false
 WORKDIR /app
 COPY package.json yarn.lock ./
-COPY .env .env
-RUN cat .env
-RUN yarn --immutable
+RUN yarn install --immutable
 COPY . .
-RUN yarn build
+RUN printenv | grep REACT_APP_ || true
+RUN yarn build && ls -alh build/
+
 
 FROM nginx:alpine
-RUN sed '/index.html/a try_files $uri $uri/ /index.html;' -i /etc/nginx/conf.d/default.conf
+RUN sed -i '/index.html/a try_files $uri $uri/ /index.html;' /etc/nginx/conf.d/default.conf
 WORKDIR /usr/share/nginx/html
-COPY FROM=build /app/build ./
+COPY --from=build /app/build ./
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
