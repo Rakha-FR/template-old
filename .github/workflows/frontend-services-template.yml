@@ -61,7 +61,8 @@ jobs:
         password: ${{ secrets.VAULT_PASSWORD }}
         exportEnv: true
         secrets: |
-          neuron/data/${{ matrix.deploy-to }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+          neuron/data/${{ matrix.deploy-to }}-${{ inputs.branch_env }}/github-action/${{ inputs.repo_name }}/secret * ;
+
 
     - name: Export REACT_APP_* secrets to .env file
       run: |
@@ -98,7 +99,7 @@ jobs:
         context: .
         file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
-        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{steps.app-version.outputs.app-version}}-${{ matrix.deploy-to }}
+        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }}
         build-args: |
          REACT_APP_SECRET_PUBLIC_KEY=${{ env.REACT_APP_SECRET_PUBLIC_KEY }}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
