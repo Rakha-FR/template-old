@@ -65,8 +65,15 @@ jobs:
     #     secrets: |
     #       neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - name: Build & Push Frontend
+    - name: Build & Push Frontend ${{ matrix.monorepo }}
       if: matrix.monorepo == 'fe'
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/build-frontend@migrasi
+      with:
+        deploy_to: ${{ matrix.deploy-to }}
+        monorepo: ${{ matrix.monorepo }}
+  
+    - name: Build & Push Frontend ${{ matrix.monorepo }}
+      if: matrix.monorepo == 'be'
       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/build-frontend@migrasi
       with:
         deploy_to: ${{ matrix.deploy-to }}
