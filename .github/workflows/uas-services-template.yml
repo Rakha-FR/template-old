@@ -45,51 +45,30 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJSON(needs.define-environment.outputs.deploy_targets) }}
-        monorepo: [be, fe]  
-
     steps:
     - name: Checkout
       uses: actions/checkout@v5.0.0
       with:
         fetch-depth: 0
 
-    # - name: Import All Secrets from Vault
-    #   id: import-secrets
-    #   uses: hashicorp/vault-action@v3.4.0
-    #   with:
-    #     url: ${{ secrets.VAULT_HOST_URL }}
-    #     method: userpass
-    #     username: ${{ secrets.VAULT_USERNAME }}
-    #     password: ${{ secrets.VAULT_PASSWORD }}
-    #     exportEnv: true
-    #     secrets: |
-    #       neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
-
-    - name: Build & Push Frontend ${{ matrix.monorepo }}
-      if: matrix.monorepo == 'fe'
-      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/build-frontend@migrasi
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
       with:
-        deploy_to: ${{ matrix.deploy-to }}
-        monorepo: ${{ matrix.monorepo }}
-  
-    - name: Build & Push Frontend ${{ matrix.monorepo }}
-      if: matrix.monorepo == 'be'
-      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/build-frontend@migrasi
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+
+    - uses: actions/setup-node@v5
       with:
-        deploy_to: ${{ matrix.deploy-to }}
-        monorepo: ${{ matrix.monorepo }}
-
-    # - name: Build & Push Backend
-    #   if: matrix.monorepo == 'be'
-    #   uses: ./.github/workflows/build-backend.yaml
-
-      
-    # - uses: hashicorp/vault-action@v3.4.0
-    #   with:
-    #     url: ${{ secrets.VAULT_HOST_URL }}
-    #     method: userpass
-    #     username: ${{ secrets.VAULT_USERNAME }}
-    #     password: ${{ secrets.VAULT_PASSWORD }}
-    #     exportEnv: true
-    #     secrets: |
-    #       neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
+        node-version: 20
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    - run: npm install --legacy-peer-deps
+      working-directory: frontend
+    - run: npm run build
+      working-directory: frontend

@@ -1,0 +1,19 @@
+name: "Build Frontend"
+description: "Simple echo test for frontend build"
+inputs:
+  folder:
+    description: ""
+    required: true
+  image_name:
+    description: ""
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Echo frontend build
+      shell: bash
+      run: |
+        echo "🚀 Building FRONTEND"
+        echo "Deploy to: ${{ inputs.deploy_to }}"
+        echo "Monorepo: ${{ inputs.monorepo }}"
