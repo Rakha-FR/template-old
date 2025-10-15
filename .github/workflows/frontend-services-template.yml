@@ -61,7 +61,7 @@ jobs:
         password: ${{ secrets.VAULT_PASSWORD }}
         exportEnv: true
         secrets: |
-          neuron/data/${{ matrix.deploy-to }}-${{ inputs.branch_env }}/github-action/${{ inputs.repo_name }}/secret * ;
+          neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
 
     - name: Export REACT_APP_* secrets to .env file
