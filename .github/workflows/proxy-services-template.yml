@@ -39,6 +39,7 @@ jobs:
 
   Build:
     needs: [define-environment]
+    if: needs.define-environment.result == 'success' && github.event.pull_request.merged || github.event_name != 'pull_request'
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
@@ -104,6 +105,7 @@ jobs:
 
   Deploy:
     needs: [define-environment, Build]
+    if: needs.define-environment.result == 'success' && github.event.pull_request.merged || github.event_name != 'pull_request'
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
