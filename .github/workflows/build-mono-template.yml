@@ -28,7 +28,7 @@ on:
       monorepo_targets:
         required: false
         type: string
-        default: '["frontend","backend"]'
+        default: '["frontend","backend"]''
 
 jobs:
   Build:
@@ -40,7 +40,8 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJSON(inputs.deploy_targets) }}
-        monorepo: ${{ fromJSON(inputs.is_monorepo && toJSON(inputs.monorepo_targets) || '[]') }} 
+        monorepo: ${{ fromJSON(inputs.is_monorepo && inputs.monorepo_targets || '[]') }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -69,12 +70,12 @@ jobs:
           cache-dependency-path: ${{ matrix.monorepo }}/package-lock.json
 
       - name: Install Frontend Dependencies
-        if: ${{ matrix.monorepo == 'frontend' }}
+        if: matrix.monorepo == 'frontend' && inputs.is_monorepo
         run: npm install --legacy-peer-deps
         working-directory: ${{ matrix.monorepo }}
 
       - name: Build Frontend
-        if: ${{ matrix.monorepo == 'frontend' }}
+        if: matrix.monorepo == 'frontend' && inputs.is_monorepo
         run: npm run build
         working-directory: ${{ matrix.monorepo }}
 
