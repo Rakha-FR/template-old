@@ -35,8 +35,6 @@ jobs:
       continue-on-error: true
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
-      is_monorepo: true
-      monorepo_targets: '["frontend","backend"]'
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -51,6 +49,8 @@ jobs:
       repo_owner: ${{ needs.define-environment.outputs.repo_owner }}
       app_version: ${{ needs.define-environment.outputs.app_version }}
       deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
+      is_monorepo: true
+      monorepo_targets: '["frontend","backend"]'
     secrets: inherit
 
 
