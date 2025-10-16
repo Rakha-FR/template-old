@@ -28,7 +28,7 @@ on:
       monorepo_targets:
         required: false
         type: string
-        default: '["frontend","backend"]''
+        default: '["frontend","backend"]'
 
 jobs:
   Build:
