@@ -40,7 +40,7 @@ jobs:
 
   build:
     needs: [define-environment]
-    if: ${{ needs.define-environment.result == 'success' }}
+    if: needs.define-environment.result == 'success'
     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-mono-template.yml@migrasi
     with:
       runner_group: ${{ needs.define-environment.outputs.runner_group }}
@@ -53,7 +53,7 @@ jobs:
 
 
   deploy:
-    if: ${{ needs.define-environment.result == 'success' }}
+    if: needs.define-environment.result == 'success'
     needs: [define-environment, build]
     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/deploy-mono-template.yml@migrasi
     with:

@@ -24,6 +24,7 @@ jobs:
 
   code-quality:
     needs: [define-environment]
+    if: needs.define-environment.result == 'success'
     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
     with:
       grouprunner: ${{ needs.define-environment.outputs.runner_group }}
@@ -39,6 +40,7 @@ jobs:
 
   Build:
     needs: [define-environment]
+    if: needs.define-environment.result == 'success'
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
@@ -104,6 +106,7 @@ jobs:
 
   Deploy:
     needs: [define-environment, Build]
+    if: needs.define-environment.result == 'success'
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]

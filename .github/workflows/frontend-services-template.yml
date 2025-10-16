@@ -23,6 +23,7 @@ jobs:
           allowed_branches: "285-devops---setup-jenkins-relyon"
 
   code-quality:
+    if: needs.define-environment.result == 'success'
     needs: [define-environment]
     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
     with:
@@ -39,6 +40,7 @@ jobs:
 
   Build:
     needs: [define-environment]
+    if: ${{ needs.define-environment.result == 'success' }}
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
@@ -104,6 +106,7 @@ jobs:
          REACT_APP_SECRET_PUBLIC_KEY=${{ env.REACT_APP_SECRET_PUBLIC_KEY }}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
+
 
   # Deploy:
   #   needs: [define-environment, Build]
