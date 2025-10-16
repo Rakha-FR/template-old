@@ -18,6 +18,14 @@ on:
       app_version:
         required: true
         type: string
+      is_monorepo:
+        required: false
+        type: boolean
+        default: false
+      monorepo_targets:
+        required: false
+        type: string
+        default: '["frontend","backend"]'
 
 jobs:
   deploy:
@@ -30,7 +38,7 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJSON(inputs.deploy_targets) }}
-        monorepo: [frontend, backend]
+        monorepo: ${{ fromJSON(inputs.is_monorepo && inputs.monorepo_targets || '[]') }}
 
     steps:
       - name: Checkout DevOps repository

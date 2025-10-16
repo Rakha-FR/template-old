@@ -64,4 +64,6 @@ jobs:
       branch_env: ${{ needs.define-environment.outputs.branch_env }}
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       app_version: ${{ needs.define-environment.outputs.app_version }}
+      is_monorepo: true
+      monorepo_targets: '["frontend","backend"]'
     secrets: inherit
