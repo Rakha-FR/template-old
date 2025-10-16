@@ -21,10 +21,18 @@ on:
       deploy_targets:
         required: true
         type: string 
+      is_monorepo:
+        required: false
+        type: boolean
+        default: false
+      monorepo_targets:
+        required: false
+        type: string
+        default: '["frontend","backend"]'
 
 jobs:
   Build:
-    if: ${{ (github.event.pull_request.merged || github.event_name != 'pull_request') }}
+    if: github.event.pull_request.merged || github.event_name != 'pull_request'
     runs-on:
       group: ${{ inputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ inputs.runner_group }}"]
@@ -32,8 +40,7 @@ jobs:
     strategy:
       matrix:
         deploy-to: ${{ fromJSON(inputs.deploy_targets) }}
-        monorepo: [frontend, backend]
-
+        monorepo: ${{ fromJSON(inputs.is_monorepo && toJSON(inputs.monorepo_targets) || '[]') }} 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -54,7 +61,7 @@ jobs:
 
       # Build Frontend
       - name: Setup Node
-        if: ${{ matrix.monorepo == 'frontend' }}
+        if: matrix.monorepo == 'frontend' && inputs.is_monorepo
         uses: actions/setup-node@v5
         with:
           node-version: 20

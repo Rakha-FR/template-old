@@ -35,6 +35,8 @@ jobs:
       continue-on-error: true
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
+      is_monorepo: true
+      monorepo_targets: '["frontend","backend"]'
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
