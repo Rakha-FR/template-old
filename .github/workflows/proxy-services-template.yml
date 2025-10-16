@@ -4,6 +4,7 @@ on:
 
 jobs:
   define-environment:
+    if: github.event.pull_request.merged || github.event_name != 'pull_request'
     runs-on:
       group: Development
       labels: [self-hosted, Linux, X64, Development]
@@ -24,6 +25,7 @@ jobs:
 
   code-quality:
     needs: [define-environment]
+    if: needs.define-environment.result == 'success'
     uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
     with:
       grouprunner: ${{ needs.define-environment.outputs.runner_group }}
