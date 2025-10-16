@@ -5,7 +5,7 @@ on:
 jobs:
   define-environment:
     runs-on:
-      group: Development
+      group: OCR-Development
       labels: [self-hosted, Linux, X64, Development, OCR]
     outputs:
       branch_env: ${{ steps.branch.outputs.environment }}
