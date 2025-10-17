@@ -30,7 +30,7 @@ jobs:
       - name: ssh
         run: |
           ping -c 4 10.129.2.35
-          ssh -o StrictHostKeyChecking=no developers@10.129.2.35
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no developers@10.129.2.35 "hostname"
 
 
   
