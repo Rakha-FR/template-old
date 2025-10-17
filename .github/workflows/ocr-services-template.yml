@@ -29,6 +29,7 @@ jobs:
     steps:
       - name: ssh
         run: |
+          ping -c 10.129.2.35
           ssh neuron@10.129.2.35
 
   
