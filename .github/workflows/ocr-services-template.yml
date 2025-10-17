@@ -27,10 +27,13 @@ jobs:
       group: OCR-Development
       labels: [self-hosted, Linux, X64, Development, OCR]
     steps:
-      - name: ssh
-        run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no developers@10.129.2.35 "hostname"
-
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 10.129.2.35
+          username: developers
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: whoami
 
   
     
