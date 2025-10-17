@@ -30,7 +30,7 @@ jobs:
       - name: ssh
         run: |
           ping -c 4 10.129.2.35
-          ssh neuron@10.129.2.35
+          ssh developers@10.129.2.35
 
   
     
