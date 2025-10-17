@@ -20,3 +20,16 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
           allowed_branches: "7-devops---setup-github-action"
+  
+  ssh:
+    needs: [define-environment]
+    runs-on:
+      group: OCR-Development
+      labels: [self-hosted, Linux, X64, Development, OCR]
+    steps:
+      - name: ssh
+        run: |
+          ssh neuron@10.129.2.35
+
+  
+    
