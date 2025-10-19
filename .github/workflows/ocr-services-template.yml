@@ -27,9 +27,11 @@ jobs:
       group: OCR-Development
       labels: [self-hosted, Linux, X64, Development, OCR]
     steps:
-      - name: Execute remote SSH commands using password
-        run: |
-          ssh -v -i ~/.ssh/id_rsa developers@10.129.2.35
+    - name: Start SSH Agent and Add Key
+      run: |
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_PASSWORD }}"
+
 
 
   
