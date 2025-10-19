@@ -28,12 +28,8 @@ jobs:
       labels: [self-hosted, Linux, X64, Development, OCR]
     steps:
       - name: Execute remote SSH commands using password
-        uses: appleboy/ssh-action@v1
-        with:
-          host: 10.129.2.35
-          username: developers
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: whoami
+        run: |
+          ls -l ~/.ssh/
 
   
     
