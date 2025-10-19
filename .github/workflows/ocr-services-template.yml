@@ -29,7 +29,8 @@ jobs:
     steps:
       - name: Execute remote SSH commands using password
         run: |
-          ls -l ~/.ssh/
+          ssh -v -i ~/.ssh/id_rsa developers@10.129.2.35
+
 
   
     
