@@ -27,25 +27,19 @@ jobs:
       group: OCR-Development
       labels: [self-hosted, Linux, X64, Development, OCR]
     steps:
-    - name: Download model file (best.pt)
-      env:
-        pac: ${{ secrets.PAC }}
-      run: |
-        cd /home/developers/PGNMobile-PGNOCRService
-        
-        curl -k \
-          --header "PRIVATE-TOKEN: $pac" \
-          "https://git.neuron.id/api/v4/projects/844/repository/files/best.pt/raw?ref=main" \
-          --output ./weights/best.pt
-
     - name: Start SSH Agent and Add Key
       env:
         SSH_PASSPHRASE: ${{ secrets.SSH_PASSWORD }}
+        PAC: ${{ secrets.PAC }}
       run: |
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_rsa <<< "${SSH_PASSPHRASE}"
         ssh-keyscan -H 10.129.2.35 >> ~/.ssh/known_hosts
-        ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 << 'EOF'
+        ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 << EOF
           cd /home/developers/PGNMobile-PGNOCRService
           git pull origin 2-devops-setup-cicd
+          curl -k \
+            --header "PRIVATE-TOKEN: ${PAC}" \
+            "https://git.neuron.id/api/v4/projects/844/repository/files/best.pt/raw?ref=main" \
+            --output ./weights/best.pt
         EOF
