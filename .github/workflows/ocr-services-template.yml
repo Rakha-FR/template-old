@@ -33,7 +33,7 @@ jobs:
       run: |
         eval "$(ssh-agent -s)"
         # unlock key (no interactive tty)
-        ssh-add ~/.ssh/id_rsa <<< "${SSH_PASSWORD}"
+        ssh-add ~/.ssh/id_rsa <<< "${SSH_PASSPHRASE}"
 
         # sanity: show identities available
         ssh-add -l
