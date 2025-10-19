@@ -28,20 +28,20 @@ jobs:
       labels: [self-hosted, Linux, X64, Development, OCR]
     steps:
     - name: Start SSH Agent and Add Key
+      env:
+        SSH_PASSPHRASE: ${{ secrets.SSH_PASSWORD }}
       run: |
         eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_PASSWORD }}"
+        # unlock key (no interactive tty)
+        ssh-add ~/.ssh/id_rsa <<< "${SSH_PASSWORD}"
 
-    - name: Ensure known_hosts (avoid interactive prompt)
-      run: |
-        # replace IP_OR_HOST with 10.129.2.35 or domain
+        # sanity: show identities available
+        ssh-add -l
+
+        # ensure host known
         ssh-keyscan -H 10.129.2.35 >> ~/.ssh/known_hosts
 
-    - name: SSH to remote and run command
-      run: |
+        # run the remote command (use -v for debug if needed)
         ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 "hostname && whoami"
-
-
-
   
     
