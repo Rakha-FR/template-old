@@ -32,6 +32,15 @@ jobs:
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_rsa <<< "${{ secrets.SSH_PASSWORD }}"
 
+    - name: Ensure known_hosts (avoid interactive prompt)
+      run: |
+        # replace IP_OR_HOST with 10.129.2.35 or domain
+        ssh-keyscan -H 10.129.2.35 >> ~/.ssh/known_hosts
+
+    - name: SSH to remote and run command
+      run: |
+        ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 "hostname && whoami"
+
 
 
   
