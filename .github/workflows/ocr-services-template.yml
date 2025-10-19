@@ -32,16 +32,10 @@ jobs:
         SSH_PASSPHRASE: ${{ secrets.SSH_PASSWORD }}
       run: |
         eval "$(ssh-agent -s)"
-        # unlock key (no interactive tty)
         ssh-add ~/.ssh/id_rsa <<< "${SSH_PASSPHRASE}"
-
-        # sanity: show identities available
-        ssh-add -l
-
-        # ensure host known
         ssh-keyscan -H 10.129.2.35 >> ~/.ssh/known_hosts
-
-        # run the remote command (use -v for debug if needed)
-        ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 "hostname && whoami"
-  
-    
+        ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 "\
+          cd /home/developers/PGNMobile-PGNOCRService && \
+          git pull origin 2-devops-setup-cicd && \
+          ls -l \
+        "
