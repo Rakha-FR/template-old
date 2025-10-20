@@ -1,0 +1,39 @@
+name: "SSH Deploy"
+description: "Pull latest code and download model from GitLab via SSH"
+
+inputs:
+  host:
+    description: "Target server hostname or IP"
+    required: true
+  user:
+    description: "SSH username"
+    required: true
+  git_branch:
+    description: "Git branch to pull"
+    required: true
+  folder:
+    description: "Target Folder"
+    required: true
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Start SSH Agent and Add Key
+      env:
+        SSH_PASSPHRASE: ${{ secrets.SSH_PASSWORD }}
+        PAC: ${{ secrets.PAC }
+      shell: bash
+      run: |
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_rsa <<< "${{ inputs.ssh_passphrase }}"
+        ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
+
+        ssh -o StrictHostKeyChecking=yes ${{ inputs.user }}@${{ inputs.host }} << EOF
+          cd ${{ inputs.folder }}
+          git pull origin ${{ inputs.git_branch }}
+          curl -k \
+            --header "PRIVATE-TOKEN: ${{ inputs.pac }}" \
+            "https://git.neuron.id/api/v4/projects/844/repository/files/best.pt/raw?ref=main" \
+            --output ./weights/best.pt
+        EOF
