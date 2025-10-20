@@ -4,6 +4,12 @@ on:
 
 jobs:
   define-environment:
+    if: |
+      (github.event_name == 'pull_request' &&
+        (github.event.pull_request.merged == true ||
+        github.event.pull_request.state == 'open' ||
+        github.event.action == 'synchronize')) ||
+      (github.event_name == 'workflow_dispatch')
     runs-on:
       group: OCR-Development
       labels: [self-hosted, Linux, X64, Development, OCR]
@@ -23,21 +29,12 @@ jobs:
           allowed_branches: "7-devops---setup-github-action"  
   ssh:
     needs: [define-environment]
+    if: needs.define-environment.result == 'success'
     runs-on:
-      group: OCR-Development
-      labels: [self-hosted, Linux, X64, Development, OCR]
+      group: "OCR-${{needs.define-environment.outputs.runner_group}}"
+      labels: [self-hosted, Linux, X64, "${{needs.define-environment.outputs.runner_group}}", OCR]
     environment: ${{ needs.define-environment.outputs.branch_env  }}
     steps:
-    - name: Determine target branch name
-      id: branch
-      run: |
-        if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-          echo "branch=${GITHUB_BASE_REF}" >> $GITHUB_OUTPUT
-        else
-          echo "branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
-        fi
-        echo "==== ${{needs.define-environment.outputs.currentBranch}} ===="
-
     - name: Start SSH Agent and Add Key
       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/SSH-OCR@migrasi
       with:
