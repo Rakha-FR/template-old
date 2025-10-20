@@ -31946,6 +31946,7 @@ async function run() {
 
     // --- Set outputs for workflow ---
     core.setOutput('environment', environment);
+    core.setOutput('currentBranch', currentBranch);
     core.setOutput('runner_group', runnerGroup);
     core.setOutput('repo_name', repoName);
     core.setOutput('repo_owner', github.context.repo.owner.toLowerCase());
