@@ -43,5 +43,6 @@ jobs:
         git_branch: ${{ steps.branch.outputs.branch }}
         pac: ${{ secrets.PAC }}
         ssh_passphrase: ${{ secrets.SSH_PASSWORD }}
+        folder: ${{inputs.FOLDER}}
 
 
