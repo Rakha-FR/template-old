@@ -35,8 +35,6 @@ jobs:
       labels: [self-hosted, Linux, X64, "${{needs.define-environment.outputs.runner_group}}", OCR]
     environment: ${{ needs.define-environment.outputs.branch_env  }}
     steps:
-    - run: |
-        echo "=== ${{ needs.define-environment.outputs.currentBranch }}  ===" 
     - name: Start SSH Agent and Add Key
       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/SSH-OCR@migrasi
       with:
@@ -45,6 +43,6 @@ jobs:
         git_branch: ${{ needs.define-environment.outputs.currentBranch }}
         pac: ${{ secrets.PAC }}
         ssh_passphrase: ${{ secrets.SSH_PASSWORD }}
-        folder: ${{inputs.FOLDER}}
+        folder: ${{ vars.FOLDER }}
 
 
