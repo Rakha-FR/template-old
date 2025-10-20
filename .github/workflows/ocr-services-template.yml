@@ -29,7 +29,7 @@ jobs:
           allowed_branches: "7-devops---setup-github-action"  
   ssh:
     needs: [define-environment]
-    if: needs.define-environment.result == 'success'
+    if: (needs.define-environment.result == 'success' && github.event.pull_request.merged || github.event_name != 'pull_request')
     runs-on:
       group: "OCR-${{needs.define-environment.outputs.runner_group}}"
       labels: [self-hosted, Linux, X64, "${{needs.define-environment.outputs.runner_group}}", OCR]
