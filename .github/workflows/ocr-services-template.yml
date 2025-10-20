@@ -19,27 +19,27 @@ jobs:
         id: branch
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
-          allowed_branches: "7-devops---setup-github-action"
-  
+          allowed_branches: "7-devops---setup-github-action"  
   ssh:
     needs: [define-environment]
     runs-on:
       group: OCR-Development
       labels: [self-hosted, Linux, X64, Development, OCR]
+    environment: ${{ needs.define-environment.outputs.branch_env  }}
     steps:
-    - name: Start SSH Agent and Add Key
-      env:
-        SSH_PASSPHRASE: ${{ secrets.SSH_PASSWORD }}
-        PAC: ${{ secrets.PAC }}
+    - name: Determine target branch name
+      id: branch
       run: |
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa <<< "${SSH_PASSPHRASE}"
-        ssh-keyscan -H 10.129.2.35 >> ~/.ssh/known_hosts
-        ssh -o StrictHostKeyChecking=yes developers@10.129.2.35 << EOF
-          cd /home/developers/PGNMobile-PGNOCRService
-          git pull origin 2-devops-setup-cicd
-          curl -k \
-            --header "PRIVATE-TOKEN: ${PAC}" \
-            "https://git.neuron.id/api/v4/projects/844/repository/files/best.pt/raw?ref=main" \
-            --output ./weights/best.pt
-        EOF
+        if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+          echo "branch=${GITHUB_BASE_REF}" >> $GITHUB_OUTPUT
+        else
+          echo "branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Start SSH Agent and Add Key
+      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/SSH-OCR@migrasi
+      with:
+        host: ${{ vars.HOST }}
+        user:  ${{ vars.USER }}
+        git_branch: ${{ steps.branch.outputs.branch }}
+
