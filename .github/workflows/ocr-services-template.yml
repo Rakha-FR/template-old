@@ -44,6 +44,7 @@ jobs:
         host: ${{ vars.HOST }}
         user: ${{ vars.USER }}
         git_branch: ${{ steps.branch.outputs.branch }}
-      secrets: inherit
+        pac: ${{ secrets.PAC }}
+        ssh_passphrase: ${{ secrets.SSH_PASSWORD }}
 
 

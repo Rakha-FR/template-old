@@ -14,6 +14,13 @@ inputs:
   folder:
     description: "Target Folder"
     required: true
+  ssh_passphrase:
+    description: "ssh_passphrase"
+    required: true
+  pac:
+    description: "PAC"
+    required: true
+
 
 
 runs:
@@ -21,8 +28,8 @@ runs:
   steps:
     - name: Start SSH Agent and Add Key
       env:
-        SSH_PASSPHRASE: ${{ secrets.SSH_PASSWORD }}
-        PAC: ${{ secrets.PAC }
+        SSH_PASSPHRASE: ${{ inputs.ssh_passphrase }}
+        PAC: ${{ inputs.pac }}}
       shell: bash
       run: |
         eval "$(ssh-agent -s)"
