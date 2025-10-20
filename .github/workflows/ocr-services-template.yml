@@ -37,10 +37,13 @@ jobs:
           echo "branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
         fi
         echo "==== ${{needs.define-environment.outputs.currentBranch}} ===="
+
     - name: Start SSH Agent and Add Key
       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/SSH-OCR@migrasi
       with:
         host: ${{ vars.HOST }}
-        user:  ${{ vars.USER }}
+        user: ${{ vars.USER }}
         git_branch: ${{ steps.branch.outputs.branch }}
+      secrets: inherit
+
 
