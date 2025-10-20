@@ -38,6 +38,8 @@ runs:
 
         ssh -o StrictHostKeyChecking=yes ${{ inputs.user }}@${{ inputs.host }} << EOF
           cd ${{ inputs.folder }}
+          git fetch origin
+          git checkout ${{ inputs.git_branch }} || git checkout -b ${{ inputs.git_branch }} origin/${{ inputs.git_branch }}
           git pull origin ${{ inputs.git_branch }}
           curl -k \
             --header "PRIVATE-TOKEN: ${{ inputs.pac }}" \
