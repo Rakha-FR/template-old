@@ -48,7 +48,7 @@ jobs:
   build:
     needs: define-environment
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@main
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
     with:
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       branch_env: ${{ needs.define-environment.outputs.branch_env }}
