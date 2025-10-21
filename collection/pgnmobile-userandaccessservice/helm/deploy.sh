@@ -13,10 +13,10 @@ kubectl config set-context --current --namespace="${NAMESPACE_KUBERNETES}"
 if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]; then
     echo "mobile"
 elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
-    if [[ "$TYPE_APP" == "frontend" ]]
-        $TYPE_APP = 'fe'
-    elif [[ "$TYPE_APP" == "backend"]]
-        $TYPE_APP = 'be'
+    if [[ "$TYPE_APP" == "frontend" ]]; then
+        TYPE_APP="fe"
+    elif [[ "$TYPE_APP" == "backend" ]]; then
+        TYPE_APP="be"
     fi
     helm upgrade uam-services-"$TYPE_APP" ./relyon/"$TYPE_APP"/ \
         --values "./relyon/$TYPE_APP/values-$ENV_SERVER.yaml" \
