@@ -1,0 +1,98 @@
+name: Build and Push Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        description: "Nama repository aplikasi"
+        required: true
+        type: string
+      branch_env:
+        description: "Environment branch (contoh: dev, staging, production)"
+        required: true
+        type: string
+      deploy_targets:
+        description: "Daftar environment tujuan (JSON array)"
+        required: true
+        type: string
+      runner_group:
+        description: "Runner group yang akan digunakan"
+        required: true
+        type: string
+      app_version:
+        description: "App version tag"
+        required: true
+        type: string
+
+jobs:
+  build:
+    if: github.event.pull_request.merged || github.event_name != 'pull_request'
+    name: Build
+    runs-on:
+      group: ${{ inputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.runner_group }}"]
+
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJSON(inputs.deploy_targets) }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ matrix.deploy-to }}-${{ inputs.branch_env }}/github-action/${{ inputs.repo_name }}/secret * ;
+
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - run: npm install --legacy-peer-deps
+    - run: npm run build
+
+    - name: Checkout DevOps repository
+      uses: actions/checkout@v5
+      with:
+        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        token: ${{ secrets.TOKEN }}
+        path: devops-repo
+        ref: migrasi
+
+    - name: Copy .dockerignore from DevOps repo
+      run: |
+         cp devops-repo/collection/${{ inputs.repo_name }}/.dockerignore .dockerignore
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Harbor
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.HARBOR_HOST }}
+        username: ${{ env.HARBOR_USERNAME }}
+        password: ${{ env.HARBOR_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: devops-repo/collection/${{ inputs.repo_name }}/Dockerfile-remote
+        push: true
+        tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:${{ inputs.app_version }}-${{ matrix.deploy-to }}
+        cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:buildcache
+        cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ inputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
