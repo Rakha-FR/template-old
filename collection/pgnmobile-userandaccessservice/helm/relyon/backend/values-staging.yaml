@@ -33,7 +33,7 @@ ingress-be:
         - stg-relyon-uam-api.pgn.co.id
 
 image:
-  repository: registry.pgn.co.id/neuron/uas/be
+  repository: registry.pgn.co.id/neuron/pgnmobile-userandaccessservice
   secret: new-pull-secret
   pullPolicy: IfNotPresent
 

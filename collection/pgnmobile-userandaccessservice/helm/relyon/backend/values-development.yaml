@@ -35,7 +35,7 @@ ingress-be:
 
 
 image:
-  repository: registry.pgn.co.id/neuron/uas/be
+  repository: registry.pgn.co.id/neuron/pgnmobile-userandaccessservice
   secret: new-pull-secret
   pullPolicy: IfNotPresent
 
