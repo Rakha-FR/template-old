@@ -2,6 +2,7 @@ APP_VERSION="$1"
 ENV_SERVER="$2"
 NAMESPACE_KUBERNETES="$3"
 PROJECT_NAME="$4"
+TYPE_APP="$5"
 
 if [ -z $APP_VERSION ]; then echo "APP_VERSION is required"; exit 1; fi
 if [ -z $ENV_SERVER ]; then echo "ENV_SERVER is required"; exit 1; fi
@@ -13,8 +14,8 @@ if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]
     echo "mobile"
 elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
     echo "relyon ===="
-    helm upgrade uam-services-"$TYPE_APP" ./chart/"$TYPE_APP"/ \
-        --values "$VALUES_CHART" \
+    helm upgrade uam-services-"$TYPE_APP" ./relyon/"$TYPE_APP"/ \
+        --values "/relyon/$TYPE_AP/values-$ENV_SERVER.yaml" \
         --namespace="$NAMESPACE_KUBERNETES" \
         --install \
         --set image.version="$APP_VERSION" \
