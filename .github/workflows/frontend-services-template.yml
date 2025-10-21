@@ -71,14 +71,11 @@ jobs:
         secrets: |
           neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-
     - name: Export REACT_APP_* secrets to .env file
       run: |
-        echo "Membuat file .env untuk React..."
-        printenv | grep '^REACT_APP_' > .env
-        echo "Isi .env:"
-        cat .env
-
+        printenv | grep '^REACT_APP_' | \
+          grep -vE '^(REACT_APP_SECRET_PUBLIC_KEY|REACT_APP_PRIVATE_KEY|REACT_APP_API_SECRET)=' > .env
+          
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
       with:
