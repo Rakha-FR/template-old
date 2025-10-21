@@ -9,10 +9,18 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
 COPY .env .env
-RUN cat .env
+
+RUN if echo "$REACT_APP_SECRET_PUBLIC_KEY" | grep -Eq '^[A-Za-z0-9+/=]+$'; then \
+      echo "🔐 Decoding REACT_APP_SECRET_PUBLIC_KEY..."; \
+      export REACT_APP_SECRET_PUBLIC_KEY=$(echo "$REACT_APP_SECRET_PUBLIC_KEY" | base64 -d); \
+    else \
+      echo "⚠️ REACT_APP_SECRET_PUBLIC_KEY tidak dalam format base64, gunakan apa adanya."; \
+    fi && \
+    echo "REACT_APP_SECRET_PUBLIC_KEY=$REACT_APP_SECRET_PUBLIC_KEY" >> .env && \
+    cat .env
+
 COPY . .
-RUN printenv | grep REACT_APP_ || true
-RUN yarn build && ls -alh build/
+RUN yarn build
 
 
 FROM registry.pgn.co.id/base/nginx:alpine
