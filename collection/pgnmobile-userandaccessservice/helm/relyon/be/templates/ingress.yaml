@@ -1,0 +1,43 @@
+{{- $ingressName := (printf "ingress-%s" .Values.type ) -}}
+{{- $ingress := index .Values $ingressName -}}
+{{- if $ingress.enabled -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $typeAPP := .Values.type -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: uam-ingress-{{ .Values.type }}
+  labels:
+    app: neuron-uservices-{{ .Values.type }}
+  {{- with $ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ $ingress.ingressClassName }}
+  {{- if $ingress.tls }}
+  tls:
+    {{- range $ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range $ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: uam-services-{{ $typeAPP }}
+                port:
+                  number: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+{{- end }}

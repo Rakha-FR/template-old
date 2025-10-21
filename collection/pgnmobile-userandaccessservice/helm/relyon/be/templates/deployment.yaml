@@ -1,0 +1,60 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: neuron-uservices-{{ .Values.type }}
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+    co.elastic.logs.json-logging/json.keys_under_root: "true"
+    co.elastic.logs.json-logging/json.add_error_key: "true"
+    co.elastic.logs.json-logging/json.message_key: "message"
+  labels:
+    app: neuron-uservices-{{ .Values.type }}
+    app.kubernetes.io/managed-by: Helm
+  name: neuron-uservices-{{ .Values.type }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: neuron-uservices-{{ .Values.type }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      labels:
+        app: neuron-uservices-{{ .Values.type }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      shareProcessNamespace: true
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # {{- $commandName := (printf "command-%s" .Values.type ) -}}
+        # {{- $commandType := index .Values $commandName -}}
+        # {{- with $commandType.execute }}
+        # {{- toYaml . | nindent 8 }}
+        # {{- end }}
+        {{ if eq .Values.type "be" }}
+        command: ["bash", "-c", "cat /vault/secret/.env > /app/.env && apache2-foreground"]
+        {{ end }}
+        env:
+        {{- range $key, $value := .Values.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+        {{- end }}
+        name: neuron-uservices-{{ .Values.type }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.secretref.name }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}

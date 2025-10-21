@@ -13,14 +13,14 @@ if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]
     echo "mobile"
 elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
     echo "relyon ===="
-    # helm upgrade uam-services-"$TYPE_APP" ./chart/"$TYPE_APP"/ \
-    #     --values "$VALUES_CHART" \
-    #     --namespace="$NAMESPACE_KUBERNETES" \
-    #     --install \
-    #     --set image.version="$APP_VERSION" \
-    #     --set name.space="$NAMESPACE_KUBERNETES" \
-    #     --set type="$TYPE_APP" \
-    #     --wait
+    helm upgrade uam-services-"$TYPE_APP" ./chart/"$TYPE_APP"/ \
+        --values "$VALUES_CHART" \
+        --namespace="$NAMESPACE_KUBERNETES" \
+        --install \
+        --set image.version="$APP_VERSION" \
+        --set name.space="$NAMESPACE_KUBERNETES" \
+        --set type="$TYPE_APP" \
+        --wait
 elif [[ "$PROJECT_NAME" == *"development-pdp"* ]]; then
     echo "pdp"
     # sed -i "s/^appVersion:.*$/appVersion: $APP_VERSION/" "./pdp/proxy/Chart.yaml"
