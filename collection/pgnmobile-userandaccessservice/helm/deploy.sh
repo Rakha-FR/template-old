@@ -15,7 +15,7 @@ if [[ "$PROJECT_NAME" != *"development-pdp"* && "$PROJECT_NAME" != *"relyon"* ]]
 elif [[ "$PROJECT_NAME" == *"relyon"* ]]; then
     echo "relyon ===="
     helm upgrade uam-services-"$TYPE_APP" ./relyon/"$TYPE_APP"/ \
-        --values "/relyon/$TYPE_AP/values-$ENV_SERVER.yaml" \
+        --values "/relyon/$TYPE_APP/values-$ENV_SERVER.yaml" \
         --namespace="$NAMESPACE_KUBERNETES" \
         --install \
         --set image.version="$APP_VERSION" \
