@@ -1,0 +1,72 @@
+name: Deploy Helm Chart
+
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        description: "Nama repository aplikasi"
+        required: true
+        type: string
+      branch_env:
+        description: "Environment branch (contoh: dev, staging, production)"
+        required: true
+        type: string
+      deploy_targets:
+        description: "Daftar environment tujuan (JSON array)"
+        required: true
+        type: string
+      runner_group:
+        description: "Runner group yang akan digunakan"
+        required: true
+        type: string
+      app_version:
+        description: "Versi aplikasi yang akan dideploy"
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ (github.event.pull_request.merged || github.event_name != 'pull_request') }}
+    name: Deploy
+    runs-on:
+      group: ${{ inputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.runner_group }}"]
+
+    strategy:
+      matrix:
+        deploy-to: ${{ fromJSON(inputs.deploy_targets) }}
+
+    steps:
+    - name: Checkout DevOps repository
+      uses: actions/checkout@v5
+      with:
+        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        token: ${{ secrets.TOKEN }}
+        path: devops-repo
+        ref: migrasi
+
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ matrix.deploy-to }}-${{ inputs.branch_env }}/github-action/${{ inputs.repo_name }}/secret * ;
+
+    - name: Set up Kubernetes context
+      uses: azure/k8s-set-context@v4
+      with:
+        kubeconfig: ${{ env.KUBECONFIG }}
+
+    - name: Deploy Helm Chart
+      run: |
+        cd devops-repo/collection/${{ inputs.repo_name }}/helm
+        /bin/bash deploy.sh \
+          ${{ inputs.app_version }}-${{ matrix.deploy-to }} \
+          ${{ inputs.branch_env }} \
+          ${{ env.NAMESPACE_KUBERNETES }} \
+          ${{ matrix.deploy-to }}
