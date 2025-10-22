@@ -73,8 +73,8 @@ jobs:
 
     - uses: actions/setup-node@v5
       with:
-        node-version: 20
-                
+        node-version: 20.11.0
+
     - name: Install Yarn
       run: npm install -g yarn
 
@@ -90,9 +90,6 @@ jobs:
         ref: migrasi
     - name: Copy .dockerignore from DevOps repo
       run: |
-         ls -al ./
-         ls -al ./public
-         ls -al ./public/build
          cp devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/.dockerignore .dockerignore
 
     - name: Set up QEMU
