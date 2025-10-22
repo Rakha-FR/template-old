@@ -74,8 +74,7 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version: 20
-        cache: 'yarn'
-        
+                
     - name: Install Yarn
       run: npm install -g yarn
 
