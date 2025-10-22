@@ -79,8 +79,10 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version: 20
-
-    - run: yarn install --immutabl
+    - name: Install Yarn
+      run: npm install -g yarn
+      
+    - run: yarn install --immutable
     - run: yarn build
 
     - name: Checkout DevOps repository
