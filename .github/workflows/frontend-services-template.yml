@@ -75,7 +75,14 @@ jobs:
       run: |
         printenv | grep '^REACT_APP_' | \
           grep -vE '^(REACT_APP_SECRET_PUBLIC_KEY|REACT_APP_PRIVATE_KEY|REACT_APP_API_SECRET)=' > .env
-          
+
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 20
+
+    - run: yarn install --immutabl
+    - run: yarn build
+
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
       with:
