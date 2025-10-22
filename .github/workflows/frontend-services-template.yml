@@ -71,16 +71,13 @@ jobs:
         secrets: |
           neuron/data/${{ matrix.deploy-to }}-${{ needs.define-environment.outputs.branch_env }}/github-action/${{ needs.define-environment.outputs.repo_name }}/secret * ;
 
-    - uses: actions/setup-node@v5
-      with:
-        node-version: 20
-        cache: 'yarn'
-        
-    - name: Install Yarn
-      run: npm install -g yarn
 
-    - run: yarn install --immutable
-    - run: yarn build
+    - name: Export REACT_APP_* secrets to .env file
+      run: |
+        echo "Membuat file .env untuk React..."
+        printenv | grep '^REACT_APP_' > .env
+        echo "Isi .env:"
+        cat .env
 
     - name: Checkout DevOps repository
       uses: actions/checkout@v5.0.0
@@ -111,6 +108,8 @@ jobs:
         file: devops-repo/collection/${{ needs.define-environment.outputs.repo_name }}/Dockerfile-remote
         push: true
         tags: ${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:${{ needs.define-environment.outputs.app_version }}-${{ matrix.deploy-to }}
+        build-args: |
+         REACT_APP_SECRET_PUBLIC_KEY=${{ env.REACT_APP_SECRET_PUBLIC_KEY }}
         cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache
         cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ needs.define-environment.outputs.repo_name }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
 
