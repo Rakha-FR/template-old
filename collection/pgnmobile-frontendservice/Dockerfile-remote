@@ -1,37 +1,6 @@
-FROM registry.pgn.co.id/base/node:lts-slim AS build
-ARG REACT_APP_SECRET_PUBLIC_KEY
-ARG REACT_APP_HOST_API_KEY=https://api-dev-minimal-v4.vercel.app
-ENV REACT_APP_SECRET_PUBLIC_KEY=$REACT_APP_SECRET_PUBLIC_KEY
-ENV REACT_APP_HOST_API_KEY=$REACT_APP_HOST_API_KEY
-ENV CI=false
-ENV GENERATE_SOURCEMAP=false
-WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --immutable
-COPY .env .env
-
-RUN echo "🔐 Decoding semua REACT_APP_* yang base64..." && \
-    cp .env .env.bak && \
-    while IFS='=' read -r name value; do \
-      if [[ "$name" == REACT_APP_* ]]; then \
-        if echo "$value" | base64 -d > /dev/null 2>&1; then \
-          decoded=$(echo "$value" | base64 -d | sed ':a;N;$!ba;s/\n/\\n/g'); \
-          sed -i "s|^$name=.*|$name=$decoded|" .env; \
-          echo "→ $name didecode."; \
-        fi; \
-      fi; \
-    done < .env.bak && \
-    echo "✅ Final .env setelah decode:" && cat .env
-
-
-COPY . .
-RUN yarn build
-
-
 FROM registry.pgn.co.id/base/nginx:alpine
 RUN sed -i '/index.html/a try_files $uri $uri/ /index.html;' /etc/nginx/conf.d/default.conf
 WORKDIR /usr/share/nginx/html
-COPY --from=build /app/build ./
-COPY --from=build /app/.env ./.env
+COPY ./build/ ./
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
