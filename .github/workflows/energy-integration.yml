@@ -1,0 +1,64 @@
+name: Run workflows
+
+on:
+  workflow_call:
+
+jobs:
+  define-environment:
+    if: |
+      (github.event_name == 'pull_request' &&
+        (github.event.pull_request.merged == true ||
+        github.event.pull_request.state == 'open' ||
+        github.event.action == 'synchronize')) ||
+      (github.event_name == 'workflow_dispatch')
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      branch_env: ${{ steps.branch.outputs.environment }}
+      runner_group: ${{ steps.branch.outputs.runner_group }}
+      repo_name: ${{ steps.branch.outputs.repo_name }}
+      repo_owner: ${{ steps.branch.outputs.repo_owner }}
+      app_version: ${{ steps.branch.outputs.app_version }}
+      deploy_targets: ${{ steps.branch.outputs.deploy_targets }}
+    steps:
+      - name: Define Env
+        id: branch
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        with:
+          deploy_to: 'RELYON'
+          allowed_branches: "285-devops---setup-jenkins-relyon"
+
+  code-quality:
+    if: needs.define-environment.result == 'success'
+    needs: [define-environment]
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    with:
+      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+      SONAR_EXCLUSIONS: ""
+      SONAR_SOURCES: "./src"
+      SONAR_HOST_URL: "http://10.129.2.232:9000"
+      SONAR_USER_HOME: ${{ github.workspace }}
+      continue-on-error: true
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # prepare-environment:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
+  #     ENV_SERVER: ${{ steps.pre.outputs.ENV_SERVER }}
+  #   steps:
+  #     - name: Prepare Version and Environment
+  #       uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
+
+  build-maven:
+    needs: define-environment
+    runs-on:
+      group: ${{ needs.define-environment.outputs.grouprunner }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.grouprunner }}"]
+    steps:
+      - name: Build Maven Application
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
