@@ -6,14 +6,12 @@ on:
         description: "Java version to use for Maven build"
         required: false
         default: "11"
+        type: string
       settings-file:
         description: "Maven settings file"
         required: false
         default: "ci_settings.xml"
-    outputs:
-      build-artifacts:
-        description: "Path or info about build artifacts"
-        value: ${{ jobs.build.outputs.build-artifacts }}
+        type: string
 
 jobs:
   build-maven:
