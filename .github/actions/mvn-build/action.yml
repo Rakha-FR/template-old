@@ -14,14 +14,7 @@ runs:
         java-version: '11'
         cache: 'maven'
 
-    - name: Install Maven
-      shell: bash
-      run: |
-        apt-get update
-        apt-get install -y maven
-
     - name: Build and Test
-      shell: bash
       run: mvn --batch-mode clean verify
 
     - name: Upload Build Artifacts
