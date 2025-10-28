@@ -16,7 +16,6 @@ runs:
       id: set_environment
       shell: bash
       run: |
-        
         if [[ "${{ github.ref }}" == *"refs/heads/development"* ]]; then
           echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
           echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.sha }}" >> $GITHUB_OUTPUT
