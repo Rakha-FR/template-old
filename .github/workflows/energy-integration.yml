@@ -5,7 +5,9 @@ on:
 
 jobs:
   prepare-environment:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
     outputs:
       APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
       ENV_SERVER: ${{ steps.pre.outputs.ENV_SERVER }}
@@ -16,8 +18,8 @@ jobs:
   build-maven:
     needs: prepare-environment
     runs-on:
-      group: ${{ needs.prepare-environment.outputs.grouprunner }}
-      labels: [self-hosted, Linux, X64, "${{ needs.prepare-environment.outputs.grouprunner }}"]
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
     steps:
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
