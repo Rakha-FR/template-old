@@ -5,10 +5,10 @@ on:
 
 jobs:
   prepare-environment:
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/pre-build/prepare-version.yml@migrasi
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/prepare-version.yml@migrasi
     secrets: inherit
-    
+
   build-maven:
     needs: prepare-environment
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build/build-maven.yml@migrasi
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-maven.yml@migrasi
     secrets: inherit
