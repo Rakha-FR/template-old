@@ -15,19 +15,14 @@ on:
 
 jobs:
   build-maven:
+    container:
+      image: maven:3.9.6-eclipse-temurin-17
     runs-on:
       group: Development
       labels: [self-hosted, Linux, X64, Development]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up JDK ${{ inputs.java-version }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{ inputs.java-version }}
-          cache: 'maven'
 
       - name: Build Maven App
         run: mvn clean package -s ${{ inputs.settings-file }}
