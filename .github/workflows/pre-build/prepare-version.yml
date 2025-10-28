@@ -1,0 +1,36 @@
+name: "Prepare Variable"
+on:
+  workflow_call:
+
+jobs:
+  prepare-version:
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
+      ENV_SERVER: ${{ steps.set_environment.outputs.ENV_SERVER }}
+    steps:
+      - name: Set version and environment
+        id: set_environment
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/development ]]; then
+            ENV_SERVER="development"
+            app_version="$(date +%Y.%m.%d)-${ENV_SERVER}-${{ github.sha }}"
+          elif [[ "${{ github.ref }}" == refs/heads/staging* ]]; then
+            ENV_SERVER="staging"
+            app_version="$(date +%Y.%m.%d)-${ENV_SERVER}-${{ github.sha }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            ENV_SERVER="production"
+            app_version="$(date +%Y.%m.%d)-${ENV_SERVER}-${{ github.ref_name }}"
+          else
+            ENV_SERVER="development"
+            app_version="$(date +%Y.%m.%d)-${ENV_SERVER}-${{ github.sha }}"
+          fi
+
+      - name: Print variables
+        shell: bash
+        run: |
+          echo "✅ Environment Server: ${{ steps.set_environment.outputs.ENV_SERVER }}"
+          echo "✅ App Version: ${{ steps.set_environment.outputs.APP_VERSION }}"

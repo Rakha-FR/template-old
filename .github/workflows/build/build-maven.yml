@@ -1,0 +1,40 @@
+name: "Build Maven Application"
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: "Java version to use for Maven build"
+        required: false
+        default: "11"
+      settings-file:
+        description: "Maven settings file"
+        required: false
+        default: "ci_settings.xml"
+    outputs:
+      build-artifacts:
+        description: "Path or info about build artifacts"
+        value: ${{ jobs.build.outputs.build-artifacts }}
+
+jobs:
+  build-maven:
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ inputs.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java-version }}
+          cache: 'maven'
+
+      - name: Build Maven App
+        run: mvn clean package -s ${{ inputs.settings-file }}
+
+      - name: Publish Build Artifacts to Registry
+        id: publish
+        run: |
+          mvn clean deploy -s ${{ inputs.settings-file }}

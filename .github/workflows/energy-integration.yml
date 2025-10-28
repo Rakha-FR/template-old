@@ -5,21 +5,10 @@ on:
 
 jobs:
   prepare-environment:
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
-      ENV_SERVER: ${{ steps.pre.outputs.ENV_SERVER }}
-    steps:
-      - name: Prepare Version and Environment
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
-
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/pre-build/prepare-version.yml@migrasi
+    secrets: inherit
+    
   build-maven:
     needs: prepare-environment
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    steps:
-      - name: Build Maven Application
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build/build-maven.yml@migrasi
+    secrets: inherit
