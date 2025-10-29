@@ -11,6 +11,9 @@ jobs:
     outputs:
       APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
       ENV_SERVER: ${{ steps.pre.outputs.ENV_SERVER }}
+      RUNNER_GROUP: ${{ steps.pre.outputs.RUNNER_GROUP }}
+      REPO_OWNER: ${{ steps.pre.outputs.REPO_OWNER }}
+      REPO_NAME: ${{ steps.pre.outputs.REPO_NAME }}
     steps:
       - name: Prepare Version and Environment
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
@@ -19,8 +22,8 @@ jobs:
     container:
       image: maven:3.9.6-eclipse-temurin-17
     runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+      group: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ needs.prepare-environment.outputs.RUNNER_GROUP }}"]
     needs: prepare-environment
     steps:
       - name: Build Maven Application
