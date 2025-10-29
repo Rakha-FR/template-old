@@ -30,19 +30,13 @@ jobs:
 
       - name: Build Maven App
         run: |
-          mvn clean package -s ${{ inputs.settings-file }} \
-            -Dgithub.repository=${{ github.repository }} \
-            -Dgithub.actor=${{ github.actor }} \
-            -Dgithub.token=${{ secrets.GITHUB_TOKEN }}
+          mvn clean package -s ${{ inputs.settings-file }} 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Build Artifacts to Registry
         id: publish
         run: |
-          mvn clean deploy -s ${{ inputs.settings-file }} \
-            -Dgithub.repository=${{ github.repository }} \
-            -Dgithub.actor=${{ github.actor }} \
-            -Dgithub.token=${{ secrets.GITHUB_TOKEN }}
+          mvn clean deploy -s ${{ inputs.settings-file }} 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

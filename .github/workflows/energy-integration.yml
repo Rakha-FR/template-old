@@ -5,10 +5,23 @@ on:
 
 jobs:
   prepare-environment:
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/prepare-version.yml@migrasi
-    secrets: inherit
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
+      ENV_SERVER: ${{ steps.pre.outputs.ENV_SERVER }}
+    steps:
+      - name: Prepare Version and Environment
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
 
   build-maven:
+    container:
+      image: maven:3.9.6-eclipse-temurin-17
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
     needs: prepare-environment
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-maven.yml@migrasi
-    secrets: inherit
+    steps:
+      - name: Build Maven Application
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi

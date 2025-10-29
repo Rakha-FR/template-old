@@ -1,0 +1,20 @@
+name: "Build Maven Application"
+description: "Composite action for building a Maven project"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Maven Application
+      shell: bash
+      run: mvn clean package -s ci_settings.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish Maven Application
+      shell: bash
+      run: mvn clean deploy -s ci_settings.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
