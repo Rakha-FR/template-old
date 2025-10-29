@@ -49,5 +49,4 @@ jobs:
       runner_group: ${{ needs.define-environment.outputs.runner_group }}
       app_version: ${{ needs.define-environment.outputs.app_version }}
       node_version: 20.11.0
-      need_yarn: true
     secrets: inherit
