@@ -14,7 +14,7 @@ runs:
 
     - name: Update to latest SNAPSHOT dependencies
       shell: bash
-      run: mvn versions:use-latest-snapshots
+      run: mvn versions:use-latest-snapshots -Dincludes=com.dbs:*
 
     - name: Build Maven Application
       shell: bash
