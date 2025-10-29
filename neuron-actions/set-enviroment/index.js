@@ -14,7 +14,7 @@ async function run() {
     core.info(`Ref: ${ref}`);
 
     // --- Default branches
-    const defaultBranches = ['development', 'staging-qa'];
+    const defaultBranches = ['development', 'staging-qa', 'dev', 'stg', 'development-pdp', 'staging'];
     const allowedBranchesInput = core.getInput('allowed_branches') || '';
     const allowedBranches = Array.from(
       new Set([
@@ -75,10 +75,16 @@ async function run() {
     }
 
     // --- Determine environment ---
-    if (['main', 'master'].includes(currentBranch)) environment = 'production';
-    else if (currentBranch === 'staging-qa') environment = 'staging';
-    else if (currentBranch === 'development') environment = 'development';
-    else environment = 'development';
+    if (['main', 'master'].includes(currentBranch)) {
+      environment = 'production';
+    } else if (['staging-qa', 'staging', 'stg'].includes(currentBranch)) {
+      environment = 'staging';
+    } else if (['development', 'dev', 'development-pdp'].includes(currentBranch)) {
+      environment = 'development';
+    } else {
+      environment = 'development';
+    }
+
 
     try {
       // Coba parse JSON kalau valid
