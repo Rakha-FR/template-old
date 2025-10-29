@@ -4,7 +4,7 @@ description: "Composite action for scanning code with SonarQube"
 inputs:
   SONAR_EXCLUSIONS:
     description: "Files and directories to exclude from SonarQube analysis"
-    required: true
+    required: false
   SONAR_SOURCES:
     description: "Source directories for SonarQube analysis"
     required: true
