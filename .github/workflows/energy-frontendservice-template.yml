@@ -1,0 +1,59 @@
+name: Energy Frontend Services Pipelines
+on:
+  workflow_call:
+
+jobs:
+  define-environment:
+    if: |
+      (github.event_name == 'pull_request' &&
+        (github.event.pull_request.merged == true ||
+        github.event.pull_request.state == 'open' ||
+        github.event.action == 'synchronize')) ||
+      (github.event_name == 'workflow_dispatch')
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      branch_env: ${{ steps.branch.outputs.environment }}
+      runner_group: ${{ steps.branch.outputs.runner_group }}
+      repo_name: ${{ steps.branch.outputs.repo_name }}
+      repo_owner: ${{ steps.branch.outputs.repo_owner }}
+      app_version: ${{ steps.branch.outputs.app_version }}
+      deploy_targets: ${{ steps.branch.outputs.deploy_targets }}
+    steps:
+      - name: Define Env
+        id: branch
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        with:
+          deploy_to: 'RELYON'
+          allowed_branches: "285-devops---setup-jenkins-relyon"
+
+  code-quality:
+    if: needs.define-environment.result == 'success'
+    needs: [define-environment]
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    with:
+      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
+      SONAR_EXCLUSIONS: ""
+      SONAR_SOURCES: "./src"
+      SONAR_HOST_URL: "http://10.129.2.232:9000"
+      SONAR_USER_HOME: ${{ github.workspace }}
+      continue-on-error: true
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build:
+    needs: define-environment
+    if: needs.define-environment.result == 'success'
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
+    with:
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      branch_env: ${{ needs.define-environment.outputs.branch_env }}
+      deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
+      runner_group: ${{ needs.define-environment.outputs.runner_group }}
+      app_version: ${{ needs.define-environment.outputs.app_version }}
+      node_version: 20.11.0
+      need_yarn: true
+    secrets: inherit
