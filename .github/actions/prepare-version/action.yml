@@ -17,10 +17,7 @@ outputs:
   REPO_NAME:
     description: "Repository Name"
     value: ${{ steps.set_environment.outputs.REPO_NAME }}
-  matrix:
-    description: 'Matrix configuration for dynamic runners'
-    value: ${{ steps.set_matrix.outputs.matrix }}
-    
+
 runs:
   using: composite
   steps:
@@ -52,15 +49,6 @@ runs:
         else
           echo "NOTES='Branch bukan development, staging, atau tag v*'" >> $GITHUB_OUTPUT 
         fi
-
-    - name: Set Matrix Configuration
-      id: set_matrix
-      shell: bash
-      run: |
-        RUNNER_GROUP="${{ steps.set_environment.outputs.RUNNER_GROUP }}"
-        MATRIX_JSON="{\"runner-group\":[\"$RUNNER_GROUP\"]}"
-        echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
-        echo "Generated matrix: $MATRIX_JSON"
 
     - name: Variable validation
       id: validate_variables
