@@ -29,7 +29,11 @@ runs:
         REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
         echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_OUTPUT
         echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
-        
+        echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
+        echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT        
+
+        echo "NOTES=" >> $GITHUB_OUTPUT
+
         if [[ "${{ github.ref }}" == *"refs/heads/development"* ]]; then
           echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT
@@ -42,6 +46,8 @@ runs:
           echo "ENV_SERVER=production" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Production" >> $GITHUB_OUTPUT
           echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        else
+          echo "NOTES='Branch bukan development, staging, atau tag v*'" >> $GITHUB_OUTPUT 
         fi
     - name: Variable validation
       id: validate_variables
@@ -51,3 +57,4 @@ runs:
         echo "Repository Name: ${{ steps.set_environment.outputs.REPO_NAME }}"
         echo "App Version: ${{ steps.set_environment.outputs.APP_VERSION }}"
         echo "Environment Server: ${{ steps.set_environment.outputs.ENV_SERVER }}"
+        echo "Notes: ${{ steps.set_environment.outputs.NOTES }}"
