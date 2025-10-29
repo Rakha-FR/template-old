@@ -12,9 +12,13 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
+    - name: Update to latest SNAPSHOT dependencies
+      shell: bash
+      run: mvn versions:use-latest-snapshots -Dincludes=com.dbs:*
+
     - name: Build Maven Application
       shell: bash
-      run: mvn clean package -s ci_settings.xml
+      run: mvn clean package -s ci_settings.xml -U
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 
