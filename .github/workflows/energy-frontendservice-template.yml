@@ -25,8 +25,8 @@ jobs:
         id: branch
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
-          deploy_to: 'RELYON'
-          allowed_branches: "285-devops---setup-jenkins-relyon"
+          deploy_to: 'MOBILE'
+          allowed_branches: "26-devops-setup-ci-cd"
 
   code-quality:
     if: needs.define-environment.result == 'success'
