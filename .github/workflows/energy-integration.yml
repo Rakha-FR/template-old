@@ -35,24 +35,20 @@ jobs:
 
   sonarqube-scan:
     if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
     needs: 
       - condition-check
       - prepare-environment
-    steps:
-      - name: SonarQube Scan
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
-        with:
-          RUNNER_GROUP: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
-          SONAR_EXCLUSIONS: ""
-          SONAR_SOURCES: "./src"
-          SONAR_USER_HOME: ${{ github.workspace }}
-          continue-on-error: true
-          REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
-          REPOSITORY_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    with:
+      grouprunner: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
+      SONAR_EXCLUSIONS: ""
+      SONAR_SOURCES: "./src"
+      SONAR_USER_HOME: ${{ github.workspace }}
+      continue-on-error: true
+      repo_name: ${{ needs.prepare-environment.outputs.REPO_NAME }}
+      repository_owner: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-maven:
     if: ${{ needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
