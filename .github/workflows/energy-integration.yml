@@ -29,15 +29,18 @@ jobs:
       RUNNER_GROUP: ${{ steps.set_environment.outputs.RUNNER_GROUP }}
       REPO_OWNER: ${{ steps.set_environment.outputs.REPO_OWNER }}
       REPO_NAME: ${{ steps.set_environment.outputs.REPO_NAME }}
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
     steps:
       - name: Prepare Version and Environment
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
 
   sonarqube-scan:
     if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
+    strategy:
+      matrix: ${{ fromJSON(needs.prepare-environment.outputs.matrix) }}
     runs-on:
-      group: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
-      labels: [self-hosted, Linux, X64, "${{ needs.prepare-environment.outputs.RUNNER_GROUP }}"]
+      group: ${{ matrix.runner-group }}
+      labels: [self-hosted, Linux, X64, "${{ matrix.runner-group }}"]
     needs: 
       - condition-check
       - prepare-environment
@@ -46,6 +49,7 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
         with:
           RUNNER_GROUP: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
+          SONAR_EXCLUSIONS: ""
           SONAR_SOURCES: "./src"
           SONAR_USER_HOME: ${{ github.workspace }}
           continue-on-error: true

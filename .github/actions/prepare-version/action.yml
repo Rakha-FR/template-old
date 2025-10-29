@@ -17,7 +17,10 @@ outputs:
   REPO_NAME:
     description: "Repository Name"
     value: ${{ steps.set_environment.outputs.REPO_NAME }}
-
+  matrix:
+    description: 'Matrix configuration for dynamic runners'
+    value: ${{ steps.set_matrix.outputs.matrix }}
+    
 runs:
   using: composite
   steps:
@@ -37,7 +40,7 @@ runs:
         if [[ "${{ github.ref }}" == *"refs/heads/development"* ]]; then
           echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT
-          echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.sha }}" >> $GITHUB_OUTPUT
         elif [[ "${{ github.ref }}" == *"refs/heads/staging"* ]]; then
           echo "ENV_SERVER=staging" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Staging" >> $GITHUB_OUTPUT
@@ -49,6 +52,16 @@ runs:
         else
           echo "NOTES='Branch bukan development, staging, atau tag v*'" >> $GITHUB_OUTPUT 
         fi
+
+    - name: Set Matrix Configuration
+      id: set_matrix
+      shell: bash
+      run: |
+        RUNNER_GROUP="${{ steps.set_environment.outputs.RUNNER_GROUP }}"
+        MATRIX_JSON="{\"runner-group\":[\"$RUNNER_GROUP\"]}"
+        echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+        echo "Generated matrix: $MATRIX_JSON"
+
     - name: Variable validation
       id: validate_variables
       shell: bash
