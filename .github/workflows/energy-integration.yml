@@ -46,7 +46,6 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
         with:
           RUNNER_GROUP: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
-          SONAR_EXCLUSIONS: ""
           SONAR_SOURCES: "./src"
           SONAR_USER_HOME: ${{ github.workspace }}
           continue-on-error: true
