@@ -9,11 +9,12 @@ jobs:
       group: Development
       labels: [self-hosted, Linux, X64, Development]
     outputs:
-      SQ_RULES: ${{ steps.ci_condition.outputs.SQ_RULES }}
-      MERGED_RULES: ${{ steps.ci_condition.outputs.MERGED_RULES }}
-      MANUAL_RULES: ${{ steps.ci_condition.outputs.MANUAL_RULES }}
+      SQ_RULES: ${{ steps.check-condition.outputs.SQ_RULES }}
+      MERGED_RULES: ${{ steps.check-condition.outputs.MERGED_RULES }}
+      MANUAL_RULES: ${{ steps.check-condition.outputs.MANUAL_RULES }}
     steps:
       - name: Check Conditions
+        id: check-condition
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/condition-check@migrasi
 
   prepare-environment:
