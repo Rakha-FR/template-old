@@ -34,3 +34,11 @@ runs:
         elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "MANUAL_RULES=true" >> $GITHUB_OUTPUT
         fi
+
+    - name: Variable validation
+      id: validate_conditions
+      shell: bash
+      run: |
+        echo "SQ Rules: ${{ steps.ci_condition.outputs.SQ_RULES }}"
+        echo "Merged Rules: ${{ steps.ci_condition.outputs.MERGED_RULES }}"
+        echo "Manual Rules: ${{ steps.ci_condition.outputs.MANUAL_RULES }}"
