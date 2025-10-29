@@ -47,6 +47,7 @@ jobs:
       continue-on-error: true
       repo_name: ${{ needs.prepare-environment.outputs.REPO_NAME }}
       repository_owner: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
+      SONAR_HOST_URL: "http://10.129.2.232:9000"
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
