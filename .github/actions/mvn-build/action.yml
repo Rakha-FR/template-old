@@ -12,9 +12,14 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
+    - name: Clear SNAPSHOT from cache
+      shell: bash
+      run: |
+        rm -rf ~/.m2/repository/com/dbs
+
     - name: Build Maven Application
       shell: bash
-      run: mvn clean package -s ci_settings.xml
+      run: mvn clean package -s ci_settings.xml -U
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 
