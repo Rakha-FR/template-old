@@ -1,6 +1,11 @@
 name: "Build Maven Application"
 description: "Composite action for building a Maven project"
 
+inputs:
+  github-token:
+    description: "GitHub Token for authentication"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -11,10 +16,10 @@ runs:
       shell: bash
       run: mvn clean package -s ci_settings.xml
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
 
     - name: Publish Maven Application
       shell: bash
       run: mvn clean deploy -s ci_settings.xml
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}

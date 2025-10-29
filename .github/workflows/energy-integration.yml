@@ -25,3 +25,5 @@ jobs:
     steps:
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
