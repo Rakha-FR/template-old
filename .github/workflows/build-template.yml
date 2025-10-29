@@ -80,7 +80,7 @@ jobs:
       if: inputs.need_yarn == false 
       run: |
         npm install --legacy-peer-deps
-        npm run build
+        CI=false npm run build
 
     - name: Install dependencies and build (YARN)
       if: inputs.need_yarn
