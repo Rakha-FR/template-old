@@ -19,22 +19,19 @@ runs:
     - name: Determine job conditions
       id: condition-check
       shell: bash
-      env:
-        EVENT_NAME: ${{ github.event_name }}
-        PR_STATE: ${{ github.event.pull_request.state || '' }}
-        PR_MERGED: ${{ github.event.pull_request.merged || 'false' }}
       run: |
         echo "SQ_RULES=false" >> $GITHUB_OUTPUT
         echo "MERGED_RULES=false" >> $GITHUB_OUTPUT
         echo "MANUAL_RULES=false" >> $GITHUB_OUTPUT
 
-        if [[ "$EVENT_NAME" == "pull_request" && "$PR_STATE" == "open" ]]; then
+        # Logika dasar kondisi
+        if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.state }}" == "open" ]]; then
           echo "SQ_RULES=true" >> $GITHUB_OUTPUT
 
-        elif [[ "$EVENT_NAME" == "pull_request" && "$PR_MERGED" == "true" ]]; then
+        elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
           echo "MERGED_RULES=true" >> $GITHUB_OUTPUT
 
-        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "MANUAL_RULES=true" >> $GITHUB_OUTPUT
         fi
 
