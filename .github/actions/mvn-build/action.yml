@@ -12,10 +12,9 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Clear SNAPSHOT from cache
+    - name: Update to latest SNAPSHOT dependencies
       shell: bash
-      run: |
-        rm -rf ~/.m2/repository/com/dbs
+      run: mvn versions:use-latest-snapshots
 
     - name: Build Maven Application
       shell: bash
