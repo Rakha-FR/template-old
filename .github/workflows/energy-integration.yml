@@ -1,0 +1,71 @@
+name: Run workflows
+
+on:
+  workflow_call:
+
+jobs:
+  condition-check:
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      SQ_RULES: ${{ steps.check-condition.outputs.SQ_RULES }}
+      MERGED_RULES: ${{ steps.check-condition.outputs.MERGED_RULES }}
+      MANUAL_RULES: ${{ steps.check-condition.outputs.MANUAL_RULES }}
+    steps:
+      - name: Check Conditions
+        id: check-condition
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/condition-check@migrasi
+
+  prepare-environment:
+    needs: condition-check
+    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' || needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
+      ENV_SERVER: ${{ steps.set_environment.outputs.ENV_SERVER }}
+      RUNNER_GROUP: ${{ steps.set_environment.outputs.RUNNER_GROUP }}
+      REPO_OWNER: ${{ steps.set_environment.outputs.REPO_OWNER }}
+      REPO_NAME: ${{ steps.set_environment.outputs.REPO_NAME }}
+    steps:
+      - name: Prepare Version and Environment
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
+
+  sonarqube-scan:
+    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    needs: 
+      - condition-check
+      - prepare-environment
+    steps:
+      - name: SonarQube Scan
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
+        with:
+          RUNNER_GROUP: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
+          SONAR_EXCLUSIONS: ""
+          SONAR_SOURCES: "./src"
+          SONAR_USER_HOME: ${{ github.workspace }}
+          continue-on-error: true
+          REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
+          REPOSITORY_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build-maven:
+    if: ${{ needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
+    container:
+      image: maven:3.9.6-eclipse-temurin-17
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    needs: 
+    - condition-check
+    - prepare-environment
+    steps:
+      - name: Build Maven Application
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

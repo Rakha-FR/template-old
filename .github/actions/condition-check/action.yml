@@ -1,0 +1,48 @@
+# File: .github/actions/ci-checks/action.yml
+name: "Rules Conditions"
+description: "Reusable composite job to determine workflow run conditions for PR and merge events"
+
+outputs:
+  SQ_RULES:
+    description: "Indicates if SonarQube analysis should be performed"
+    value: ${{ steps.condition-check.outputs.SQ_RULES }}
+  MERGED_RULES:
+    description: "Indicates if post-merge actions should be executed"
+    value: ${{ steps.condition-check.outputs.MERGED_RULES }}
+  MANUAL_RULES:
+    description: "Indicates if the workflow was triggered manually"
+    value: ${{ steps.condition-check.outputs.MANUAL_RULES }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: check Variable
+      shell: bash
+      run: printenv
+
+    - name: Determine job conditions
+      id: condition-check
+      shell: bash
+      run: |
+        echo "SQ_RULES=false" >> $GITHUB_OUTPUT
+        echo "MERGED_RULES=false" >> $GITHUB_OUTPUT
+        echo "MANUAL_RULES=false" >> $GITHUB_OUTPUT
+
+        # Logika dasar kondisi
+        if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.state }}" == "open" ]]; then
+          echo "SQ_RULES=true" >> $GITHUB_OUTPUT
+
+        elif [[ "${{ github.event_name }}" == "push" ]]; then
+          echo "MERGED_RULES=true" >> $GITHUB_OUTPUT
+
+        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "MANUAL_RULES=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Variable validation
+      id: validate_conditions
+      shell: bash
+      run: |
+        echo "SQ Rules: ${{ steps.condition-check.outputs.SQ_RULES }}"
+        echo "Merged Rules: ${{ steps.condition-check.outputs.MERGED_RULES }}"
+        echo "Manual Rules: ${{ steps.condition-check.outputs.MANUAL_RULES }}"
