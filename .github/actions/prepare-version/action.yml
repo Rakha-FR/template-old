@@ -57,4 +57,5 @@ runs:
         echo "Repository Name: ${{ steps.set_environment.outputs.REPO_NAME }}"
         echo "App Version: ${{ steps.set_environment.outputs.APP_VERSION }}"
         echo "Environment Server: ${{ steps.set_environment.outputs.ENV_SERVER }}"
+        echo "Runner Group: ${{ steps.set_environment.outputs.RUNNER_GROUP }}"
         echo "Notes: ${{ steps.set_environment.outputs.NOTES }}"
