@@ -32,7 +32,7 @@ runs:
         if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.state }}" == "open" ]]; then
           echo "SQ_RULES=true" >> $GITHUB_OUTPUT
 
-        elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+        elif [[ "${{ github.event_name }}" == "push" ]]; then
           echo "MERGED_RULES=true" >> $GITHUB_OUTPUT
 
         elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
