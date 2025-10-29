@@ -1,0 +1,43 @@
+name: Sonarqube Scan
+description: "Composite action for scanning code with SonarQube"
+
+inputs:
+  SONAR_EXCLUSIONS:
+    description: "Files and directories to exclude from SonarQube analysis"
+    required: true
+  SONAR_SOURCES:
+    description: "Source directories for SonarQube analysis"
+    required: true
+  SONAR_USER_HOME:
+    description: "Directory for SonarQube user home"
+    required: true
+  REPO_OWNER:
+    description: "Owner of the repository"
+    required: true
+  REPO_NAME:
+    description: "Name of the repository"
+    required: true
+  SONAR_TOKEN:
+    description: "SonarQube authentication token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v6.0.0
+      env:
+        SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
+        SONAR_HOST_URL: "http://10.129.2.232:9000"
+        SONAR_USER_HOME:  ${{ inputs.SONAR_USER_HOME }}/.sonar
+        projectBaseDir: "./"
+      with:
+        args: >
+          -Dsonar.projectKey=${{ github.event.repository.id }}_${{ inputs.REPO_OWNER }}_${{ inputs.REPO_NAME }}
+          -Dsonar.exclusions=${{ inputs.SONAR_EXCLUSIONS }}
+          -Dsonar.sources=${{ inputs.SONAR_SOURCES }}
+          -Dsonar.qualitygate.wait=true
+          -Dsonar.qualitygate.timeout=900

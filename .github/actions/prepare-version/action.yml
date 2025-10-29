@@ -47,5 +47,7 @@ runs:
       id: validate_variables
       shell: bash
       run: |
+        echo "Repository Owner: ${{ steps.set_environment.outputs.REPO_OWNER }}"
+        echo "Repository Name: ${{ steps.set_environment.outputs.REPO_NAME }}"
         echo "App Version: ${{ steps.set_environment.outputs.APP_VERSION }}"
         echo "Environment Server: ${{ steps.set_environment.outputs.ENV_SERVER }}"
