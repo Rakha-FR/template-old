@@ -16,6 +16,10 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: check Variable
+      shell: bash
+      run: printenv
+
     - name: Determine job conditions
       id: condition-check
       shell: bash
