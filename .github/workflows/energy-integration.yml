@@ -5,7 +5,9 @@ on:
 
 jobs:
   condition-check:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
     outputs:
       SQ_RULES: ${{ steps.check.outputs.SQ_RULES }}
       MERGED_RULES: ${{ steps.check.outputs.MERGED_RULES }}
