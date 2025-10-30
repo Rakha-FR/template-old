@@ -73,3 +73,4 @@ jobs:
           REPO_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
           REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
           PACKAGE_NAME: digisquare-be-services
+          PAT: ${{ secrets.PAT }}
