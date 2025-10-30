@@ -24,11 +24,11 @@ jobs:
       group: Development
       labels: [self-hosted, Linux, X64, Development]
     outputs:
-      APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
-      ENV_SERVER: ${{ steps.set_environment.outputs.ENV_SERVER }}
-      RUNNER_GROUP: ${{ steps.set_environment.outputs.RUNNER_GROUP }}
-      REPO_OWNER: ${{ steps.set_environment.outputs.REPO_OWNER }}
-      REPO_NAME: ${{ steps.set_environment.outputs.REPO_NAME }}
+      APP_VERSION: ${{ steps.prepare-environment.outputs.APP_VERSION }}
+      ENV_SERVER: ${{ steps.prepare-environment.outputs.ENV_SERVER }}
+      RUNNER_GROUP: ${{ steps.prepare-environment.outputs.RUNNER_GROUP }}
+      REPO_OWNER: ${{ steps.prepare-environment.outputs.REPO_OWNER }}
+      REPO_NAME: ${{ steps.prepare-environment.outputs.REPO_NAME }}
     steps:
       - name: Prepare Version and Environment
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-environment@migrasi
