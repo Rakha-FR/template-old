@@ -30,8 +30,8 @@ autoscaling:
   enabled: true
   minReplicas: 15
   maxReplicas: 30
-  targetCPUUtilizationPercentage: 50
-  targetMemoryUtilizationPercentage: 50
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
 
 volumeMounts:
   name: php-configmap-elastic-apm
@@ -42,11 +42,11 @@ configMap:
 
 resources:
   limits:
-    cpu: 500m
-    memory: 1Gi
+    cpu: 200m
+    memory: 512Mi
   requests:
-    cpu: 250m
-    memory: 500Mi
+    cpu: 100m
+    memory: 320Mi
 
 secretref:
   name: data-apm-secret
@@ -59,6 +59,10 @@ vault:
   annotations:
     vault.hashicorp.com/agent-inject: 'true'
     vault.hashicorp.com/role: 'pgnmobile-production'
+    vault.hashicorp.com/agent-requests-cpu: "50m"
+    vault.hashicorp.com/agent-limits-cpu: "100m"
+    vault.hashicorp.com/agent-requests-mem: "64Mi"
+    vault.hashicorp.com/agent-limits-mem: "128Mi"
     vault.hashicorp.com/agent-inject-secret-.env: 'pgn_mobile/data/production/data/secret'
     vault.hashicorp.com/secret-volume-path: '/vault/secret'
     vault.hashicorp.com/auth-path: 'auth/pgn-mobile-k8s'
