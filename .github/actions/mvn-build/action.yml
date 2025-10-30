@@ -91,7 +91,7 @@ runs:
         if [[ -n "${CONSUMED_PACKAGE}" ]]; then
           for PACKAGE in ${CONSUMED_PACKAGE//,/ }; do
     
-            echo "============================Consumed Package============================="
+            echo "============================${PACKAGE} Package============================="
 
             RESPONSE=$(curl -s -w "\n%{http_code}" \
               -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
@@ -120,7 +120,9 @@ runs:
 
             PACKAGE=$(echo "$PACKAGE" | tr '-' '_' | tr '.' '_')
 
-            echo "${Package}""
+            echo "Last Check"
+            echo "Package variable for env: $PACKAGE"
+            echo "Version variable for env: $LATEST_VERSION"
 
             echo "$PACKAGE_version=$LATEST_VERSION" >> $GITHUB_ENV
             echo "$PACKAGE_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
