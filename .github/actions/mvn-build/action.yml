@@ -89,9 +89,15 @@ runs:
       run: mvn clean package -s ci_settings.xml
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
 
     - name: Publish Maven Application
       shell: bash
       run: mvn clean deploy -s ci_settings.xml
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
