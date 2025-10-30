@@ -60,6 +60,7 @@ runs:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        PAT: ${{ inputs.PAT }}
 
     - name: Build Maven Application
       shell: bash
