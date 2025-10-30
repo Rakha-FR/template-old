@@ -39,6 +39,8 @@ runs:
 
         set +e
 
+        echo "============================Self Package============================="
+
         RESPONSE=$(curl -s -w "\n%{http_code}" \
           -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
@@ -88,6 +90,9 @@ runs:
 
         if [[ -n "${CONSUMED_PACKAGE}" ]]; then
           for PACKAGE in ${CONSUMED_PACKAGE//,/ }; do
+    
+            echo "============================Consumed Package============================="
+
             RESPONSE=$(curl -s -w "\n%{http_code}" \
               -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
