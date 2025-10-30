@@ -70,8 +70,8 @@ runs:
             MAJOR=1
             MINOR=0
             PATCH=0
-            MVN_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
           fi
+          MVN_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
         elif [[ "$ENV_SERVER" == "development" || "$ENV_SERVER" == "staging" ]]; then
           MVN_VERSION="$BASE_VERSION-SNAPSHOT"
         fi
