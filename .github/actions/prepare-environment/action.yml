@@ -34,18 +34,18 @@ runs:
 
         echo "NOTES=" >> $GITHUB_OUTPUT
 
-        if [[ "${{ github.ref }}" == *"refs/heads/development"* ]]; then
+        if [[ "${{ github.ref }}" == *"refs/heads/dev"* ]]; then
           echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT
           echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.sha }}" >> $GITHUB_OUTPUT
-        elif [[ "${{ github.ref }}" == *"refs/heads/staging"* ]]; then
+        elif [[ "${{ github.ref }}" == *"refs/heads/stg"* ]]; then
           echo "ENV_SERVER=staging" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Staging" >> $GITHUB_OUTPUT
-          echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.sha }}" >> $GITHUB_OUTPUT
         elif [[ "${{ github.ref }}" == *"refs/tags/v*"* ]]; then
           echo "ENV_SERVER=production" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Production" >> $GITHUB_OUTPUT
-          echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.ref_name }}" >> $GITHUB_OUTPUT
         else
           echo "NOTES='Branch bukan development, staging, atau tag v*'" >> $GITHUB_OUTPUT 
         fi
