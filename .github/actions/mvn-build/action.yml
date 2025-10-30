@@ -22,17 +22,13 @@ inputs:
     required: true
   CONSUMED_PACKAGE:
     description: "Comma-separated list of consumed package names to fetch versions for"
-    required: false
+    required: true
 
 runs:
   using: "composite"
   steps:
     - name: Checkout code
       uses: actions/checkout@v5
-      with:
-        repository: ${{ github.repository }}
-        token: ${{ inputs.GITHUB_TOKEN }}
-        branch: ${{ github.ref_name }}
 
     - name: Check the latest package version
       shell: bash
