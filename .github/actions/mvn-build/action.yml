@@ -31,6 +31,7 @@ runs:
       shell: bash
       id: check_version
       run: |
+        ls
         chmod +x scripts/check-version.sh
         ./scripts/check-version.sh
       env:
