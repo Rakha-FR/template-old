@@ -45,6 +45,7 @@ runs:
         MVN_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
         echo "🆕 New version will be: $MVN_VERSION"
 
+        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_ENV
         echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_OUTPUT      
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
@@ -53,14 +54,12 @@ runs:
 
     - name: Build Maven Application
       shell: bash
-      run: mvn clean package -s ci_settings.xml -U
+      run: mvn clean package -s ci_settings.xml
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        MVN_VERSION: ${{ outputs.check_version.MVN_VERSION }}
 
     - name: Publish Maven Application
       shell: bash
       run: mvn clean deploy -s ci_settings.xml
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        MVN_VERSION: ${{ outputs.check_version.MVN_VERSION }}
