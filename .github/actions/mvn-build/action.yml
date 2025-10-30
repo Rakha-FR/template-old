@@ -5,6 +5,12 @@ inputs:
   github-token:
     description: "GitHub Token for authentication"
     required: true
+  REPO_OWNER:
+    description: "Repository Owner"
+    required: true
+  REPO_NAME:
+    description: "Repository Name"
+    required: true
 
 runs:
   using: "composite"
@@ -12,9 +18,34 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Update to latest SNAPSHOT dependencies
+    - name: Check the latest package version
       shell: bash
-      run: mvn versions:use-latest-snapshots -Dincludes=com.dbs:*
+      run: |
+        LATEST_VERSION=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${REPO_NAME}/versions \
+          | jq -r '.[0].name' || echo "1.0.0")
+
+        BASE_VERSION=$(echo "$LATEST_VERSION" | cut -d'-' -f1) # hapus suffix -SNAPSHOT kalau ada
+        MAJOR=$(echo "$BASE_VERSION" | cut -d'.' -f1)
+        MINOR=$(echo "$BASE_VERSION" | cut -d'.' -f2)
+        PATCH=$(echo "$BASE_VERSION" | cut -d'.' -f3)
+
+        if [[ -z "$PATCH" || "$PATCH" == "null" ]]; then
+          MAJOR=1
+          MINOR=0
+          PATCH=0
+        fi
+
+        MVN_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
+        echo "🆕 New version will be: $MVN_VERSION"
+
+        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_ENV
+        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_OUTPUT
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
 
     - name: Build Maven Application
       shell: bash

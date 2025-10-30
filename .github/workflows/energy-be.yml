@@ -31,7 +31,7 @@ jobs:
       REPO_NAME: ${{ steps.set_environment.outputs.REPO_NAME }}
     steps:
       - name: Prepare Version and Environment
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-environment@migrasi
 
   sonarqube-scan:
     if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
@@ -68,4 +68,4 @@ jobs:
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
