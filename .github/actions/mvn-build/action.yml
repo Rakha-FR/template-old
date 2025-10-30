@@ -89,6 +89,8 @@ runs:
         # Dipakai untuk get version consumed package
         # =====================================================================================================
 
+        echo "${CONSUMED_PACKAGE}"
+
         if [[ -n "${CONSUMED_PACKAGE}" ]]; then
           for PACKAGE in ${CONSUMED_PACKAGE//,/ }; do
             RESPONSE=$(curl -s -w "\n%{http_code}" \
