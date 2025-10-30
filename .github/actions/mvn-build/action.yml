@@ -48,7 +48,6 @@ runs:
         BODY=$(echo "$RESPONSE" | sed '$d')
 
         echo "HTTP Code: $HTTP_CODE"
-        echo "Response Body: $BODY"
 
         if [[ "$HTTP_CODE" == "404" ]] || echo "$BODY" | grep -q "Package not found"; then
           echo "⚠️ Package ${PACKAGE_NAME} not found in org ${REPO_OWNER}. Using default version 1.0.0."
@@ -98,7 +97,6 @@ runs:
             BODY=$(echo "$RESPONSE" | sed '$d')
 
             echo "HTTP Code for $PACKAGE: $HTTP_CODE"
-            echo "Response Body for $PACKAGE: $BODY"
 
             if [[ "$HTTP_CODE" == "404" ]] || echo "$BODY" | grep -q "Package not found"; then
               echo "⚠️ Package ${PACKAGE} not found in org ${REPO_OWNER}. Using default version 1.0.0."
