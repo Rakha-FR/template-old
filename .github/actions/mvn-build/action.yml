@@ -34,11 +34,17 @@ runs:
 
         echo $RESPONSE
 
-        LATEST_VERSION=$(echo "$RESPONSE" | grep -m1 '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/')
-        if [[ -z "$LATEST_VERSION" ]]; then
+        if echo "$RESPONSE" | grep -q '"message": *"Package not found"'; then
+          echo "⚠️ Package ${PACKAGE_NAME} not found in org ${REPO_OWNER}. Using default version 1.0.0."
           LATEST_VERSION="1.0.0"
+        else
+          LATEST_VERSION=$(echo "$RESPONSE" | grep -m1 '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/')
+          if [[ -z "$LATEST_VERSION" ]]; then
+            echo "⚠️ No versions found for package ${PACKAGE_NAME}. Using default version 1.0.0."
+            LATEST_VERSION="1.0.0"
+          fi
         fi
-
+        
         BASE_VERSION=$(echo "$LATEST_VERSION" | cut -d'-' -f1)
         MAJOR=$(echo "$BASE_VERSION" | cut -d'.' -f1)
         MINOR=$(echo "$BASE_VERSION" | cut -d'.' -f2)
