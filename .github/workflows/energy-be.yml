@@ -72,5 +72,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
           REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
-          PACKAGE_NAME: digisquare-be-services
+          PACKAGE_NAME: com.dbs.digisquare-be-services
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
