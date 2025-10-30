@@ -124,8 +124,8 @@ runs:
             echo "Package variable for env: $PACKAGE"
             echo "Version variable for env: $LATEST_VERSION"
 
-            echo "$PACKAGE_version=$LATEST_VERSION" >> $GITHUB_ENV
-            echo "$PACKAGE_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+            echo "${PACKAGE}_version=$LATEST_VERSION" >> $GITHUB_ENV
+            echo "${PACKAGE}_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           done
         fi      
       env:
