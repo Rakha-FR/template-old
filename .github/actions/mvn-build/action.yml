@@ -40,7 +40,7 @@ runs:
         set +e
 
         RESPONSE=$(curl -s -w "\n%{http_code}" \
-          -u "${GITHUB_ACTOR}:${PERSONAL_TOKEN}" \
+          -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
           "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE_NAME}/versions")
 
@@ -90,7 +90,7 @@ runs:
         if [[ -n "${CONSUMED_PACKAGE}" ]]; then
           for PACKAGE in ${CONSUMED_PACKAGE//,/ }; do
             RESPONSE=$(curl -s -w "\n%{http_code}" \
-              -u "${GITHUB_ACTOR}:${PERSONAL_TOKEN}" \
+              -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE}/versions")
             
@@ -127,6 +127,7 @@ runs:
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         ENV_SERVER: ${{ inputs.ENV_SERVER }}
         CONSUMED_PACKAGE: ${{ inputs.CONSUMED_PACKAGE }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
 
     - name: Build Maven Application
       shell: bash
