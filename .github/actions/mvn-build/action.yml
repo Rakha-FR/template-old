@@ -48,7 +48,6 @@ runs:
         else
           LATEST_VERSION=$(echo "$BODY" | grep -m1 '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/')
           echo "✅ Latest version found: $LATEST_VERSION"
-          fi
         fi
         
         # Parse version
