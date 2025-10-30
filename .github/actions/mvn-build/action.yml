@@ -28,13 +28,18 @@ runs:
       shell: bash
       id: check_version
       run: |
-        set -e
+        set +e
 
         RESPONSE=$(curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
           "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE_NAME}/versions")
 
+        HTTP_CODE="${RESPONSE: -3}"
+        BODY="${RESPONSE::-3}"
+
         echo $RESPONSE
+
+        set -e
 
         if echo "$RESPONSE" | grep -q '"message": *"Package not found"'; then
           echo "⚠️ Package ${PACKAGE_NAME} not found in org ${REPO_OWNER}. Using default version 1.0.0."
