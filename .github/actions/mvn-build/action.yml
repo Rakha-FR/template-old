@@ -28,7 +28,7 @@ runs:
       shell: bash
       id: check_version
       run: |
-        RESPONSE=$(curl -s -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
+        RESPONSE=$(curl -s -u "${GITHUB_ACTOR}:${PERSONAL_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
           "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE_NAME}/versions")
 
