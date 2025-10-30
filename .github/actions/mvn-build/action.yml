@@ -19,6 +19,9 @@ inputs:
     required: true
   ENV_SERVER:
     description: "The deployment environment"
+    required: true
+  CONSUMED_PACKAGE:
+    description: "Comma-separated list of consumed package names to fetch versions for"
     required: false
 
 runs:
@@ -129,6 +132,7 @@ runs:
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         ENV_SERVER: ${{ inputs.ENV_SERVER }}
+        CONSUMED_PACKAGE: ${{ inputs.CONSUMED_PACKAGE }}
 
     - name: Build Maven Application
       shell: bash

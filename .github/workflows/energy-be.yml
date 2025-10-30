@@ -74,4 +74,5 @@ jobs:
           REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
           ENV_SERVER: ${{ needs.prepare-environment.outputs.ENV_SERVER }}
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
+          CONSUMED_PACKAGE: ${{ vars.CONSUMED_PACKAGE }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
