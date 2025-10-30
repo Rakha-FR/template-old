@@ -11,6 +11,9 @@ inputs:
   REPO_NAME:
     description: "Repository Name"
     required: true
+  PACKAGE_NAME:
+    description: "Maven Package Name"
+    required: true
 
 runs:
   using: "composite"
@@ -18,19 +21,51 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
+    - name: Check the latest package version
+      shell: bash
+      id: check_version
+      run: |
+        RESPONSE=$(curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE_NAME}/versions")
+
+        echo $RESPONSE
+
+        LATEST_VERSION=$(echo "$RESPONSE" | grep -m1 '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/')
+        if [[ -z "$LATEST_VERSION" ]]; then
+          LATEST_VERSION="1.0.0"
+        fi
+
+        BASE_VERSION=$(echo "$LATEST_VERSION" | cut -d'-' -f1)
+        MAJOR=$(echo "$BASE_VERSION" | cut -d'.' -f1)
+        MINOR=$(echo "$BASE_VERSION" | cut -d'.' -f2)
+        PATCH=$(echo "$BASE_VERSION" | cut -d'.' -f3)
+
+        if [[ -z "$PATCH" || "$PATCH" == "null" ]]; then
+          MAJOR=1
+          MINOR=0
+          PATCH=0
+        fi
+
+        MVN_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
+        echo "🆕 New version will be: $MVN_VERSION"
+
+        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_ENV
+        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_OUTPUT      
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
 
     - name: Build Maven Application
       shell: bash
       run: mvn clean package -s ci_settings.xml
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        REPO_OWNER: ${{ inputs.REPO_OWNER }}
-        REPO_NAME: ${{ inputs.REPO_NAME }} 
 
     - name: Publish Maven Application
       shell: bash
       run: mvn clean deploy -s ci_settings.xml
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        REPO_OWNER: ${{ inputs.REPO_OWNER }}
-        REPO_NAME: ${{ inputs.REPO_NAME }} 
