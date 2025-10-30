@@ -69,3 +69,5 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
+          REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
