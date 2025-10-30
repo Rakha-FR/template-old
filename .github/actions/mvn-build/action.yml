@@ -17,6 +17,9 @@ inputs:
   PERSONAL_TOKEN:
     description: "Personal Access Token for publishing packages"
     required: true
+  ENV_SERVER:
+    description: "The deployment environment"
+    required: false
 
 runs:
   using: "composite"
@@ -35,6 +38,7 @@ runs:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        ENV_SERVER: ${{ inputs.ENV_SERVER }}
 
     - name: Build Maven Application
       shell: bash

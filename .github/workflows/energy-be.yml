@@ -72,5 +72,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
           REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
+          ENV_SERVER: ${{ needs.prepare-environment.outputs.ENV_SERVER }}
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
