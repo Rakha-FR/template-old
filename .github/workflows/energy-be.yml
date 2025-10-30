@@ -31,6 +31,7 @@ jobs:
       REPO_NAME: ${{ steps.prepare-environment.outputs.REPO_NAME }}
     steps:
       - name: Prepare Version and Environment
+        id: prepare-environment
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-environment@migrasi
 
   sonarqube-scan:
