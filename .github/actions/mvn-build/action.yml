@@ -28,6 +28,7 @@ runs:
       uses: actions/checkout@v5
       with:
         repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        token: ${{ inputs.GITHUB_TOKEN }}
         ref: migrasi
 
     - name: Check the latest package version
@@ -47,6 +48,7 @@ runs:
       uses: actions/checkout@v5
       with:
         repository: ${{ github.repository }}
+        token: ${{ inputs.GITHUB_TOKEN }}
         branch: ${{ github.ref_name }}
 
     - name: Build Maven Application
