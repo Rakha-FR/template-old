@@ -28,11 +28,11 @@ runs:
       shell: bash
       id: check_version
       run: |
+        set -e
+
         RESPONSE=$(curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
           "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE_NAME}/versions")
-
-        set -e
 
         echo $RESPONSE
 
