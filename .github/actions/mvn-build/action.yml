@@ -116,9 +116,11 @@ runs:
               fi
             fi
 
-            echo "${PACKAGE} version: $LATEST_VERSION"
+            echo "Package ${PACKAGE} version: $LATEST_VERSION"
 
             PACKAGE=$(echo "$PACKAGE" | tr '-' '_' | tr '.' '_')
+
+            echo "${Package}""
 
             echo "$PACKAGE_version=$LATEST_VERSION" >> $GITHUB_ENV
             echo "$PACKAGE_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
