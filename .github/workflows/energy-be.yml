@@ -4,30 +4,47 @@ on:
   workflow_call:
     inputs:
       RUNNER_GROUP:
-        description: 'Runner Group'
+        required: true
+        type: string
+      SQ_RULES:
+        required: false
+        type: string
+      MERGED_RULES:
+        required: false
+        type: string
+      MANUAL_RULES:
+        required: false
+        type: string
+      APP_VERSION:
+        required: false
+        type: string
+      ENV_SERVER:
+        required: true
+        type: string
+      REPO_OWNER:
+        required: true
+        type: string
+      REPO_NAME:
         required: true
         type: string
 
 jobs:
   sonarqube-scan:
-    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
+    if: ${{ inputs.SQ_RULES == 'true' }}
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
-    needs: 
-      - condition-check
-      - prepare-environment
     steps:
       - name: SonarQube Scan
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
         with:
-          RUNNER_GROUP: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
+          RUNNER_GROUP: ${{ inputs.RUNNER_GROUP }}
           SONAR_EXCLUSIONS: ""
           SONAR_SOURCES: "./src"
           SONAR_USER_HOME: ${{ github.workspace }}
           continue-on-error: true
-          REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
-          REPOSITORY_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          REPOSITORY_OWNER: ${{ inputs.REPO_OWNER }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-maven:
@@ -37,16 +54,13 @@ jobs:
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
-    needs: 
-    - condition-check
-    - prepare-environment
     steps:
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
         with:
-          REPO_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
-          REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
-          ENV_SERVER: ${{ needs.prepare-environment.outputs.ENV_SERVER }}
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          ENV_SERVER: ${{ inputs.ENV_SERVER }}
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
           CONSUMED_PACKAGE: ${{ vars.CONSUMED_PACKAGE }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
