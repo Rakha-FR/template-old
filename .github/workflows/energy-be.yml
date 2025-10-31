@@ -1,44 +1,19 @@
-name: Run workflows
+name: Run workflows For Enrergy Application Backend
 
 on:
   workflow_call:
+    inputs:
+      RUNNER_GROUP:
+        description: 'Runner Group'
+        required: true
+        type: string
 
 jobs:
-  condition-check:
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      SQ_RULES: ${{ steps.check-condition.outputs.SQ_RULES }}
-      MERGED_RULES: ${{ steps.check-condition.outputs.MERGED_RULES }}
-      MANUAL_RULES: ${{ steps.check-condition.outputs.MANUAL_RULES }}
-    steps:
-      - name: Check Conditions
-        id: check-condition
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/condition-check@migrasi
-
-  prepare-environment:
-    needs: condition-check
-    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' || needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      APP_VERSION: ${{ steps.prepare-environment.outputs.APP_VERSION }}
-      ENV_SERVER: ${{ steps.prepare-environment.outputs.ENV_SERVER }}
-      RUNNER_GROUP: ${{ steps.prepare-environment.outputs.RUNNER_GROUP }}
-      REPO_OWNER: ${{ steps.prepare-environment.outputs.REPO_OWNER }}
-      REPO_NAME: ${{ steps.prepare-environment.outputs.REPO_NAME }}
-    steps:
-      - name: Prepare Version and Environment
-        id: prepare-environment
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-environment@migrasi
-
   sonarqube-scan:
     if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
     runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     needs: 
       - condition-check
       - prepare-environment
@@ -60,8 +35,8 @@ jobs:
     container:
       image: maven:3.9.6-eclipse-temurin-17
     runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     needs: 
     - condition-check
     - prepare-environment
