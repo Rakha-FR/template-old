@@ -29,6 +29,15 @@ on:
         type: string
 
 jobs:
+  debug:
+    runs-on:
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    steps:
+      - name: Debug Info
+        run: |
+          printenv
+
   sonarqube-scan:
     if: ${{ inputs.SQ_RULES == 'true' }}
     runs-on:
