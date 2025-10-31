@@ -2,6 +2,31 @@ name: Preparation for running workflows
 
 on:
   workflow_call:
+    outputs:
+      SQ_RULES:
+        description: "Software Quality Rules"
+        value: ${{ jobs.condition-check.outputs.SQ_RULES }}
+      MERGED_RULES:
+        description: "Merged Build Rules"
+        value: ${{ jobs.condition-check.outputs.MERGED_RULES }}
+      MANUAL_RULES:
+        description: "Manual Build Rules"
+        value: ${{ jobs.condition-check.outputs.SQ_RULES }}
+      APP_VERSION:
+        description: "The application version"
+        value: ${{ jobs.prepare-environment.outputs.APP_VERSION }}
+      ENV_SERVER: 
+        description: "The deployment environment"
+        value: ${{ jobs.prepare-environment.outputs.ENV_SERVER }}
+      RUNNER_GROUP: 
+        description: "Runner environment"
+        value: ${{ jobs.prepare-environment.outputs.RUNNER_GROUP }}
+      REPO_OWNER:
+        description: "Repository Owner"
+        value: ${{ jobs.prepare-environment.outputs.REPO_OWNER }}
+      REPO_NAME:
+        description: "Repository Name"
+        value: ${{ jobs.prepare-environment.outputs.REPO_NAME }}
 
 jobs:
   condition-check:
