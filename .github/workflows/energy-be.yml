@@ -48,7 +48,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-maven:
-    if: ${{ needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
+    if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
     container:
       image: maven:3.9.6-eclipse-temurin-17
     runs-on:
