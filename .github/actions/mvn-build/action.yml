@@ -27,7 +27,7 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Check the latest package version
+    - name: Check the latest package version and build command parameter
       shell: bash
       id: check_version
       run: |
@@ -153,6 +153,8 @@ runs:
             VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
           fi
         done
+
+        echo "============================Prepare Command Parameter============================="
 
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
         echo "✅ Package version for ${PACKAGE_NAME}: ${mvn_version}"
