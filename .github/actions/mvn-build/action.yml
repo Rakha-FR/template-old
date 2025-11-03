@@ -71,16 +71,16 @@ runs:
             MINOR=0
             PATCH=0
           fi
-          MVN_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
+          mvn_version="$MAJOR.$MINOR.$((PATCH+1))"
         elif [[ "$ENV_SERVER" == "development" || "$ENV_SERVER" == "staging" ]]; then
-          MVN_VERSION="$BASE_VERSION-SNAPSHOT"
+          mvn_version="$BASE_VERSION-SNAPSHOT"
         fi
 
-        echo "🆕 New version will be: $MVN_VERSION"
+        echo "🆕 New version will be: $mvn_version"
 
         # Export ke environment
-        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_ENV
-        echo "MVN_VERSION=$MVN_VERSION" >> $GITHUB_OUTPUT
+        echo "mvn_version=$mvn_version" >> $GITHUB_ENV
+        echo "mvn_version=$mvn_version" >> $GITHUB_OUTPUT
 
         # =====================================================================================================
         # Dipakai untuk get version consumed package
@@ -161,7 +161,7 @@ runs:
           fi
         done
 
-        VERSION_PARAMS="${VERSION_PARAMS} -DMVN_VERSION=${MVN_VERSION}"
+        VERSION_PARAMS="${VERSION_PARAMS} -Dmvn_version=${mvn_version}"
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
 
         mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
