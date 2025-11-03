@@ -116,8 +116,6 @@ runs:
               fi
             fi
 
-            echo "Package ${PACKAGE} version: $LATEST_VERSION"
-
             PACKAGE=$(echo "$PACKAGE" | tr '-' '_' | tr '.' '_')
 
             echo "Last Check"
@@ -133,11 +131,11 @@ runs:
             fi
 
             echo "Version variable for env: $PACKAGE_VERSION"
-
-            echo "✅ $PACKAGE"
             echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
             echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
           done
+
+        echo "============================Combined Package============================="
 
         echo "✅ $COMBINED_PACKAGE"
         echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_ENV
@@ -163,6 +161,7 @@ runs:
           fi
         done
 
+        VERSION_PARAMS="${VERSION_PARAMS} -DMVN_VERSION=${MVN_VERSION}"
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
 
         mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
