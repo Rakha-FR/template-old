@@ -120,11 +120,8 @@ runs:
 
             PACKAGE=$(echo "$PACKAGE" | tr '-' '_' | tr '.' '_')
 
-            echo "Last Check"
-            echo "Package variable for env: $PACKAGE"
-            echo "Version variable for env: $LATEST_VERSION"
-
             PACKAGE_VERSION="${PACKAGE}_version"
+            PACKAGE_VERSION="${LATEST_VERSION}"
 
             if [[ -z "$COMBINED_PACKAGE" ]]; then
               COMBINED_PACKAGE="${PACKAGE_VERSION}"
@@ -132,9 +129,13 @@ runs:
               COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE_VERSION}"
             fi
 
+            echo "Last Check"
+            echo "Package variable for env: $PACKAGE"
+            echo "Version variable for env: $PACKAGE_VERSION"
+
             echo "✅ $PACKAGE"
-            echo "${PACKAGE_VERSION}=${LATEST_VERSION}" >> $GITHUB_ENV
-            echo "${PACKAGE_VERSION}=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
           done
 
         echo "✅ $COMBINED_PACKAGE"
