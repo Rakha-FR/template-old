@@ -162,6 +162,7 @@ runs:
         done
 
         VERSION_PARAMS="${VERSION_PARAMS} -Dmvn_version=${mvn_version}"
+        mvn versions:set -DnewVersion=${mvn_version} -B
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
 
         mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
@@ -182,9 +183,8 @@ runs:
           fi
         done
 
-        VERSION_PARAMS="${VERSION_PARAMS} -Dmvn_version=${mvn_version}"
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
-
+        mvn versions:set -DnewVersion=${mvn_version} -B
         mvn clean deploy -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
