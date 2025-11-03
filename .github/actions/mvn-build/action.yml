@@ -172,7 +172,7 @@ runs:
 
     - name: Clear Maven Cache
       shell: bash
-      run: mvn dependency:purge-local-repository -DreResolve=false ${VERSION_PARAMS}
+      run: mvn dependency:purge-local-repository -s ci_settings.xml -DreResolve=false ${VERSION_PARAMS}
 
     - name: Build Maven Application
       shell: bash
