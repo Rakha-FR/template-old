@@ -132,14 +132,14 @@ runs:
               COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE}"
             fi
 
-            echo "✅ $PACKAGE_VAR"
+            echo "✅ $PACKAGE"
             echo "${PACKAGE}=${LATEST_VERSION}" >> $GITHUB_ENV
             echo "${PACKAGE}=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           done
 
         echo "✅ $COMBINED_PACKAGE"
-        echo "${COMBINED_PACKAGE}" >> $GITHUB_ENV
-        echo "${COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
+        echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_ENV
+        echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
 
         fi
       env:
