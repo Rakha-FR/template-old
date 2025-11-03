@@ -150,6 +150,10 @@ runs:
         CONSUMED_PACKAGE: ${{ inputs.CONSUMED_PACKAGE }}
         PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
 
+    - name: Clear Maven Cache
+      shell: bash
+      run: mvn dependency:purge-local-repository -DreResolve=false
+
     - name: Build Maven Application
       shell: bash
       run: |
