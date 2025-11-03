@@ -142,6 +142,21 @@ runs:
         echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
 
         fi
+
+        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
+          if [[ -z "$VERSION_PARAMS" ]]; then
+            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
+          else
+            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
+          fi
+        done
+
+        echo "✅ Final Maven params: ${VERSION_PARAMS}"
+        echo "✅ Package version for ${PACKAGE_NAME}: ${mvn_version}"
+        sed -i "s|\${mvn_version}|${PACKAGE_VERSION}|g" pom.xml
+
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_ENV
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_OUTPUT
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
@@ -152,22 +167,11 @@ runs:
 
     - name: Clear Maven Cache
       shell: bash
-      run: mvn dependency:purge-local-repository -DreResolve=true
+      run: mvn dependency:purge-local-repository -DreResolve=false
 
     - name: Build Maven Application
       shell: bash
       run: |
-        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
-          if [[ -z "$VERSION_PARAMS" ]]; then
-            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
-          else
-            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
-          fi
-        done
-
-        echo "✅ Final Maven params: ${VERSION_PARAMS}"
-        echo "✅ Package version for ${PACKAGE_NAME}: ${mvn_version}"
-        sed -i "s|\${mvn_version}|${PACKAGE_VERSION}|g" pom.xml
         mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
@@ -178,17 +182,6 @@ runs:
     - name: Publish Maven Application
       shell: bash
       run:  |
-        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
-          if [[ -z "$VERSION_PARAMS" ]]; then
-            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
-          else
-            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
-          fi
-        done
-
-        echo "✅ Final Maven params: ${VERSION_PARAMS}"
-        echo "✅ Package version for ${PACKAGE_NAME}: ${mvn_version}"
-        sed -i "s|\${mvn_version}|${PACKAGE_VERSION}|g" pom.xml
         mvn clean deploy -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
