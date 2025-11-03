@@ -124,17 +124,17 @@ runs:
             echo "Package variable for env: $PACKAGE"
             echo "Version variable for env: $LATEST_VERSION"
 
-            PACKAGE="${PACKAGE}_version"
+            PACKAGE_VERSION="${PACKAGE}_version"
 
             if [[ -z "$COMBINED_PACKAGE" ]]; then
-              COMBINED_PACKAGE="${PACKAGE}"
+              COMBINED_PACKAGE="${PACKAGE_VERSION}"
             else
-              COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE}"
+              COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE_VERSION}"
             fi
 
             echo "✅ $PACKAGE"
-            echo "${PACKAGE}=${LATEST_VERSION}" >> $GITHUB_ENV
-            echo "${PACKAGE}=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+            echo "${PACKAGE_VERSION}=${LATEST_VERSION}" >> $GITHUB_ENV
+            echo "${PACKAGE_VERSION}=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           done
 
         echo "✅ $COMBINED_PACKAGE"
@@ -152,7 +152,18 @@ runs:
 
     - name: Build Maven Application
       shell: bash
-      run: mvn clean package -s ci_settings.xml
+      run: |
+        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
+          if [[ -z "$VERSION_PARAMS" ]]; then
+            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
+          else
+            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
+          fi
+        done
+
+        echo "✅ Final Maven params: ${VERSION_PARAMS}"
+
+        mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
@@ -161,7 +172,18 @@ runs:
 
     - name: Publish Maven Application
       shell: bash
-      run: mvn clean deploy -s ci_settings.xml
+      run:  |
+        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
+          if [[ -z "$VERSION_PARAMS" ]]; then
+            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
+          else
+            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
+          fi
+        done
+
+        echo "✅ Final Maven params: ${VERSION_PARAMS}"
+
+        mvn clean deploy -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
