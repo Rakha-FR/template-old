@@ -124,26 +124,24 @@ runs:
             echo "Package variable for env: $PACKAGE"
             echo "Version variable for env: $LATEST_VERSION"
 
-            PACKAGE_VAR="${PACKAGE}_version=$LATEST_VERSION"
+            PACKAGE="${PACKAGE}_version"
 
             if [[ -z "$COMBINED_PACKAGE" ]]; then
-              COMBINED_PACKAGE="${PACKAGE_VAR}"
+              COMBINED_PACKAGE="${PACKAGE}"
             else
-              COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE_VAR}"
+              COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE}"
             fi
-            
-            echo "✅ $PACKAGE_VAR"
 
-            echo "${PACKAGE_VAR}" >> $GITHUB_ENV
-            echo "${PACKAGE_VAR}" >> $GITHUB_OUTPUT
+            echo "✅ $PACKAGE_VAR"
+            echo "${PACKAGE}=${LATEST_VERSION}" >> $GITHUB_ENV
+            echo "${PACKAGE}=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           done
 
         echo "✅ $COMBINED_PACKAGE"
-
         echo "${COMBINED_PACKAGE}" >> $GITHUB_ENV
-        echo "{$COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
+        echo "${COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
 
-        fi      
+        fi
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
