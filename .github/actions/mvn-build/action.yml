@@ -75,7 +75,7 @@ runs:
           else
             VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
           fi
-        done < "version-${ENV_SERVER}.properties"
+        done < "versions-${ENV_SERVER}.properties"
 
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
 
