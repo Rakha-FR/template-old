@@ -1,0 +1,190 @@
+name: "Build Maven Application"
+description: "Composite action for building a Maven project"
+
+inputs:
+  REPO_OWNER:
+    description: "Repository Owner"
+    required: true
+  REPO_NAME:
+    description: "Repository Name"
+    required: true
+  PACKAGE_NAME:
+    description: "Maven Package Name"
+    required: true
+  PERSONAL_TOKEN:
+    description: "Personal Access Token for publishing packages"
+    required: true
+  ENV_SERVER:
+    description: "The deployment environment"
+    required: true
+  CONSUMED_PACKAGE:
+    description: "Comma-separated list of consumed package names to fetch versions for"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Check the latest package version and build command parameter
+      shell: bash
+      run: |
+        #!/bin/bash
+
+        # =====================================================================================================
+        # Dipakai untuk get version package sendiri
+        # =====================================================================================================
+
+        set +e
+
+        echo "============================Self Package============================="
+
+        RESPONSE=$(curl -s -w "\n%{http_code}" \
+          -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE_NAME}/versions")
+
+        HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+        BODY=$(echo "$RESPONSE" | sed '$d')
+
+        echo "HTTP Code: $HTTP_CODE"
+
+        if [[ "$HTTP_CODE" == "404" ]] || echo "$BODY" | grep -q "Package not found"; then
+          echo "⚠️ Package ${PACKAGE_NAME} not found in org ${REPO_OWNER}. Using default version 1.0.0."
+          LATEST_VERSION="1.0.0"
+        else
+          LATEST_VERSION=$(echo "$BODY" | grep -m1 '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/')
+          echo "✅ Latest version found: $LATEST_VERSION"
+        fi
+
+        # Parse version
+        BASE_VERSION=$(echo "$LATEST_VERSION" | cut -d'-' -f1)
+
+        if [[ "$ENV_SERVER" == "production" ]]; then
+          MAJOR=$(echo "$BASE_VERSION" | cut -d'.' -f1)
+          MINOR=$(echo "$BASE_VERSION" | cut -d'.' -f2)
+          PATCH=$(echo "$BASE_VERSION" | cut -d'.' -f3)
+          if [[ -z "$PATCH" || "$PATCH" == "null" || "$PATCH" == "" ]]; then
+            MAJOR=1
+            MINOR=0
+            PATCH=0
+          fi
+          mvn_version="$MAJOR.$MINOR.$((PATCH+1))"
+        elif [[ "$ENV_SERVER" == "development" || "$ENV_SERVER" == "staging" ]]; then
+          mvn_version="$BASE_VERSION-SNAPSHOT"
+        fi
+
+        echo "🆕 New version will be: $mvn_version"
+
+        # Export ke environment
+        echo "mvn_version=$mvn_version" >> $GITHUB_ENV
+        echo "mvn_version=$mvn_version" >> $GITHUB_OUTPUT
+
+        # =====================================================================================================
+        # Dipakai untuk get version consumed package
+        # =====================================================================================================
+
+        echo "${CONSUMED_PACKAGE}"
+
+        if [[ -n "${CONSUMED_PACKAGE}" ]]; then
+          for PACKAGE in ${CONSUMED_PACKAGE//,/ }; do
+    
+            echo "============================${PACKAGE} Package============================="
+
+            RESPONSE=$(curl -s -w "\n%{http_code}" \
+              -H "Authorization: Bearer ${PERSONAL_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/orgs/${REPO_OWNER}/packages/maven/${PACKAGE}/versions")
+            
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+
+            echo "HTTP Code for $PACKAGE: $HTTP_CODE"
+
+            if [[ "$HTTP_CODE" == "404" ]] || echo "$BODY" | grep -q "Package not found"; then
+              echo "⚠️ Package ${PACKAGE} not found in org ${REPO_OWNER}. Using default version 1.0.0."
+              LATEST_VERSION="1.0.0"
+            else
+              if [[ "$ENV_SERVER" == "development" || "$ENV_SERVER" == "staging" ]]; then
+                LATEST_VERSION=$(echo "$BODY" | grep -m1 '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/')
+                echo "✅ Latest version found for $PACKAGE: $LATEST_VERSION"
+              elif [[ "$ENV_SERVER" == "production" ]]; then
+                LATEST_VERSION=$(echo "$BODY" | grep '"name":' | sed -E 's/.*"name": *"([^"]+)".*/\1/' | grep -v 'SNAPSHOT' | sort -V | tail -n1)
+                echo "✅ Latest production version found for $PACKAGE: $LATEST_VERSION"
+              fi
+            fi
+
+            PACKAGE=$(echo "$PACKAGE" | tr '-' '_' | tr '.' '_')
+
+            echo "Last Check"
+            echo "Package variable for env: $PACKAGE"
+
+            PACKAGE="${PACKAGE}_version"
+            PACKAGE_VERSION="${LATEST_VERSION}"
+
+            if [[ -z "$COMBINED_PACKAGE" ]]; then
+              COMBINED_PACKAGE="${PACKAGE}"
+            else
+              COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE}"
+            fi
+
+            echo "Version variable for env: $PACKAGE_VERSION"
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+          done
+
+          echo "============================Combined Package============================="
+
+          echo "✅ $COMBINED_PACKAGE"
+          echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_ENV
+          echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
+        fi
+
+        # =====================================================================================================
+        # Prepare dynamic version paramater
+        # =====================================================================================================
+
+        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
+          if [[ -z "$VERSION_PARAMS" ]]; then
+            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
+          else
+            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
+          fi
+        done
+
+        echo "============================Prepare Command Parameter============================="
+
+        echo "✅ Final Maven params: ${VERSION_PARAMS}"
+        echo "✅ Package version for ${PACKAGE_NAME}: ${mvn_version}"
+        sed -i "s|\${mvn_version}|${PACKAGE_VERSION}|g" pom.xml
+
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_ENV
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_OUTPUT
+      env:
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        ENV_SERVER: ${{ inputs.ENV_SERVER }}
+        CONSUMED_PACKAGE: ${{ inputs.CONSUMED_PACKAGE }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
+
+    - name: Build Maven Application
+      shell: bash
+      run: |
+        mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
+      env:
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
+
+    - name: Publish Maven Application
+      shell: bash
+      run:  |
+        mvn clean deploy -s ci_settings.xml ${VERSION_PARAMS}
+      env:
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
