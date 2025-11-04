@@ -39,6 +39,8 @@ runs:
 
         echo "============================Self Package============================="
 
+        echo "Environment Server: ${ENV_SERVER}"
+
         if [[ -n "${ENV_SERVER}" && ${ENV_SERVER} == "production" ]]; then
           mvn_version=$(echo "${GITHUB_REF}" | sed -E 's|refs/tags/v||')
           echo "Environment is Production, using release version: ${mvn_version}"; then
