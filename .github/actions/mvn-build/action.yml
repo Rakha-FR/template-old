@@ -84,8 +84,8 @@ runs:
 
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
 
-        echo "PARAMS=${PARAMS}" >> $GITHUB_ENV
-        echo "PARAMS=${PARAMS}" >> $GITHUB_OUTPUT
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_ENV
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_OUTPUT
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
