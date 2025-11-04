@@ -64,7 +64,7 @@ runs:
 
         echo "============================Prepare Command Parameter============================="
 
-        cat version-${ENV_SERVER}.properties
+        cat versions-${ENV_SERVER}.properties
         sed -i 's/\r$//' "version-${ENV_SERVER}.properties"
 
         VERSION_PARAMS=""
