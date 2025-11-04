@@ -70,6 +70,7 @@ jobs:
 
   build-image:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
+    needs: build-maven
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
