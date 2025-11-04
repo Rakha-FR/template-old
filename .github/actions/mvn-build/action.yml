@@ -65,7 +65,6 @@ runs:
         echo "============================Prepare Command Parameter============================="
 
         while IFS='=' read -r key value; do
-          # Lewati baris kosong atau komentar
           [[ -z "$key" || "$key" =~ ^# ]] && continue
 
           PACKAGE=$(echo "$key" | xargs)
@@ -76,7 +75,7 @@ runs:
           else
             VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
           fi
-        done < "version${ENV_SERBER}.properties"
+        done < "version-${ENV_SERBER}.properties"
 
         echo "✅ Final Maven params: ${VERSION_PARAMS}"
 

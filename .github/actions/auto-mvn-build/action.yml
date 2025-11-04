@@ -123,10 +123,10 @@ runs:
             PACKAGE="${PACKAGE}_version"
             PACKAGE_VERSION="${LATEST_VERSION}"
 
-            if [[ -z "$COMBINED_PACKAGE" ]]; then
-              COMBINED_PACKAGE="${PACKAGE}"
+            if [[ -z "$VERSION_PARAMS" ]]; then
+              VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
             else
-              COMBINED_PACKAGE="${COMBINED_PACKAGE},${PACKAGE}"
+              VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
             fi
 
             echo "Version variable for env: $PACKAGE_VERSION"
@@ -140,18 +140,6 @@ runs:
           echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_ENV
           echo "COMBINED_PACKAGE=${COMBINED_PACKAGE}" >> $GITHUB_OUTPUT
         fi
-
-        # =====================================================================================================
-        # Prepare dynamic version paramater
-        # =====================================================================================================
-
-        for PACKAGE in ${COMBINED_PACKAGE//,/ }; do
-          if [[ -z "$VERSION_PARAMS" ]]; then
-            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
-          else
-            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
-          fi
-        done
 
         echo "============================Prepare Command Parameter============================="
 
