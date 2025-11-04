@@ -51,6 +51,9 @@ runs:
           echo "Variable ENV_SERVER tidak terdefinisikan"
         fi
 
+        echo "🆕 New version will be: $mvn_version"
+        sed -i "s|\${mvn_version}|${mvn_version}|g" pom.xml
+
         # Export ke environment
         echo "mvn_version=$mvn_version" >> $GITHUB_ENV
         echo "mvn_version=$mvn_version" >> $GITHUB_OUTPUT
@@ -61,11 +64,21 @@ runs:
 
         echo "============================Prepare Command Parameter============================="
 
-        PARAMS="-P${ENV_SERVER}"
+        while IFS='=' read -r key value; do
+          # Lewati baris kosong atau komentar
+          [[ -z "$key" || "$key" =~ ^# ]] && continue
 
-        echo "✅ Final Maven params: ${PARAMS}"
-        echo "🆕 New version will be: $mvn_version"
-        sed -i "s|\${mvn_version}|${mvn_version}|g" pom.xml
+          PACKAGE=$(echo "$key" | xargs)
+          PACKAGE_VERSION=$(echo "$value" | xargs)
+
+          if [[ -z "$VERSION_PARAMS" ]]; then
+            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
+          else
+            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
+          fi
+        done < "version${ENV_SERBER}.properties"
+
+        echo "✅ Final Maven params: ${VERSION_PARAMS}"
 
         echo "PARAMS=${PARAMS}" >> $GITHUB_ENV
         echo "PARAMS=${PARAMS}" >> $GITHUB_OUTPUT
@@ -80,7 +93,7 @@ runs:
     - name: Build Maven Application
       shell: bash
       run: |
-        mvn clean package -s ci_settings.xml ${PARAMS}
+        mvn clean package -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
@@ -90,7 +103,7 @@ runs:
     - name: Publish Maven Application
       shell: bash
       run:  |
-        mvn clean initialize deploy -s ci_settings.xml ${PARAMS}
+        mvn clean initialize deploy -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
