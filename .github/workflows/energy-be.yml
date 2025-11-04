@@ -29,10 +29,6 @@ on:
         type: string
 
 jobs:
-  preparation:
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/preparation.yml@migrasi
-    secrets: inherit
-
   sonarqube-scan:
     if: ${{ inputs.SQ_RULES == 'true' }}
     runs-on:
