@@ -27,6 +27,9 @@ on:
       REPO_NAME:
         required: true
         type: string
+      DOCKERFILE_NAME:
+        required: true
+        type: string
 
 jobs:
   sonarqube-scan:
@@ -64,3 +67,20 @@ jobs:
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
           CONSUMED_PACKAGE: ${{ vars.CONSUMED_PACKAGE }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+
+  build-image:
+    if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
+    runs-on:
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    steps:
+      - name: Build Docker Image
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
+        with:
+          HARBOR_HOST: ${{ env.HARBOR_HOST }}
+          HARBOR_USERNAME: ${{ env.HARBOR_USERNAME }}
+          HARBOR_PASSWORD: ${{ env.HARBOR_PASSWORD }}
+          HARBOR_PATH: ${{ env.HARBOR_PATH }}
+          DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          APP_VERSION: ${{ inputs.APP_VERSION }}

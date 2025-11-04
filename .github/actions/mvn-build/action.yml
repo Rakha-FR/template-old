@@ -17,9 +17,6 @@ inputs:
   ENV_SERVER:
     description: "The deployment environment"
     required: true
-  CONSUMED_PACKAGE:
-    description: "Comma-separated list of consumed package names to fetch versions for"
-    required: true
 
 runs:
   using: "composite"
@@ -64,7 +61,6 @@ runs:
 
         echo "============================Prepare Command Parameter============================="
 
-        cat versions-${ENV_SERVER}.properties
         sed -i 's/\r$//' "versions-${ENV_SERVER}.properties"
 
         VERSION_PARAMS=""

@@ -1,0 +1,54 @@
+name: Docker Build
+description: "Composite action for docker image build"
+
+inputs:
+  HARBOR_HOST:
+    description: "Harbor URL"
+    required: true
+  HARBOR_USERNAME:
+    description: "Username for login to Harbor Server"
+    required: true
+  HABOR_PASSWORD:
+    description: "Password for login to Harbor Server"
+    required: true
+  HARBOR_PATH:
+    description: "Path into image location"
+    required: true
+  DOCKERFILE_NAME:
+    description: "Dockerile Name"
+    required: true
+  REPO_NAME:
+    description: "Application Repository name"
+    required: true
+  APP_VERSION:
+    description: "Version for docker image tag"
+    required: true
+    
+runs:
+  using: composite
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Harbor
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ inputs.HARBOR_HOST }}
+        username: ${{ inputs.HARBOR_USERNAME }}
+        password: ${{ inputs.HARBOR_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ${DOCKERFILE_NAME}
+        push: true
+        tags: ${{ inputs.HARBOR_HOST }}/${{ inputs.HARBOR_PATH }}/${{ inputs.REPO_NAME }}:${{ inputs.APP_VERSION }}
+        cache-from: type=registry,ref=${{ inputs.HARBOR_HOST }}/${{ inputs.HARBOR_PATH }}/${{ inputs.REPO_NAME }}:buildcache
+        cache-to: type=registry,ref=${{ inputs.HARBOR_HOST }}/${{ inputs.HARBOR_PATH }}/${{ inputs.REPO_NAME }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
