@@ -40,8 +40,8 @@ runs:
         echo "============================Self Package============================="
 
         if [[ -n "${ENV_SERVER}" && ${ENV_SERVER} == "production" ]]; then
-          mvn_version=$(echo "${{ github.ref }}" | sed -E 's|refs/tags/v||')
-          echo "Environment is Production, using release version: ${mvn_version}"
+          mvn_version=$(echo "${GITHUB_REF}" | sed -E 's|refs/tags/v||')
+          echo "Environment is Production, using release version: ${mvn_version}"; then
         elif [[ -n "${ENV_SERVER}" && (${ENV_SERVER} == "development" || ${ENV_SERVER} == "staging") ]]
           mvn_version="1.0.0-SNAPSHOT"
           echo "Environment is not production, using default version: ${mvn_version}"
@@ -62,7 +62,7 @@ runs:
 
         echo "✅ Final Maven params: ${PARAMS}"
         echo "🆕 New version will be: $mvn_version"
-        sed -i "s|\${mvn_version}|${PACKAGE_VERSION}|g" pom.xml
+        sed -i "s|\${mvn_version}|${mvn_version}|g" pom.xml
 
         echo "PARAMS=${PARAMS}" >> $GITHUB_ENV
         echo "PARAMS=${PARAMS}" >> $GITHUB_OUTPUT
