@@ -61,8 +61,7 @@ runs:
 
         echo "============================Prepare Command Parameter============================="
 
-        PARAMS="-Dmvn_version=${mvn_version}"
-        PARAMS="${PARAMS} -P${ENV_SERVER}"
+        PARAMS="-P${ENV_SERVER}"
 
         echo "✅ Final Maven params: ${PARAMS}"
         echo "🆕 New version will be: $mvn_version"
@@ -81,6 +80,7 @@ runs:
     - name: Build Maven Application
       shell: bash
       run: |
+        vn initialize help:evaluate -Dexpression=dbs_database_crm_version ${PARAMS} -q -DforceStdout
         mvn clean initialize package -s ci_settings.xml ${PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
