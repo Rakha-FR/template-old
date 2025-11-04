@@ -64,6 +64,11 @@ runs:
 
         echo "============================Prepare Command Parameter============================="
 
+        cat version-${ENV_SERVER}.properties
+        sed -i 's/\r$//' "version-${ENV_SERVER}.properties"
+
+        VERSION_PARAMS=""
+
         while IFS='=' read -r key value; do
           [[ -z "$key" || "$key" =~ ^# ]] && continue
 
