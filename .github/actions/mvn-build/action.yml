@@ -43,10 +43,12 @@ runs:
 
         if [[ -n "${ENV_SERVER}" && ${ENV_SERVER} == "production" ]]; then
           mvn_version=$(echo "${GITHUB_REF}" | sed -E 's|refs/tags/v||')
-          echo "Environment is Production, using release version: ${mvn_version}"; then
-        elif [[ -n "${ENV_SERVER}" && (${ENV_SERVER} == "development" || ${ENV_SERVER} == "staging") ]]
+          echo "Environment is Production, using release version: ${mvn_version}"
+        elif [[ -n "${ENV_SERVER}" && ( "${ENV_SERVER}" == "development" || "${ENV_SERVER}" == "staging" ) ]]; then
           mvn_version="1.0.0-SNAPSHOT"
           echo "Environment is not production, using default version: ${mvn_version}"
+        else
+          echo "Variable ENV_SERVER tidak terdefinisikan"
         fi
 
         # Export ke environment
