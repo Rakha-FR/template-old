@@ -80,8 +80,7 @@ runs:
     - name: Build Maven Application
       shell: bash
       run: |
-        mvn initialize help:evaluate -Dexpression=dbs_database_crm_version ${PARAMS} -q -DforceStdout
-        mvn clean initialize package -s ci_settings.xml ${PARAMS}
+        mvn clean package -s ci_settings.xml ${PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
