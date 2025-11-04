@@ -69,7 +69,7 @@ runs:
 
         VERSION_PARAMS=""
 
-        while IFS='=' read -r key value; do
+        while IFS='=' read -r key value || [[ -n "$key" ]]; do
           [[ -z "$key" || "$key" =~ ^# ]] && continue
 
           PACKAGE=$(echo "$key" | xargs)
