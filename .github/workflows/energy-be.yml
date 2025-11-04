@@ -29,6 +29,10 @@ on:
         type: string
 
 jobs:
+  preparation:
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/preparation.yml@migrasi
+    secrets: inherit
+
   sonarqube-scan:
     if: ${{ inputs.SQ_RULES == 'true' }}
     runs-on:
@@ -44,7 +48,7 @@ jobs:
           SONAR_USER_HOME: ${{ github.workspace }}
           continue-on-error: true
           REPO_NAME: ${{ inputs.REPO_NAME }}
-          REPOSITORY_OWNER: ${{ inputs.REPO_OWNER }}
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-maven:

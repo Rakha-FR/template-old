@@ -81,7 +81,7 @@ runs:
     - name: Build Maven Application
       shell: bash
       run: |
-        mvn clean package -s ci_settings.xml ${PARAMS}
+        mvn clean initialize package -s ci_settings.xml ${PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
@@ -91,7 +91,7 @@ runs:
     - name: Publish Maven Application
       shell: bash
       run:  |
-        mvn clean deploy -s ci_settings.xml ${PARAMS}
+        mvn clean initialize deploy -s ci_settings.xml ${PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
