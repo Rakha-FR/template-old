@@ -8,7 +8,7 @@ inputs:
   HARBOR_USERNAME:
     description: "Username for login to Harbor Server"
     required: true
-  HABOR_PASSWORD:
+  HARBOR_PASSWORD:
     description: "Password for login to Harbor Server"
     required: true
   HARBOR_PATH:
@@ -16,7 +16,8 @@ inputs:
     required: true
   DOCKERFILE_NAME:
     description: "Dockerile Name"
-    required: true
+    required: false
+    default: "Dockerfile"
   REPO_NAME:
     description: "Application Repository name"
     required: true
