@@ -58,8 +58,6 @@ jobs:
 
   build-app:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
-    container:
-      image: maven:3.9.6-eclipse-temurin-17
     environment: ${{ inputs.ENV_SERVER }}
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
