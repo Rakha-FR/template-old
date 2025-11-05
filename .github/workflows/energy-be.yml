@@ -38,7 +38,6 @@ jobs:
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
-    environment: ${{ inputs.ENV_SERVER }}
     steps:
       - name: SonarQube Scan
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
@@ -82,8 +81,8 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
         with:
           REGISTRY_URL: ${{ vars.REGISTRY_URL }}
-          REGISTRY_USER: ${{ vars.REGISTRY_USER }}
-          REGISTRY_PASSWORD: ${{ vars.REGISTRY_PASSWORD }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
