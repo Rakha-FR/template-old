@@ -5,7 +5,7 @@ inputs:
   REGISTRY_URL:
     description: "Harbor URL"
     required: true
-  REGISTRY_USER:
+  REGISTRY_USERNAME:
     description: "Username for login to Harbor Server"
     required: true
   REGISTRY_PASSWORD:

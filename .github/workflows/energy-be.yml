@@ -81,7 +81,7 @@ jobs:
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
         with:
           REGISTRY_URL: ${{ vars.REGISTRY_URL }}
-          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
