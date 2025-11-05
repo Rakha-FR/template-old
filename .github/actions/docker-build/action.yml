@@ -27,10 +27,7 @@ inputs:
     
 runs:
   using: composite
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v5
-      
+  steps:      
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
@@ -49,6 +46,7 @@ runs:
       run: |
         ls -l
         ls -l dbs-service-api-integration
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
