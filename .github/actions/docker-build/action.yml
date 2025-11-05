@@ -24,6 +24,9 @@ inputs:
   IMAGE_NAME:
     description: "Docker Image Name"
     required: false
+  mvn_version:
+    description: "Maven build version"
+    required: false
     
 runs:
   using: composite

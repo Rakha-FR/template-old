@@ -59,9 +59,12 @@ jobs:
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    outputs:
+      mvn_version: ${{ steps.build_maven.outputs.mvn_version }}
     steps:
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+        id: build_maven
         with:
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
@@ -87,3 +90,4 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+          mvn_version: ${{ needs.build-maven.outputs.mvn_version }}
