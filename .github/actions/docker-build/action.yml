@@ -2,17 +2,14 @@ name: Docker Build
 description: "Composite action for docker image build"
 
 inputs:
-  HARBOR_HOST:
+  REGISTRY_URL:
     description: "Harbor URL"
     required: true
-  HARBOR_USERNAME:
+  REGISTRY_USER:
     description: "Username for login to Harbor Server"
     required: true
-  HARBOR_PASSWORD:
+  REGISTRY_PASSWORD:
     description: "Password for login to Harbor Server"
-    required: true
-  HARBOR_PATH:
-    description: "Path into image location"
     required: true
   DOCKERFILE_NAME:
     description: "Dockerile Name"
@@ -42,28 +39,16 @@ runs:
 
     - name: Login to Harbor
       uses: docker/login-action@v3
-      env:
-        HARBOR_HOST: ${{ inputs.HARBOR_HOST }}
-        HARBOR_USERNAME: ${{ inputs.HARBOR_USERNAME }}
-        HARBOR_PASSWORD: ${{ inputs.HARBOR_PASSWORD }}
       with:
-        registry: ${{ env.HARBOR_HOST }}
-        username: ${{ env.HARBOR_USERNAME }}
-        password: ${{ env.HARBOR_PASSWORD }}
+        registry: ${{ inputs.REGISTRY_URL }}
+        username: ${{ inputs.REGISTRY_USERNAME }}
+        password: ${{ inputs.REGISTRY_PASSWORD }}
 
     - name: Build and push
       uses: docker/build-push-action@v6
-      env:
-        DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
-        REPO_NAME: ${{ inputs.REPO_NAME }}
-        APP_VERSION: ${{ inputs.APP_VERSION }}
-        HARBOR_HOST: ${{ inputs.HARBOR_HOST }}
-        HARBOR_PATH: ${{ inputs.HARBOR_PATH }}
-        IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
       with:
         context: .
-        file: ${{ env.DOCKERFILE_NAME }}
+        file: ${{ inputs.DOCKERFILE_NAME }}
         push: true
-        tags: ${{ env.IMAGE_NAME }}:${{ env.APP_VERSION }}
-        cache-from: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ env.REPO_NAME }}:buildcache
-        cache-to: type=registry,ref=${{ env.HARBOR_HOST }}/${{ env.HARBOR_PATH }}/${{ env.REPO_NAME }}:buildcache,image-manifest=true,oci-mediatypes=true,mode=max
+        tags: ${{ inputs.IMAGE_NAME }}:${{ inputs.APP_VERSION }}
+        cache-from: type=registry,ref=${{ inputs.IMAGE_NAME }}:buildcache

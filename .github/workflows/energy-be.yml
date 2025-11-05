@@ -30,6 +30,7 @@ on:
       DOCKERFILE_NAME:
         required: false
         type: string
+      
 
 jobs:
   sonarqube-scan:
@@ -37,6 +38,7 @@ jobs:
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    environment: ${{ inputs.ENV_SERVER }}
     steps:
       - name: SonarQube Scan
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
@@ -54,6 +56,7 @@ jobs:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
     container:
       image: maven:3.9.6-eclipse-temurin-17
+    environment: ${{ inputs.ENV_SERVER }}
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
@@ -70,6 +73,7 @@ jobs:
   build-image:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
     needs: build-maven
+    environment: ${{ inputs.ENV_SERVER }}
     runs-on:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
@@ -77,11 +81,10 @@ jobs:
       - name: Build Docker Image
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
         with:
-          HARBOR_HOST: ${{ env.HARBOR_HOST }}
-          HARBOR_USERNAME: ${{ env.HARBOR_USERNAME }}
-          HARBOR_PASSWORD: ${{ env.HARBOR_PASSWORD }}
-          HARBOR_PATH: ${{ env.HARBOR_PATH }}
+          REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+          REGISTRY_USER: ${{ vars.REGISTRY_USER }}
+          REGISTRY_PASSWORD: ${{ vars.REGISTRY_PASSWORD }}
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
