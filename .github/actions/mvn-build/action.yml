@@ -136,3 +136,9 @@ runs:
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
+
+    - name: Debug
+      shell: bash
+      run: |
+        ls -l
+        ls -l dbs-service-api-integration

@@ -56,7 +56,7 @@ jobs:
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  build-app:
+  build-application:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
     environment: ${{ inputs.ENV_SERVER }}
     runs-on:
