@@ -84,3 +84,4 @@ jobs:
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
