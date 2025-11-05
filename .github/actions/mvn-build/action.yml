@@ -49,8 +49,10 @@ runs:
         fi
 
         echo "🆕 New version will be: $mvn_version"
-        sed -i "s|\${mvn_version}|${mvn_version}|g" pom.xml
-
+        find . -type f -name "pom.xml" | while read -r pom_file; do
+          echo "🔧 Updating version in: $pom_file"
+          sed -i "s|\${mvn_version}|${mvn_version}|g" "$pom_file"
+        done
         # Export ke environment
         echo "mvn_version=$mvn_version" >> $GITHUB_ENV
         echo "mvn_version=$mvn_version" >> $GITHUB_OUTPUT
