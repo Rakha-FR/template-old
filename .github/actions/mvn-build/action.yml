@@ -17,6 +17,11 @@ inputs:
   ENV_SERVER:
     description: "The deployment environment"
     required: true
+  
+outputs:
+  mvn_version:
+    description: "Maven build version"
+    value: ${{ steps.get-version.outputs.mvn_version }}
 
 runs:
   using: "composite"
@@ -26,6 +31,7 @@ runs:
 
     - name: Get version and build command parameter
       shell: bash
+      id: get-version
       run: |
         #!/bin/bash
         set +e
