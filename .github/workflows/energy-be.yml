@@ -77,11 +77,11 @@ jobs:
       - name: Build Docker Image
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
         with:
-          HARBOR_HOST: ${{ vars.HARBOR_HOST }}
-          HARBOR_USERNAME: ${{ vars.HARBOR_USERNAME }}
-          HARBOR_PASSWORD: ${{ vars.HARBOR_PASSWORD }}
-          HARBOR_PATH: ${{ vars.HARBOR_PATH }}
+          HARBOR_HOST: ${{ env.HARBOR_HOST }}
+          HARBOR_USERNAME: ${{ env.HARBOR_USERNAME }}
+          HARBOR_PASSWORD: ${{ env.HARBOR_PASSWORD }}
+          HARBOR_PATH: ${{ env.HARBOR_PATH }}
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
-          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
