@@ -117,3 +117,9 @@ runs:
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: maven-artifact
+        path: dbs-service-api-integration/target/

@@ -53,6 +53,12 @@ runs:
         ls -l
         ls  -l dbs-service-api-integration/dbs-service-api-integration
 
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: maven-artifact
+        path: dbs-service-api-integration/target
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
@@ -61,3 +67,5 @@ runs:
         push: true
         tags: ${{ inputs.IMAGE_NAME }}:${{ inputs.APP_VERSION }}
         cache-from: type=registry,ref=${{ inputs.IMAGE_NAME }}:buildcache
+      env:
+        mvn_version: ${{ inputs.mvn_version }}
