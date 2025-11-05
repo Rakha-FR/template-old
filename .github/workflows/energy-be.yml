@@ -30,7 +30,12 @@ on:
       DOCKERFILE_NAME:
         required: false
         type: string
-      
+      ARTIFACT_NAME:
+        required: false
+        type: string
+      ARTIFACT_PATH:
+        required: false
+        type: string
 
 jobs:
   sonarqube-scan:
@@ -71,7 +76,8 @@ jobs:
           ENV_SERVER: ${{ inputs.ENV_SERVER }}
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-
+          ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
+          ARTIFACT_PATH: ${{ inputs.ARTIFACT_PATH }}
   build-image:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
     needs: build-maven
@@ -91,3 +97,5 @@ jobs:
           APP_VERSION: ${{ inputs.APP_VERSION }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           mvn_version: ${{ needs.build-maven.outputs.mvn_version }}
+          ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
+          ARTIFACT_PATH: ${{ inputs.ARTIFACT_PATH }}

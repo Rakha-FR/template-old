@@ -27,6 +27,12 @@ inputs:
   mvn_version:
     description: "Maven build version"
     required: false
+  ARTIFACT_NAME:
+    description: "Build Artifact Name"
+    required: false
+  ARTIFACT_PATH:
+    description: "Build Artifact Path"
+    required: false
     
 runs:
   using: composite
@@ -48,16 +54,11 @@ runs:
         password: ${{ inputs.REGISTRY_PASSWORD }}
 
     - name: Download build artifacts
+      if: ${{ inputs.ARTIFACT_NAME != '' && inputs.ARTIFACT_PATH != '' }}
       uses: actions/download-artifact@v4
       with:
-        name: maven-artifact
-        path: dbs-service-api-integration/target
-
-    - name: debug file path
-      shell: bash
-      run: |
-        ls -l
-        ls  -l dbs-service-api-integration
+        name: ${{ inputs.ARTIFACT_NAME }}
+        path: ${{ inputs.ARTIFACT_PATH }}
 
     - name: Build and push
       uses: docker/build-push-action@v6
