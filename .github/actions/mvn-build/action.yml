@@ -123,3 +123,4 @@ runs:
       with:
         name: maven-artifact
         path: dbs-service-api-integration/target/
+        retention-days: 1

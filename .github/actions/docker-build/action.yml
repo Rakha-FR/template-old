@@ -66,6 +66,5 @@ runs:
         file: ${{ inputs.DOCKERFILE_NAME }}
         push: true
         tags: ${{ inputs.IMAGE_NAME }}:${{ inputs.APP_VERSION }}
-        cache-from: type=registry,ref=${{ inputs.IMAGE_NAME }}:buildcache
       env:
         mvn_version: ${{ inputs.mvn_version }}
