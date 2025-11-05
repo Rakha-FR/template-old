@@ -17,12 +17,6 @@ inputs:
   ENV_SERVER:
     description: "The deployment environment"
     required: true
-  ARTIFACT_NAME:
-    description: "Build Artifact Name"
-    required: false
-  ARTIFACT_PATH:
-    description: "Build Artifact Path"
-    required: false
   
 outputs:
   mvn_version:
@@ -123,11 +117,3 @@ runs:
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
-
-    - name: Upload build artifacts
-      if: ${{ inputs.ARTIFACT_NAME != '' && inputs.ARTIFACT_PATH != '' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.ARTIFACT_NAME }}
-        path: ${{ inputs.ARTIFACT_PATH }}
-        retention-days: 1

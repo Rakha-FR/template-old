@@ -24,15 +24,6 @@ inputs:
   IMAGE_NAME:
     description: "Docker Image Name"
     required: false
-  mvn_version:
-    description: "Maven build version"
-    required: false
-  ARTIFACT_NAME:
-    description: "Build Artifact Name"
-    required: false
-  ARTIFACT_PATH:
-    description: "Build Artifact Path"
-    required: false
     
 runs:
   using: composite
@@ -52,13 +43,6 @@ runs:
         registry: ${{ inputs.REGISTRY_URL }}
         username: ${{ inputs.REGISTRY_USERNAME }}
         password: ${{ inputs.REGISTRY_PASSWORD }}
-
-    - name: Download build artifacts
-      if: ${{ inputs.ARTIFACT_NAME != '' && inputs.ARTIFACT_PATH != '' }}
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ inputs.ARTIFACT_NAME }}
-        path: ${{ inputs.ARTIFACT_PATH }}
 
     - name: Build and push
       uses: docker/build-push-action@v6

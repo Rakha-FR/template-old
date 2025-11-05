@@ -56,7 +56,7 @@ jobs:
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  build-maven:
+  build-app:
     if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
     container:
       image: maven:3.9.6-eclipse-temurin-17
@@ -67,6 +67,12 @@ jobs:
     outputs:
       mvn_version: ${{ steps.build_maven.outputs.mvn_version }}
     steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
         id: build_maven
@@ -76,17 +82,7 @@ jobs:
           ENV_SERVER: ${{ inputs.ENV_SERVER }}
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-          ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
-          ARTIFACT_PATH: ${{ inputs.ARTIFACT_PATH }}
-  build-image:
-    if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
-    needs: build-maven
-    environment: ${{ inputs.ENV_SERVER }}
-    runs-on:
-      group: ${{ inputs.RUNNER_GROUP }}
-      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
-    steps:
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
         with:
           REGISTRY_URL: ${{ vars.REGISTRY_URL }}
@@ -96,6 +92,3 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
-          mvn_version: ${{ needs.build-maven.outputs.mvn_version }}
-          ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
-          ARTIFACT_PATH: ${{ inputs.ARTIFACT_PATH }}
