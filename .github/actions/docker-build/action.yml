@@ -44,6 +44,12 @@ runs:
         username: ${{ inputs.REGISTRY_USERNAME }}
         password: ${{ inputs.REGISTRY_PASSWORD }}
 
+    - name: debug file path
+      shell: bash
+      run: |
+        ls -l
+        ls  -l dbs-service-api-integration
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
