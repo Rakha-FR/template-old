@@ -89,7 +89,7 @@ runs:
     - name: Login to Helm registry
       shell: bash
       run: |
-        helm registry login ${{ inputs.REGISTRY_URL }} --username ${{ inputs.REGISTRY_USERNAME }} --password ${{ inputs.REGISTRY_PASSWORD }}
+        helm registry login ${{ inputs.REGISTRY_URL }} --username "crmadmin" --password "3tAQ8Ev5GkTCuIHXn"
 
     - name: Deploy to Kubernetes using Helm
       shell: bash
