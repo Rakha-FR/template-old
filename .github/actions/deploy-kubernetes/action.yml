@@ -92,6 +92,10 @@ runs:
         helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
           --values ${{ inputs.FILE_VALUES }} \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
+          --set resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
+          --set resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
+          --set resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
+          --set resources.requests.memory=${{ inputs.MEMORY_REQUEST }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
           --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
