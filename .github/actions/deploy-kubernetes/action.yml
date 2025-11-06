@@ -95,7 +95,7 @@ runs:
     - name: Deploy to Kubernetes using Helm
       shell: bash
       run: |
-        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
+        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.pgn.co.id/billing-dev/helm/dbs-service-api-integration/dbs-service-api-integration \
           --values ${{ inputs.FILE_VALUES }} \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
