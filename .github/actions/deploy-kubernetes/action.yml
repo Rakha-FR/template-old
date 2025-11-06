@@ -90,7 +90,7 @@ runs:
       shell: bash
       run: |
         kubectl get all -n ${{ inputs.KUBE_NAMESPACE }}
-        kubectl describe pod $(kubectl get pods -l app=$(kubectl get deployment dbs-service-api-integration -o jsonpath='{.spec.selector.matchLabels.app}') -o name)
+        kubectl describe pod -n ${{ inputs.KUBE_NAMESPACE }} $(kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }} -l app=$(kubectl get deployment -n ${{ inputs.KUBE_NAMESPACE }} dbs-service-api-integration -o jsonpath='{.spec.selector.matchLabels.app}') -o name)
 
     - name: Deploy to Kubernetes using Helm
       shell: bash
