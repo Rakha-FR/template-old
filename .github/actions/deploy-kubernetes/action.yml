@@ -86,6 +86,12 @@ runs:
       run: |
         kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
 
+    - name: debug
+      shell: bash
+      run: |
+        kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
+        kubectl get ingress -n ${{ inputs.KUBE_NAMESPACE }}
+
     - name: Login to Helm registry
       shell: bash
       run: |
