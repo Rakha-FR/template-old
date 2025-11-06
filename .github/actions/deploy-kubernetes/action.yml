@@ -71,18 +71,12 @@ runs:
       with:
         version: 'v1.27.3'
 
-    - name: decode kubeconfig
-      id: decode_kubeconfig
+    - name: decode and setup kubeconfig
       shell: bash
       run: |
-        echo "${{ inputs.KUBE_CONFIG }}" | base64 -d > $HOME/.kubeconfig
-        echo "KUBE_CONFIG=$HOME/.kubeconfig" >> $GITHUB_ENV
-
-    - name: configure kubeconfig
-      uses: azure/k8s-set-context@v3
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ env.KUBE_CONFIG }}
+        mkdir -p $HOME/.kube
+        echo "${{ inputs.KUBE_CONFIG }}" | tr -d '\n' | tr -d ' ' | base64 -d > $HOME/.kube/config
+        echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
 
     - name: check kubernetes cluster connectivity
       shell: bash
