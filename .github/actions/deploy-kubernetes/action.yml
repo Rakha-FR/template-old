@@ -100,7 +100,7 @@ runs:
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
           --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
-          --set podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
+          --set podAnnotations.vault.access_path=${{ inputs.VAULT_CONFIG_PATH }} \
           --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
           --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
           --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
