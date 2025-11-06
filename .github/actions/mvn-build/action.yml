@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         MAVEN_VERSION=3.9.6
-        wget https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+        wget https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
         tar xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
         echo "${{ github.workspace }}/apache-maven-${MAVEN_VERSION}/bin" >> $GITHUB_PATH
         
