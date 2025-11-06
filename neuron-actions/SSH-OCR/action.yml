@@ -14,11 +14,11 @@ inputs:
   folder:
     description: "Target Folder"
     required: true
-  ssh_passphrase:
-    description: "ssh_passphrase"
-    required: true
   pac:
     description: "PAC"
+    required: true
+  env:
+    description: "env"
     required: true
 
 
@@ -26,14 +26,25 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Import All Secrets from Vault
+      id: import-secrets
+      uses: hashicorp/vault-action@v3.4.0
+      with:
+        url: ${{ secrets.VAULT_HOST_URL }}
+        method: userpass
+        username: ${{ secrets.VAULT_USERNAME }}
+        password: ${{ secrets.VAULT_PASSWORD }}
+        exportEnv: true
+        secrets: |
+          neuron/data/${{ inputs.env }}/ocr/secret SSH_PASSPHRASE | SSH_PASSPHRASE ;
+          
     - name: Start SSH Agent and Add Key
       env:
-        SSH_PASSPHRASE: ${{ inputs.ssh_passphrase }}
         PAC: ${{ inputs.pac }}}
       shell: bash
       run: |
         eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa <<< "${{ inputs.ssh_passphrase }}"
+        ssh-add ~/.ssh/id_rsa <<< "${{ env.SSH_PASSPHRASE }}"
         ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
 
         ssh -o StrictHostKeyChecking=yes ${{ inputs.user }}@${{ inputs.host }} << EOF
