@@ -85,6 +85,11 @@ runs:
       shell: bash
       run: |
         kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
+    
+    - name: debug
+      shell: bash
+      run: |
+        kubectl get all -n ${{ inputs.KUBE_NAMESPACE }}
 
     - name: Deploy to Kubernetes using Helm
       shell: bash
