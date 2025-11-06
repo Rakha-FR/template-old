@@ -90,11 +90,11 @@ runs:
         kubectl get pods -n {{ inputs.KUBE_NAMESPACE }}
 
     - name: helm registry login
-      uses: azure/helm-login@v1
-      with:
-        username: ${{ inputs.REGISTRY_USERNAME }}
-        password: ${{ inputs.REGISTRY_PASSWORD }}
-        registry: ${{ inputs.REGISTRY_URL }}
+      shell: bash
+      run: |
+        helm registry login ${{ inputs.REGISTRY_URL }} \
+          -u ${{ inputs.REGISTRY_USERNAME }} \
+          -p ${{ inputs.REGISTRY_PASSWORD }}
 
     - name: Deploy to Kubernetes using Helm
       shell: bash
