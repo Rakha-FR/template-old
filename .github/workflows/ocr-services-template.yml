@@ -44,5 +44,8 @@ jobs:
         pac: ${{ secrets.PAC }}
         env: ${{ needs.define-environment.outputs.branch_env }}
         folder: ${{ vars.FOLDER }}
+        VAULT_HOST_URL: ${{secrets.VAULT_HOST_URL}}
+        VAULT_PASSWORD: ${{secrets.VAULT_PASSWORD}}
+        VAULT_USERNAME: ${{secrets.VAULT_USERNAME}}
 
 
