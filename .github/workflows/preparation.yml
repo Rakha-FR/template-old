@@ -1,0 +1,60 @@
+name: Preparation for running workflows
+
+on:
+  workflow_call:
+    outputs:
+      SQ_RULES:
+        description: "Software Quality Rules"
+        value: ${{ jobs.condition-check.outputs.SQ_RULES }}
+      MERGED_RULES:
+        description: "Merged Build Rules"
+        value: ${{ jobs.condition-check.outputs.MERGED_RULES }}
+      MANUAL_RULES:
+        description: "Manual Build Rules"
+        value: ${{ jobs.condition-check.outputs.SQ_RULES }}
+      APP_VERSION:
+        description: "The application version"
+        value: ${{ jobs.prepare-environment.outputs.APP_VERSION }}
+      ENV_SERVER: 
+        description: "The deployment environment"
+        value: ${{ jobs.prepare-environment.outputs.ENV_SERVER }}
+      RUNNER_GROUP: 
+        description: "Runner environment"
+        value: ${{ jobs.prepare-environment.outputs.RUNNER_GROUP }}
+      REPO_OWNER:
+        description: "Repository Owner"
+        value: ${{ jobs.prepare-environment.outputs.REPO_OWNER }}
+      REPO_NAME:
+        description: "Repository Name"
+        value: ${{ jobs.prepare-environment.outputs.REPO_NAME }}
+
+jobs:
+  condition-check:
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      SQ_RULES: ${{ steps.check-condition.outputs.SQ_RULES }}
+      MERGED_RULES: ${{ steps.check-condition.outputs.MERGED_RULES }}
+      MANUAL_RULES: ${{ steps.check-condition.outputs.MANUAL_RULES }}
+    steps:
+      - name: Check Conditions
+        id: check-condition
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/condition-check@migrasi
+
+  prepare-environment:
+    needs: condition-check
+    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' || needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
+    runs-on:
+      group: Development
+      labels: [self-hosted, Linux, X64, Development]
+    outputs:
+      APP_VERSION: ${{ steps.prepare-environment.outputs.APP_VERSION }}
+      ENV_SERVER: ${{ steps.prepare-environment.outputs.ENV_SERVER }}
+      RUNNER_GROUP: ${{ steps.prepare-environment.outputs.RUNNER_GROUP }}
+      REPO_OWNER: ${{ steps.prepare-environment.outputs.REPO_OWNER }}
+      REPO_NAME: ${{ steps.prepare-environment.outputs.REPO_NAME }}
+    steps:
+      - name: Prepare Version and Environment
+        id: prepare-environment
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-environment@migrasi

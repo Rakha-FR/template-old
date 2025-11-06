@@ -1,71 +1,86 @@
-name: Run workflows
+name: Run workflows For Enrergy Application Backend
 
 on:
   workflow_call:
+    inputs:
+      RUNNER_GROUP:
+        required: true
+        type: string
+      SQ_RULES:
+        required: false
+        type: string
+      MERGED_RULES:
+        required: false
+        type: string
+      MANUAL_RULES:
+        required: false
+        type: string
+      APP_VERSION:
+        required: false
+        type: string
+      ENV_SERVER:
+        required: true
+        type: string
+      REPO_OWNER:
+        required: true
+        type: string
+      REPO_NAME:
+        required: true
+        type: string
+      DOCKERFILE_NAME:
+        required: false
+        type: string
+      ARTIFACT_NAME:
+        required: false
+        type: string
+      ARTIFACT_PATH:
+        required: false
+        type: string
 
 jobs:
-  condition-check:
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      SQ_RULES: ${{ steps.check-condition.outputs.SQ_RULES }}
-      MERGED_RULES: ${{ steps.check-condition.outputs.MERGED_RULES }}
-      MANUAL_RULES: ${{ steps.check-condition.outputs.MANUAL_RULES }}
-    steps:
-      - name: Check Conditions
-        id: check-condition
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/condition-check@migrasi
-
-  prepare-environment:
-    needs: condition-check
-    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' || needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      APP_VERSION: ${{ steps.set_environment.outputs.APP_VERSION }}
-      ENV_SERVER: ${{ steps.set_environment.outputs.ENV_SERVER }}
-      RUNNER_GROUP: ${{ steps.set_environment.outputs.RUNNER_GROUP }}
-      REPO_OWNER: ${{ steps.set_environment.outputs.REPO_OWNER }}
-      REPO_NAME: ${{ steps.set_environment.outputs.REPO_NAME }}
-    steps:
-      - name: Prepare Version and Environment
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-version@migrasi
-
   sonarqube-scan:
-    if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' }}
+    if: ${{ inputs.SQ_RULES == 'true' }}
     runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    needs: 
-      - condition-check
-      - prepare-environment
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     steps:
       - name: SonarQube Scan
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
         with:
-          RUNNER_GROUP: ${{ needs.prepare-environment.outputs.RUNNER_GROUP }}
+          RUNNER_GROUP: ${{ inputs.RUNNER_GROUP }}
           SONAR_EXCLUSIONS: ""
           SONAR_SOURCES: "./src"
           SONAR_USER_HOME: ${{ github.workspace }}
           continue-on-error: true
-          REPO_NAME: ${{ needs.prepare-environment.outputs.REPO_NAME }}
-          REPOSITORY_OWNER: ${{ needs.prepare-environment.outputs.REPO_OWNER }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  build-maven:
-    if: ${{ needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
-    container:
-      image: maven:3.9.6-eclipse-temurin-17
+  build-application:
+    if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
+    environment: ${{ inputs.ENV_SERVER }}
     runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    needs: 
-    - condition-check
-    - prepare-environment
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    outputs:
+      mvn_version: ${{ steps.build_maven.outputs.mvn_version }}
     steps:
       - name: Build Maven Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+        id: build_maven
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          ENV_SERVER: ${{ inputs.ENV_SERVER }}
+          PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
+          PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
+        with:
+          REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          APP_VERSION: ${{ inputs.APP_VERSION }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}

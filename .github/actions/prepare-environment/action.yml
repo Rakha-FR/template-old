@@ -4,48 +4,49 @@ description: "Prepare application version and environment based on branch or tag
 outputs:
   APP_VERSION:
     description: "The application version"
-    value: ${{ steps.set_environment.outputs.APP_VERSION }}
+    value: ${{ steps.prepare-environment.outputs.APP_VERSION }}
   ENV_SERVER: 
     description: "The deployment environment"
-    value: ${{ steps.set_environment.outputs.ENV_SERVER }}
+    value: ${{ steps.prepare-environment.outputs.ENV_SERVER }}
   RUNNER_GROUP: 
     description: "Runner environment"
-    value: ${{ steps.set_environment.outputs.RUNNER_GROUP }}
+    value: ${{ steps.prepare-environment.outputs.RUNNER_GROUP }}
   REPO_OWNER:
     description: "Repository Owner"
-    value: ${{ steps.set_environment.outputs.REPO_OWNER }}
+    value: ${{ steps.prepare-environment.outputs.REPO_OWNER }}
   REPO_NAME:
     description: "Repository Name"
-    value: ${{ steps.set_environment.outputs.REPO_NAME }}
+    value: ${{ steps.prepare-environment.outputs.REPO_NAME }}
 
 runs:
   using: composite
   steps:
     - name: Set version and environment
-      id: set_environment
+      id: prepare-environment
       shell: bash
       run: |
         REPO_OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
         REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
         echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_OUTPUT
         echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
-        echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
-        echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT        
 
         echo "NOTES=" >> $GITHUB_OUTPUT
 
-        if [[ "${{ github.ref }}" == *"refs/heads/development"* ]]; then
+        if [[ "${{ github.ref }}" == "refs/heads/dev" || "${{ github.ref }}" == "refs/heads/devops-setup-github-action" ]]; then
+          ENV_SERVER=development
           echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT
           echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.sha }}" >> $GITHUB_OUTPUT
-        elif [[ "${{ github.ref }}" == *"refs/heads/staging"* ]]; then
+        elif [[ "${{ github.ref }}" == "refs/heads/stg" ]]; then
+          ENV_SERVER=staging
           echo "ENV_SERVER=staging" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Staging" >> $GITHUB_OUTPUT
-          echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.sha }}" >> $GITHUB_OUTPUT
-        elif [[ "${{ github.ref }}" == *"refs/tags/v*"* ]]; then
+          echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.sha }}" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref }}" == "refs/tags/v*" ]]; then
+          ENV_SERVER=production
           echo "ENV_SERVER=production" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Production" >> $GITHUB_OUTPUT
-          echo "APP_VERSION=$(date +%Y.%m.%d)-${env_server}_${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$(date +%Y.%m.%d)-${ENV_SERVER}_${{ github.ref_name }}" >> $GITHUB_OUTPUT
         else
           echo "NOTES='Branch bukan development, staging, atau tag v*'" >> $GITHUB_OUTPUT 
         fi
@@ -54,9 +55,9 @@ runs:
       id: validate_variables
       shell: bash
       run: |
-        echo "Repository Owner: ${{ steps.set_environment.outputs.REPO_OWNER }}"
-        echo "Repository Name: ${{ steps.set_environment.outputs.REPO_NAME }}"
-        echo "App Version: ${{ steps.set_environment.outputs.APP_VERSION }}"
-        echo "Environment Server: ${{ steps.set_environment.outputs.ENV_SERVER }}"
-        echo "Runner Group: ${{ steps.set_environment.outputs.RUNNER_GROUP }}"
-        echo "Notes: ${{ steps.set_environment.outputs.NOTES }}"
+        echo "Repository Owner: ${{ steps.prepare-environment.outputs.REPO_OWNER }}"
+        echo "Repository Name: ${{ steps.prepare-environment.outputs.REPO_NAME }}"
+        echo "App Version: ${{ steps.prepare-environment.outputs.APP_VERSION }}"
+        echo "Environment Server: ${{ steps.prepare-environment.outputs.ENV_SERVER }}"
+        echo "Runner Group: ${{ steps.prepare-environment.outputs.RUNNER_GROUP }}"
+        echo "Notes: ${{ steps.prepare-environment.outputs.NOTES }}"

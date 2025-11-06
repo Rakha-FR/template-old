@@ -2,9 +2,26 @@ name: "Build Maven Application"
 description: "Composite action for building a Maven project"
 
 inputs:
-  github-token:
-    description: "GitHub Token for authentication"
+  REPO_OWNER:
+    description: "Repository Owner"
     required: true
+  REPO_NAME:
+    description: "Repository Name"
+    required: true
+  PACKAGE_NAME:
+    description: "Maven Package Name"
+    required: true
+  PERSONAL_TOKEN:
+    description: "Personal Access Token for publishing packages"
+    required: true
+  ENV_SERVER:
+    description: "The deployment environment"
+    required: true
+  
+outputs:
+  mvn_version:
+    description: "Maven build version"
+    value: ${{ steps.get-version.outputs.mvn_version }}
 
 runs:
   using: "composite"
@@ -12,18 +29,116 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Update to latest SNAPSHOT dependencies
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+        
+    - name: Install Maven
       shell: bash
-      run: mvn versions:use-latest-snapshots -Dincludes=com.dbs:*
+      run: |
+        MAVEN_VERSION=3.9.6
+        wget https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+        tar xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
+        echo "${{ github.workspace }}/apache-maven-${MAVEN_VERSION}/bin" >> $GITHUB_PATH
+        
+    - name: Verify Maven Installation
+      shell: bash
+      run: mvn -version
+
+    - name: Get version and build command parameter
+      shell: bash
+      id: get-version
+      run: |
+        #!/bin/bash
+        set +e
+
+        # =====================================================================================================
+        # Dipakai untuk get version package sendiri
+        # =====================================================================================================
+
+        echo "============================Self Package============================="
+
+        echo "Environment Server: ${ENV_SERVER}"
+
+        if [[ -n "${ENV_SERVER}" && ${ENV_SERVER} == "production" ]]; then
+          mvn_version=$(echo "${GITHUB_REF}" | sed -E 's|refs/tags/v||')
+          echo "Environment is Production, using release version: ${mvn_version}"
+        elif [[ -n "${ENV_SERVER}" && ( "${ENV_SERVER}" == "development" || "${ENV_SERVER}" == "staging" ) ]]; then
+          mvn_version="1.0.0-SNAPSHOT"
+          echo "Environment is not production, using default version: ${mvn_version}"
+        else
+          echo "Variable ENV_SERVER tidak terdefinisikan"
+        fi
+
+        echo "🆕 New version will be: $mvn_version"
+        find . -type f -name "pom.xml" | while read -r pom_file; do
+          echo "🔧 Updating version in: $pom_file"
+          sed -i "s|\${mvn_version}|${mvn_version}|g" "$pom_file"
+        done
+        # Export ke environment
+        echo "mvn_version=$mvn_version" >> $GITHUB_ENV
+        echo "mvn_version=$mvn_version" >> $GITHUB_OUTPUT
+
+        # =====================================================================================================
+        # Dipakai untuk memilih file properties yang dipakai
+        # =====================================================================================================
+
+        echo "============================Prepare Command Parameter============================="
+
+        sed -i 's/\r$//' "versions-${ENV_SERVER}.properties"
+
+        VERSION_PARAMS=""
+
+        while IFS='=' read -r key value || [[ -n "$key" ]]; do
+          [[ -z "$key" || "$key" =~ ^# ]] && continue
+
+          PACKAGE=$(echo "$key" | xargs)
+          PACKAGE_VERSION=$(echo "$value" | xargs)
+
+          if [[ -z "$VERSION_PARAMS" ]]; then
+            VERSION_PARAMS="-D${PACKAGE}=${PACKAGE_VERSION}"
+          else
+            VERSION_PARAMS="${VERSION_PARAMS} -D${PACKAGE}=${PACKAGE_VERSION}"
+          fi
+        done < "versions-${ENV_SERVER}.properties"
+
+        echo "✅ Final Maven params: ${VERSION_PARAMS}"
+
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_ENV
+        echo "VERSION_PARAMS=${VERSION_PARAMS}" >> $GITHUB_OUTPUT
+      env:
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        ENV_SERVER: ${{ inputs.ENV_SERVER }}
+        CONSUMED_PACKAGE: ${{ inputs.CONSUMED_PACKAGE }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
 
     - name: Build Maven Application
       shell: bash
-      run: mvn clean package -s ci_settings.xml -U
+      run: |
+        mvn clean package -U -s ci_settings.xml ${VERSION_PARAMS}
       env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
 
     - name: Publish Maven Application
       shell: bash
-      run: mvn clean deploy -s ci_settings.xml
+      run:  |
+        mvn clean initialize deploy -U -s ci_settings.xml ${VERSION_PARAMS}
       env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        REPO_OWNER: ${{ inputs.REPO_OWNER }}
+        REPO_NAME: ${{ inputs.REPO_NAME }}
+        PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
+        PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
+
+    - name: Debug
+      shell: bash
+      run: |
+        ls -l
+        ls -l dbs-service-api-integration
