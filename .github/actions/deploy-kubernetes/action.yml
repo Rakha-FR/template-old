@@ -31,16 +31,16 @@ inputs:
     required: true
   CPU_LIMIT:
     description: "CPU Limit for the application"
-    required: false
+    required: true
   CPU_REQUEST:
     description: "CPU Request for the application"
     required: false
   MEMORY_LIMIT:
     description: "Memory Limit for the application"
-    required: false
+    required: true
   MEMORY_REQUEST:
     description: "Memory Request for the application"
-    required: false
+    required: true
   VAULT_SERVICE_ACCOUNT:
     description: "Vault Service Account Name"
     required: true
