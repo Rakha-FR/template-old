@@ -105,7 +105,7 @@ jobs:
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           HELM_CATALOG_APP: ${{ vars.HELM_CATALOG_APP }}
-          HELM_NAME: oci://registry.pgn.co.id/billing-dev/helm/dbs-service-api-integration/dbs-service-api-integration
+          HELM_NAME: oci://registry.neuron.id/pub/helm-template
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           CPU_LIMIT: ${{ vars.CPU_LIMIT }}
