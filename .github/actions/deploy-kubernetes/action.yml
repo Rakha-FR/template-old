@@ -1,0 +1,91 @@
+name: Kubernetes Application Deployment
+description: "Composite action for deploying application to Kubernetes cluster"
+
+inputs:
+  KUBE_CONFIG:
+    description: "Base64 Kubeconfig file content for accessing the Kubernetes cluster"
+    required: true
+  KUBE_NAMESPACE:
+    description: "Kubernetes Namespace for deployment"
+    required: true
+  REGISTRY_URL:
+    description: "Container Registry URL"
+    required: true
+  REGISTRY_USERNAME:
+    description: "Container Registry Username"
+    required: true
+  REGISTRY_PASSWORD:
+    description: "Container Registry Password"
+    required: true
+  HELM_CATALOG_APP:
+    description: "Helm Release Name"
+    required: true
+  HELM_NAME:
+    description: "Helm Chart Path"
+    required: true
+  IMAGE_NAME:
+    description: "Docker Image Name"
+    required: true
+  APP_VERSION:
+    description: "Application Version for Docker Image Tag"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: setup helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'v3.15.2'
+      
+    - name: setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.27.3'
+
+    - name: decode kubeconfig
+      id: decode_kubeconfig
+      shell: bash
+      run: |
+        echo "${{ inputs.KUBE_CONFIG }}" | base64 -d > $HOME/.kubeconfig
+        echo "KUBECONFIG=$HOME/.kubeconfig" >> $GITHUB_ENV
+
+    - name: configure kubeconfig
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ env.KUBE_CONFIG }}
+
+    - name: check kubernetes cluster connectivity
+      shell: bash
+      run: |
+        kubectl get pods -n {{ inputs.KUBE_NAMESPACE }}
+
+    - name: helm registry login
+      uses: azure/helm-login@v1
+      with:
+        username: ${{ inputs.REGISTRY_USERNAME }}
+        password: ${{ inputs.REGISTRY_PASSWORD }}
+        registry: ${{ inputs.REGISTRY_URL }}
+
+    - name: Deploy to Kubernetes using Helm
+      uses: azure/helm-deploy@v1
+      with:
+        namespace: ${{ inputs.KUBE_NAMESPACE }}
+        release-name: ${{ inputs.HELM_CATALOG_APP }}
+        chart-path: ${{ inputs.HELM_NAME }}
+        values: |
+          resources.limits.cpu=${{ vars.CPU_LIMIT }} \
+          resources.limits.memory=${{ vars.MEMORY_LIMIT }} \
+          resources.requests.cpu=${{ vars.CPU_REQUEST }} \
+          resources.requests.memory=${{ vars.MEMORY_REQUEST }} \
+          serviceAccount.name=${{ vars.VAULT_SERVICE_ACCOUNT }} \
+          podAnnotations.vault.authPath=${{ vars.VAULT_AUTH_PATH }} \
+          podAnnotations.vault.secretPath=${{ vars.VAULT_CONFIG_PATH }} \
+          imagePullSecrets.name=${{ vars.IMAGE_PULL_SECRET }} \
+          podAnnotations.releaseNamespace=${{ vars.KUBE_NAMESPACE }} \
+          image.name="${{ inputs.IMAGE_NAME }}" \
+          image.tag="${{ inputs.APP_VERSION }}" \
+          podAnnotations.vault.role=${{ vars.VAULT_ROLE }}
+        wait-until-deployed: true
+        timeout-seconds: 600

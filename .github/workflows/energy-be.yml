@@ -84,3 +84,24 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+
+  deploy-application:
+    if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
+    environment: ${{ inputs.ENV_SERVER }}
+    needs: build-application
+    runs-on:
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    steps:
+      - name: Deploy to Kubernetes
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/deploy-kubernetes@migrasi
+        with:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          KUBE_NAMESPACE: ${{ vars.KUBE_NAMESPACE }}
+          REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          HELM_CATALOG_APP: ${{ vars.HELM_CATALOG_APP }}
+          HELM_NAME: ${{ vars.HELM_NAME }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+          APP_VERSION: ${{ inputs.APP_VERSION }}
