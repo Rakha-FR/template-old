@@ -93,10 +93,10 @@ runs:
         CPU_REQUEST=$(echo "${{ inputs.CPU_REQUEST }}" | xargs)
         MEMORY_LIMIT=$(echo "${{ inputs.MEMORY_LIMIT }}" | xargs)
         MEMORY_REQUEST=$(echo "${{ inputs.MEMORY_REQUEST }}" | xargs)
-        echo "CPU_LIMIT_CLEAN=$CPU_LIMIT" >> $GITHUB_ENV
-        echo "CPU_REQUEST_CLEAN=$CPU_REQUEST" >> $GITHUB_ENV
-        echo "MEMORY_LIMIT_CLEAN=$MEMORY_LIMIT" >> $GITHUB_ENV
-        echo "MEMORY_REQUEST_CLEAN=$MEMORY_REQUEST" >> $GITHUB_ENV
+        echo "CPU_LIMIT=$CPU_LIMIT" >> $GITHUB_ENV
+        echo "CPU_REQUEST=$CPU_REQUEST" >> $GITHUB_ENV
+        echo "MEMORY_LIMIT=$MEMORY_LIMIT" >> $GITHUB_ENV
+        echo "MEMORY_REQUEST=$MEMORY_REQUEST" >> $GITHUB_ENV
 
     - name: Deploy to Kubernetes using Helm
       shell: bash
