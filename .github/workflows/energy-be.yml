@@ -105,3 +105,10 @@ jobs:
           HELM_NAME: ${{ vars.HELM_NAME }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
+          CPU_LIMIT: ${{ vars.CPU_LIMIT }}
+          MEMORY_LIMIT: ${{ vars.MEMORY_LIMIT }}
+          CPU_REQUEST: ${{ vars.CPU_REQUEST }}
+          MEMORY_REQUEST: ${{ vars.MEMORY_REQUEST }}
+          VAULT_SERVICE_ACCOUNT: ${{ vars.VAULT_SERVICE_ACCOUNT }}
+          VAULT_AUTH_PATH: ${{ vars.VAULT_AUTH_PATH }}
+          VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}

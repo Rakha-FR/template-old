@@ -29,6 +29,27 @@ inputs:
   APP_VERSION:
     description: "Application Version for Docker Image Tag"
     required: true
+  CPU_LIMIT:
+    description: "CPU Limit for the application"
+    required: false
+  CPU_REQUEST:
+    description: "CPU Request for the application"
+    required: false
+  MEMORY_LIMIT:
+    description: "Memory Limit for the application"
+    required: false
+  MEMORY_REQUEST:
+    description: "Memory Request for the application"
+    required: false
+  VAULT_SERVICE_ACCOUNT:
+    description: "Vault Service Account Name"
+    required: true
+  VAULT_AUTH_PATH:
+    description: "Vault Authentication Path"
+    required: true
+  VAULT_CONFIG_PATH:
+    description: "Vault Configuration Path"
+    required: true
 
 runs:
   using: composite
@@ -75,13 +96,13 @@ runs:
         release-name: ${{ inputs.HELM_CATALOG_APP }}
         chart-path: ${{ inputs.HELM_NAME }}
         values: |
-          resources.limits.cpu=${{ vars.CPU_LIMIT }} \
-          resources.limits.memory=${{ vars.MEMORY_LIMIT }} \
-          resources.requests.cpu=${{ vars.CPU_REQUEST }} \
-          resources.requests.memory=${{ vars.MEMORY_REQUEST }} \
-          serviceAccount.name=${{ vars.VAULT_SERVICE_ACCOUNT }} \
-          podAnnotations.vault.authPath=${{ vars.VAULT_AUTH_PATH }} \
-          podAnnotations.vault.secretPath=${{ vars.VAULT_CONFIG_PATH }} \
+          resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
+          resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
+          resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
+          resources.requests.memory=${{ inputs.MEMORY_REQUEST }} \
+          serviceAccount.name=${{ inputs.VAULT_SERVICE_ACCOUNT }} \
+          podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
+          podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
           imagePullSecrets.name=${{ vars.IMAGE_PULL_SECRET }} \
           podAnnotations.releaseNamespace=${{ vars.KUBE_NAMESPACE }} \
           image.name="${{ inputs.IMAGE_NAME }}" \
