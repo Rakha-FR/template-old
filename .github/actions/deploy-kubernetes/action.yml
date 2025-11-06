@@ -90,7 +90,6 @@ runs:
       shell: bash
       run: |
         kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
-        kubectl logs pods dbs-service-api-integration-c78b9cb6c-rgz76 -n ${{ inputs.KUBE_NAMESPACE }}
         kubectl get ingress pgn-billing-ingress -n ${{ inputs.KUBE_NAMESPACE }} -o yaml
         kubectl get ingress-fe pgn-billing-ingress -n ${{ inputs.KUBE_NAMESPACE }} -o yaml
         kubectl get ingress-um pgn-billing-ingress -n ${{ inputs.KUBE_NAMESPACE }} -o yaml
