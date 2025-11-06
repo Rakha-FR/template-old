@@ -97,4 +97,11 @@ runs:
         helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
           --values ${{ inputs.FILE_VALUES }} \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
+          --set image.name=${{ inputs.IMAGE_NAME }} \
+          --set image.tag=${{ inputs.APP_VERSION }} \
+          --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
+          --set podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
+          --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
+          --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
+          --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
           --wait --timeout 10m0s
