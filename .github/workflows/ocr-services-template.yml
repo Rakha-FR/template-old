@@ -42,7 +42,7 @@ jobs:
         user: ${{ vars.USER }}
         git_branch: ${{ needs.define-environment.outputs.currentBranch }}
         pac: ${{ secrets.PAC }}
-        ssh_passphrase: ${{ secrets.SSH_PASSWORD }}
+        env: ${{ needs.define-environment.outputs.branch_env }}
         folder: ${{ vars.FOLDER }}
 
 
