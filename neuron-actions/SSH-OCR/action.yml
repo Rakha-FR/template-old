@@ -57,7 +57,6 @@ runs:
         ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
         ssh -o StrictHostKeyChecking=yes ${{ inputs.user }}@${{ inputs.host }} << EOF
           cd ${{ inputs.folder }} 
-          pwd
           git fetch origin
           git checkout ${{ inputs.git_branch }} || git checkout -b ${{ inputs.git_branch }} origin/${{ inputs.git_branch }}
           git pull origin ${{ inputs.git_branch }}
