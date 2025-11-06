@@ -55,10 +55,9 @@ runs:
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_rsa <<< "${{ env.SSH_PASSPHRASE }}"
         ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
-        curl -v https://git.neuron.id
-
         ssh -o StrictHostKeyChecking=yes ${{ inputs.user }}@${{ inputs.host }} << EOF
-          cd ${{ inputs.folder }}
+          cd ${{ inputs.folder }} 
+          pwd
           git fetch origin
           git checkout ${{ inputs.git_branch }} || git checkout -b ${{ inputs.git_branch }} origin/${{ inputs.git_branch }}
           git pull origin ${{ inputs.git_branch }}
