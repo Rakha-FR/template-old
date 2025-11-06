@@ -2,57 +2,60 @@ name: Kubernetes Application Deployment
 description: "Composite action for deploying application to Kubernetes cluster"
 
 inputs:
-  # KUBE_CONFIG:
-  #   description: "Base64 Kubeconfig file content for accessing the Kubernetes cluster"
-  #   required: true
-  # KUBE_NAMESPACE:
-  #   description: "Kubernetes Namespace for deployment"
-  #   required: true
-  # REGISTRY_URL:
-  #   description: "Container Registry URL"
-  #   required: true
-  # REGISTRY_USERNAME:
-  #   description: "Container Registry Username"
-  #   required: true
-  # REGISTRY_PASSWORD:
-  #   description: "Container Registry Password"
-  #   required: true
-  # HELM_CATALOG_APP:
-  #   description: "Helm Release Name"
-  #   required: true
-  # IMAGE_NAME:
-  #   description: "Docker Image Name"
-  #   required: true
+  KUBE_CONFIG:
+    description: "Base64 Kubeconfig file content for accessing the Kubernetes cluster"
+    required: true
+  KUBE_NAMESPACE:
+    description: "Kubernetes Namespace for deployment"
+    required: true
+  REGISTRY_URL:
+    description: "Container Registry URL"
+    required: true
+  REGISTRY_USERNAME:
+    description: "Container Registry Username"
+    required: true
+  REGISTRY_PASSWORD:
+    description: "Container Registry Password"
+    required: true
+  HELM_CATALOG_APP:
+    description: "Helm Release Name"
+    required: true
+  HELM_NAME:
+    description: "Helm Chart Path"
+    required: true
+  IMAGE_NAME:
+    description: "Docker Image Name"
+    required: true
   APP_VERSION:
     description: "Application Version for Docker Image Tag"
     required: true
-  # CPU_LIMIT:
-  #   description: "CPU Limit for the application"
-  #   required: true
-  # CPU_REQUEST:
-  #   description: "CPU Request for the application"
-  #   required: false
-  # MEMORY_LIMIT:
-  #   description: "Memory Limit for the application"
-  #   required: true
-  # MEMORY_REQUEST:
-  #   description: "Memory Request for the application"
-  #   required: true
-  # VAULT_SERVICE_ACCOUNT:
-  #   description: "Vault Service Account Name"
-  #   required: true
-  # VAULT_AUTH_PATH:
-  #   description: "Vault Authentication Path"
-  #   required: true
-  # VAULT_CONFIG_PATH:
-  #   description: "Vault Configuration Path"
-  #   required: true
-  # VAULT_ROLE:
-  #   description: "Vault Role for the application"
-  #   required: true
-  # IMAGE_PULL_SECRET:
-  #   description: "Image Pull Secret Name"
-  #   required: true
+  CPU_LIMIT:
+    description: "CPU Limit for the application"
+    required: true
+  CPU_REQUEST:
+    description: "CPU Request for the application"
+    required: false
+  MEMORY_LIMIT:
+    description: "Memory Limit for the application"
+    required: true
+  MEMORY_REQUEST:
+    description: "Memory Request for the application"
+    required: true
+  VAULT_SERVICE_ACCOUNT:
+    description: "Vault Service Account Name"
+    required: true
+  VAULT_AUTH_PATH:
+    description: "Vault Authentication Path"
+    required: true
+  VAULT_CONFIG_PATH:
+    description: "Vault Configuration Path"
+    required: true
+  VAULT_ROLE:
+    description: "Vault Role for the application"
+    required: true
+  IMAGE_PULL_SECRET:
+    description: "Image Pull Secret Name"
+    required: true
   FILE_VALUES:
     description: "Helm values file path"
     required: false
@@ -91,19 +94,19 @@ runs:
     - name: Deploy to Kubernetes using Helm
       shell: bash
       run: |
-        helm upgrade --install ${{ env.HELM_CATALOG_APP }} ${{ env.HELM_NAME }} \
+        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} ${{ inputs.HELM_NAME }} \
           --values ${{ inputs.FILE_VALUES }} \
-          --namespace ${{ env.KUBE_NAMESPACE }} \
-          --set image.name=${{ env.IMAGE_NAME }} \
+          --namespace ${{ inputs.KUBE_NAMESPACE }} \
+          --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
-          --set resources.limits.cpu=${{ env.CPU_LIMIT }} \
-          --set resources.limits.memory=${{ env.MEMORY_LIMIT }} \
-          --set resources.requests.cpu=${{ env.CPU_REQUEST }} \
-          --set resources.requests.memory=${{ env.MEMORY_REQUEST }} \
-          --set serviceAccount.name=${{ env.VAULT_SERVICE_ACCOUNT }} \
-          --set podAnnotations.vault.authPath=${{ env.VAULT_AUTH_PATH }} \
-          --set podAnnotations.vault.secretPath=${{ env.VAULT_CONFIG_PATH }} \
-          --set podAnnotations.vault.role=${{ env.VAULT_ROLE }} \
-          --set podAnnotations.releaseNamespace=${{ env.KUBE_NAMESPACE }} \
-          --set imagePullSecrets.name=${{ env.IMAGE_PULL_SECRET }} \
+          --set resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
+          --set resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
+          --set resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
+          --set resources.requests.memory=${{ inputs.MEMORY_REQUEST }} \
+          --set serviceAccount.name=${{ inputs.VAULT_SERVICE_ACCOUNT }} \
+          --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
+          --set podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
+          --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
+          --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
+          --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
           --wait --timeout 10m0s

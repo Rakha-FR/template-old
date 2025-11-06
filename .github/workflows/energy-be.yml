@@ -98,22 +98,22 @@ jobs:
     steps:
       - name: Deploy to Kubernetes
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/deploy-kubernetes@migrasi
-        with:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-          KUBE_NAMESPACE: ${{ vars.KUBE_NAMESPACE }}
-          REGISTRY_URL: ${{ vars.REGISTRY_URL }}
-          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-          HELM_CATALOG_APP: ${{ vars.HELM_CATALOG_APP }}
-          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
-          APP_VERSION: ${{ inputs.APP_VERSION }}
-          CPU_LIMIT: ${{ vars.CPU_LIMIT }}
-          MEMORY_LIMIT: ${{ vars.MEMORY_LIMIT }}
-          CPU_REQUEST: ${{ vars.CPU_REQUEST }}
-          MEMORY_REQUEST: ${{ vars.MEMORY_REQUEST }}
-          VAULT_SERVICE_ACCOUNT: ${{ vars.VAULT_SERVICE_ACCOUNT }}
-          VAULT_AUTH_PATH: ${{ vars.VAULT_AUTH_PATH }}
-          VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}
-          VAULT_ROLE: ${{ vars.VAULT_ROLE }}
-          IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
-          FILE_VALUES: ${{ inputs.FILE_VALUES }}
+        # with:
+        #   KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        #   KUBE_NAMESPACE: ${{ vars.KUBE_NAMESPACE }}
+        #   REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+        #   REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+        #   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        #   HELM_CATALOG_APP: ${{ vars.HELM_CATALOG_APP }}
+        #   IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+        #   APP_VERSION: ${{ inputs.APP_VERSION }}
+        #   CPU_LIMIT: ${{ vars.CPU_LIMIT }}
+        #   MEMORY_LIMIT: ${{ vars.MEMORY_LIMIT }}
+        #   CPU_REQUEST: ${{ vars.CPU_REQUEST }}
+        #   MEMORY_REQUEST: ${{ vars.MEMORY_REQUEST }}
+        #   VAULT_SERVICE_ACCOUNT: ${{ vars.VAULT_SERVICE_ACCOUNT }}
+        #   VAULT_AUTH_PATH: ${{ vars.VAULT_AUTH_PATH }}
+        #   VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}
+        #   VAULT_ROLE: ${{ vars.VAULT_ROLE }}
+        #   IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
+        #   FILE_VALUES: ${{ inputs.FILE_VALUES }}
