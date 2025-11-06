@@ -55,6 +55,7 @@ runs:
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_rsa <<< "${{ env.SSH_PASSPHRASE }}"
         ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
+        nslookup git.neuron.id
 
         ssh -o StrictHostKeyChecking=yes ${{ inputs.user }}@${{ inputs.host }} << EOF
           cd ${{ inputs.folder }}
