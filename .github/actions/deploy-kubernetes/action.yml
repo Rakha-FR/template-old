@@ -50,6 +50,13 @@ inputs:
   VAULT_CONFIG_PATH:
     description: "Vault Configuration Path"
     required: true
+  VAULT_ROLE:
+    description: "Vault Role for the application"
+    required: true
+  IMAGE_PULL_SECRET:
+    description: "Image Pull Secret Name"
+    required: true
+  
 
 runs:
   using: composite
@@ -103,10 +110,10 @@ runs:
           serviceAccount.name=${{ inputs.VAULT_SERVICE_ACCOUNT }} \
           podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
           podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
-          imagePullSecrets.name=${{ vars.IMAGE_PULL_SECRET }} \
-          podAnnotations.releaseNamespace=${{ vars.KUBE_NAMESPACE }} \
+          imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
+          podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
           image.name="${{ inputs.IMAGE_NAME }}" \
           image.tag="${{ inputs.APP_VERSION }}" \
-          podAnnotations.vault.role=${{ vars.VAULT_ROLE }}
+          podAnnotations.vault.role=${{ inputs.VAULT_ROLE }}
         wait-until-deployed: true
         timeout-seconds: 600

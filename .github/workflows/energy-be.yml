@@ -112,3 +112,5 @@ jobs:
           VAULT_SERVICE_ACCOUNT: ${{ vars.VAULT_SERVICE_ACCOUNT }}
           VAULT_AUTH_PATH: ${{ vars.VAULT_AUTH_PATH }}
           VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}
+          VAULT_ROLE: ${{ vars.VAULT_ROLE }}
+          IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
