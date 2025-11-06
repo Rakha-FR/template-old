@@ -110,3 +110,5 @@ runs:
           --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
           --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
           --wait --timeout 10m0s
+      env:
+        HELM_NAME: ${{ inputs.HELM_NAME }}
