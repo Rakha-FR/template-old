@@ -105,7 +105,6 @@ jobs:
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           HELM_CATALOG_APP: ${{ vars.HELM_CATALOG_APP }}
-          HELM_NAME: ${{ env.HELM_NAME }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           CPU_LIMIT: ${{ vars.CPU_LIMIT }}
@@ -118,5 +117,3 @@ jobs:
           VAULT_ROLE: ${{ vars.VAULT_ROLE }}
           IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
           FILE_VALUES: ${{ inputs.FILE_VALUES }}
-        env:
-          HELM_NAME: oci://registry.pgn.co.id/billing-dev/helm/dbs-service-api-integration/dbs-service-api-integration
