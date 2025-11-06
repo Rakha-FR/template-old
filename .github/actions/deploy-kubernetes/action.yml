@@ -97,23 +97,20 @@ runs:
         registry: ${{ inputs.REGISTRY_URL }}
 
     - name: Deploy to Kubernetes using Helm
-      uses: azure/helm-deploy@v1
-      with:
-        namespace: ${{ inputs.KUBE_NAMESPACE }}
-        release-name: ${{ inputs.HELM_CATALOG_APP }}
-        chart-path: ${{ inputs.HELM_NAME }}
-        values: |
-          resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
-          resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
-          resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
-          resources.requests.memory=${{ inputs.MEMORY_REQUEST }} \
-          serviceAccount.name=${{ inputs.VAULT_SERVICE_ACCOUNT }} \
-          podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
-          podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
-          imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
-          podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
-          image.name="${{ inputs.IMAGE_NAME }}" \
-          image.tag="${{ inputs.APP_VERSION }}" \
-          podAnnotations.vault.role=${{ inputs.VAULT_ROLE }}
-        wait-until-deployed: true
-        timeout-seconds: 600
+      shell: bash
+      run: |
+        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} ${{ inputs.HELM_NAME }} \
+          --namespace ${{ inputs.KUBE_NAMESPACE }} \
+          --set image.name=${{ inputs.IMAGE_NAME }} \
+          --set image.tag=${{ inputs.APP_VERSION }} \
+          --set resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
+          --set resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
+          --set resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
+          --set resources.requests.memory=${{ inputs.MEMORY_REQUEST }} \
+          --set serviceAccount.name=${{ inputs.VAULT_SERVICE_ACCOUNT }} \
+          --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
+          --set podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
+          --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
+          --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
+          --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
+          --wait --timeout 10m0s
