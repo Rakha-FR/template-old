@@ -87,7 +87,7 @@ runs:
     - name: check kubernetes cluster connectivity
       shell: bash
       run: |
-        kubectl get pods -n {{ inputs.KUBE_NAMESPACE }}
+        kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
 
     - name: helm registry login
       shell: bash
