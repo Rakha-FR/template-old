@@ -36,6 +36,9 @@ on:
       ARTIFACT_PATH:
         required: false
         type: string
+      FILE_VALUES:
+        required: false
+        type: string
 
 jobs:
   sonarqube-scan:
@@ -114,3 +117,4 @@ jobs:
           VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}
           VAULT_ROLE: ${{ vars.VAULT_ROLE }}
           IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
+          FILE_VALUES: ${{ inputs.FILE_VALUES }}

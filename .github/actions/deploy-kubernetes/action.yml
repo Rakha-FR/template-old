@@ -56,7 +56,10 @@ inputs:
   IMAGE_PULL_SECRET:
     description: "Image Pull Secret Name"
     required: true
-  
+  FILE_VALUES:
+    description: "Helm values file path"
+    required: false
+    default: "values.yaml"
 
 runs:
   using: composite
@@ -87,6 +90,7 @@ runs:
       shell: bash
       run: |
         helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
+          --values ${{ inputs.FILE_VALUES }} \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
