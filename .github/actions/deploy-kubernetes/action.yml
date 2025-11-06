@@ -90,6 +90,7 @@ runs:
       shell: bash
       run: |
         kubectl get all -n ${{ inputs.KUBE_NAMESPACE }}
+        kubectl describe pod $(kubectl get pods -l app=$(kubectl get deployment dbs-service-api-integration -o jsonpath='{.spec.selector.matchLabels.app}') -o name)
 
     - name: Deploy to Kubernetes using Helm
       shell: bash
@@ -99,9 +100,9 @@ runs:
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
-          --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
-          --set podAnnotations.vault.access_path=${{ inputs.VAULT_CONFIG_PATH }} \
-          --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
+          --set podAnnotations.vault\.authPath=${{ inputs.VAULT_AUTH_PATH }} \
+          --set podAnnotations.vault\.access_path=${{ inputs.VAULT_CONFIG_PATH }} \
+          --set podAnnotations.vault\.role=${{ inputs.VAULT_ROLE }} \
           --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
           --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
           --wait --timeout 10m0s
