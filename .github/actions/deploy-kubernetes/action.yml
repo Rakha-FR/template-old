@@ -86,6 +86,18 @@ runs:
       run: |
         kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
 
+    - name: Clean space and whitespace from variables
+      shell: bash
+      run: |
+        CPU_LIMIT=$(echo "${{ inputs.CPU_LIMIT }}" | xargs)
+        CPU_REQUEST=$(echo "${{ inputs.CPU_REQUEST }}" | xargs)
+        MEMORY_LIMIT=$(echo "${{ inputs.MEMORY_LIMIT }}" | xargs)
+        MEMORY_REQUEST=$(echo "${{ inputs.MEMORY_REQUEST }}" | xargs)
+        echo "CPU_LIMIT_CLEAN=$CPU_LIMIT" >> $GITHUB_ENV
+        echo "CPU_REQUEST_CLEAN=$CPU_REQUEST" >> $GITHUB_ENV
+        echo "MEMORY_LIMIT_CLEAN=$MEMORY_LIMIT" >> $GITHUB_ENV
+        echo "MEMORY_REQUEST_CLEAN=$MEMORY_REQUEST" >> $GITHUB_ENV
+
     - name: Deploy to Kubernetes using Helm
       shell: bash
       run: |
@@ -94,10 +106,10 @@ runs:
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
-          --set resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
-          --set resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
-          --set resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
-          --set resources.requests.memory=${{ inputs.MEMORY_REQUEST }} \
+          --set resources.limits.cpu=${{ env.CPU_LIMIT }} \
+          --set resources.limits.memory=${{ env.MEMORY_LIMIT }} \
+          --set resources.requests.cpu=${{ env.CPU_REQUEST }} \
+          --set resources.requests.memory=${{ env.MEMORY_REQUEST }} \
           --set serviceAccount.name=${{ inputs.VAULT_SERVICE_ACCOUNT }} \
           --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
           --set podAnnotations.vault.secretPath=${{ inputs.VAULT_CONFIG_PATH }} \
@@ -105,8 +117,3 @@ runs:
           --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
           --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
           --wait --timeout 10m0s
-      env:
-        CPU_REQUEST: ${{ inputs.CPU_REQUEST }}
-        MEMORY_REQUEST: ${{ inputs.MEMORY_REQUEST }}
-        CPU_LIMIT: ${{ inputs.CPU_LIMIT }}
-        MEMORY_LIMIT: ${{ inputs.MEMORY_LIMIT }}
