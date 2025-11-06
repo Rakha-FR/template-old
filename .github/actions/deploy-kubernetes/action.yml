@@ -83,17 +83,10 @@ runs:
       run: |
         kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
 
-    - name: helm registry login
-      shell: bash
-      run: |
-        helm registry login ${{ inputs.REGISTRY_URL }} \
-          -u ${{ inputs.REGISTRY_USERNAME }} \
-          -p ${{ inputs.REGISTRY_PASSWORD }}
-
     - name: Deploy to Kubernetes using Helm
       shell: bash
       run: |
-        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} ${{ inputs.HELM_NAME }} --version 0.1.0 \
+        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
