@@ -93,7 +93,7 @@ runs:
     - name: Deploy to Kubernetes using Helm
       shell: bash
       run: |
-        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} ${{ inputs.HELM_NAME }} \
+        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} ${{ inputs.HELM_NAME }} --version 0.1.0 \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
           --set image.name=${{ inputs.IMAGE_NAME }} \
           --set image.tag=${{ inputs.APP_VERSION }} \
