@@ -1,0 +1,42 @@
+name: "Build Node Application"
+description: "Composite action for building a Node project"
+
+inputs:
+  REPO_NAME:
+    description: "Nama repository aplikasi"
+    required: true
+  REPO_OWNER:
+    description: "Nama repository aplikasi"
+    required: true
+  ENV_SERVER:
+    description: "Environment branch (contoh: dev, staging, production)"
+    required: true
+  NODE_VERSION:
+    description: "Node.js version"
+    required: false
+    default: "20.11.0"
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - uses: actions/setup-node@v5
+      with:
+        node-version: ${{  inputs.NODE_VERSION  }}
+        cache: 'npm'
+
+    - name: Install dependencies and build (NPM)
+      shell: bash
+      run: |
+        npm install --legacy-peer-deps
+        CI=false npm run build
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
