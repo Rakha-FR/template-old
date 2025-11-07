@@ -38,6 +38,7 @@ on:
 jobs:
   build:
     if: github.event.pull_request.merged || github.event_name != 'pull_request'
+    environment: ${{ inputs.branch_env }}
     name: Build
     runs-on:
       group: ${{ inputs.runner_group }}

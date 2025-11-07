@@ -19,7 +19,7 @@ jobs:
         id: branch
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
         with:
-          deploy_to: 'MOBILE'
+          deploy_to: 'ENERGY'
           allowed_branches: "26-devops-setup-ci-cd"
 
   code-quality:
