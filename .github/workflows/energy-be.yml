@@ -79,6 +79,7 @@ jobs:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Build and Push Docker Image
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
+        if: ${{ inputs.DOCKERFILE_NAME != '' }}
         with:
           REGISTRY_URL: ${{ vars.REGISTRY_URL }}
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
