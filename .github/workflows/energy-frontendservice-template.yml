@@ -66,8 +66,8 @@ jobs:
       group: ${{ inputs.RUNNER_GROUP }}
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     steps:
-      - name: Build Maven Application
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+      - name: Build Node Application
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/node-build@migrasi
         id: build_maven
         with:
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
