@@ -74,6 +74,14 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           ENV_SERVER: ${{ inputs.ENV_SERVER }}
           NODE_VERSION: 22.11.0
+          REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          APP_VERSION: ${{ inputs.APP_VERSION }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+
 
 
       # - name: Build and Push Docker Image
