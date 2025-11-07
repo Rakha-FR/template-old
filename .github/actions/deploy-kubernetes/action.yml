@@ -1,0 +1,104 @@
+name: Kubernetes Application Deployment
+description: "Composite action for deploying application to Kubernetes cluster"
+
+inputs:
+  KUBE_CONFIG:
+    description: "Base64 Kubeconfig file content for accessing the Kubernetes cluster"
+    required: true
+  KUBE_NAMESPACE:
+    description: "Kubernetes Namespace for deployment"
+    required: true
+  REGISTRY_URL:
+    description: "Container Registry URL"
+    required: true
+  REGISTRY_USERNAME:
+    description: "Container Registry Username"
+    required: true
+  REGISTRY_PASSWORD:
+    description: "Container Registry Password"
+    required: true
+  HELM_CATALOG_APP:
+    description: "Helm Release Name"
+    required: true
+  HELM_NAME:
+    description: "Helm Chart Path"
+    required: true
+  IMAGE_NAME:
+    description: "Docker Image Name"
+    required: true
+  APP_VERSION:
+    description: "Application Version for Docker Image Tag"
+    required: true
+  CPU_LIMIT:
+    description: "CPU Limit for the application"
+    required: true
+  CPU_REQUEST:
+    description: "CPU Request for the application"
+    required: false
+  MEMORY_LIMIT:
+    description: "Memory Limit for the application"
+    required: true
+  MEMORY_REQUEST:
+    description: "Memory Request for the application"
+    required: true
+  VAULT_SERVICE_ACCOUNT:
+    description: "Vault Service Account Name"
+    required: true
+  VAULT_AUTH_PATH:
+    description: "Vault Authentication Path"
+    required: true
+  VAULT_CONFIG_PATH:
+    description: "Vault Configuration Path"
+    required: true
+  VAULT_ROLE:
+    description: "Vault Role for the application"
+    required: true
+  IMAGE_PULL_SECRET:
+    description: "Image Pull Secret Name"
+    required: true
+  FILE_VALUES:
+    description: "Helm values file path"
+    required: false
+    default: "values.yaml"
+
+runs:
+  using: composite
+  steps:
+    - name: setup helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'v3.15.2'
+      
+    - name: setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.27.3'
+
+    - name: decode and setup kubeconfig
+      shell: bash
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ inputs.KUBE_CONFIG }}" | tr -d '\n' | tr -d ' ' | base64 -d > $HOME/.kube/config
+        echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+
+    - name: check kubernetes cluster connectivity
+      shell: bash
+      run: |
+        kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
+    
+    - name: Deploy to Kubernetes using Helm
+      shell: bash
+      run: |
+        helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
+          --values ${{ inputs.FILE_VALUES }} \
+          --namespace ${{ inputs.KUBE_NAMESPACE }} \
+          --set resources.limits.cpu=${{ inputs.CPU_LIMIT }} \
+          --set resources.limits.memory=${{ inputs.MEMORY_LIMIT }} \
+          --set resources.requests.cpu=${{ inputs.CPU_REQUEST }} \
+          --set image.name=${{ inputs.IMAGE_NAME }} \
+          --set image.tag=${{ inputs.APP_VERSION }} \
+          --set podAnnotations.vault.authPath=${{ inputs.VAULT_AUTH_PATH }} \
+          --set podAnnotations.vault.accessPath=${{ inputs.VAULT_CONFIG_PATH }} \
+          --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
+          --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
+          --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
