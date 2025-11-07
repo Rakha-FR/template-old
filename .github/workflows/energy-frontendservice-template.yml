@@ -58,3 +58,32 @@ jobs:
           REPO_NAME: ${{ inputs.REPO_NAME }}
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build-application:
+    if: ${{ inputs.MERGED_RULES == 'true' ||inputs.MANUAL_RULES == 'true' }}
+    environment: ${{ inputs.ENV_SERVER }}
+    runs-on:
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
+    steps:
+      - name: Build Maven Application
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+        id: build_maven
+        with:
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          ENV_SERVER: ${{ inputs.ENV_SERVER }}
+          NODE_VERSION: 22.11.0
+
+
+      # - name: Build and Push Docker Image
+      #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
+      #   with:
+      #     REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+      #     REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      #     REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      #     DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
+      #     REPO_NAME: ${{ inputs.REPO_NAME }}
+      #     APP_VERSION: ${{ inputs.APP_VERSION }}
+      #     IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+
