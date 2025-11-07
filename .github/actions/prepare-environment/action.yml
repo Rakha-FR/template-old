@@ -32,7 +32,7 @@ runs:
 
         echo "NOTES=" >> $GITHUB_OUTPUT
 
-        if [[ "${{ github.ref }}" == "refs/heads/dev" || "${{ github.ref }}" == "refs/heads/devops-setup-github-action" ]]; then
+        if [[ "${{ github.ref }}" == "refs/heads/dev" || "${{ github.ref }}" == "refs/heads/devops-setup-github-action" || "${{ github.ref }}" == "refs/heads/26-devops-setup-ci-cd" ]]; then
           ENV_SERVER=development
           echo "ENV_SERVER=development" >> $GITHUB_OUTPUT
           echo "RUNNER_GROUP=Development" >> $GITHUB_OUTPUT
