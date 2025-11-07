@@ -78,7 +78,6 @@ jobs:
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
-          REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
 
