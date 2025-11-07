@@ -29,6 +29,11 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v5
 
+    - name: Clear Maven cache
+      shell: bash
+      run: |
+        rm -rf ~/.m2/repository/*
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -130,15 +135,10 @@ runs:
     - name: Publish Maven Application
       shell: bash
       run:  |
-        mvn clean initialize deploy -U -s ci_settings.xml ${VERSION_PARAMS}
+        mvn clean deploy -U -s ci_settings.xml ${VERSION_PARAMS}
       env:
         REPO_OWNER: ${{ inputs.REPO_OWNER }}
         REPO_NAME: ${{ inputs.REPO_NAME }}
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
 
-    - name: Debug
-      shell: bash
-      run: |
-        ls -l
-        ls -l dbs-service-api-integration
