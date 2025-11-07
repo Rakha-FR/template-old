@@ -142,7 +142,3 @@ runs:
         PACKAGE_NAME: ${{ inputs.PACKAGE_NAME }}
         PERSONAL_TOKEN: ${{ inputs.PERSONAL_TOKEN }}
 
-    - name: Build Result validation
-      shell: bash
-      run: |
-        ls -l target
