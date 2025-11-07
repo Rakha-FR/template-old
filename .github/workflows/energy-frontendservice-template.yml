@@ -110,5 +110,5 @@ jobs:
           VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}
           VAULT_ROLE: ${{ vars.VAULT_ROLE }}
           IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
-          FILE_VALUES: ${{ inputs.FILE_VALUES }}
+          FILE_VALUES: pgn-frontend/values.yaml
 
