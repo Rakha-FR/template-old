@@ -1,64 +1,60 @@
-name: Energy Frontend Services Pipelines
+name: Run workflows For Enrergy Application Backend
+
 on:
   workflow_call:
+    inputs:
+      RUNNER_GROUP:
+        required: true
+        type: string
+      SQ_RULES:
+        required: false
+        type: string
+      MERGED_RULES:
+        required: false
+        type: string
+      MANUAL_RULES:
+        required: false
+        type: string
+      APP_VERSION:
+        required: false
+        type: string
+      ENV_SERVER:
+        required: true
+        type: string
+      REPO_OWNER:
+        required: true
+        type: string
+      REPO_NAME:
+        required: true
+        type: string
+      DOCKERFILE_NAME:
+        required: false
+        type: string
+      ARTIFACT_NAME:
+        required: false
+        type: string
+      ARTIFACT_PATH:
+        required: false
+        type: string
+      FILE_VALUES:
+        required: false
+        type: string
 
 jobs:
-  define-environment:
+  sonarqube-scan:
+    if: ${{ inputs.SQ_RULES == 'true' }}
     runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
-    outputs:
-      branch_env: ${{ steps.branch.outputs.environment }}
-      runner_group: ${{ steps.branch.outputs.runner_group }}
-      repo_name: ${{ steps.branch.outputs.repo_name }}
-      repo_owner: ${{ steps.branch.outputs.repo_owner }}
-      app_version: ${{ steps.branch.outputs.app_version }}
-      deploy_targets: ${{ steps.branch.outputs.deploy_targets }}
+      group: ${{ inputs.RUNNER_GROUP }}
+      labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     steps:
-      - name: Define Env
-        id: branch
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+      - name: SonarQube Scan
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
         with:
-          deploy_to: 'ENERGY'
-          allowed_branches: "26-devops-setup-ci-cd"
-
-  code-quality:
-    if: needs.define-environment.result == 'success'
-    needs: [define-environment]
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
-    with:
-      grouprunner: ${{ needs.define-environment.outputs.runner_group }}
-      SONAR_EXCLUSIONS: ""
-      SONAR_SOURCES: "./src"
-      SONAR_HOST_URL: "http://10.129.2.232:9000"
-      SONAR_USER_HOME: ${{ github.workspace }}
-      continue-on-error: true
-      repo_name: ${{ needs.define-environment.outputs.repo_name }}
-      repository_owner: ${{ needs.define-environment.outputs.repo_owner }}
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  build:
-    needs: define-environment
-    if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
-    with:
-      repo_name: ${{ needs.define-environment.outputs.repo_name }}
-      branch_env: ${{ needs.define-environment.outputs.branch_env }}
-      deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
-      runner_group: ${{ needs.define-environment.outputs.runner_group }}
-      app_version: ${{ needs.define-environment.outputs.app_version }}
-      node_version: 20.11.0
-    secrets: inherit
-
-  deploy:
-    needs: [define-environment, build]
-    if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/deploy-template.yml@migrasi
-    with:
-      repo_name: ${{ needs.define-environment.outputs.repo_name }}
-      branch_env: ${{ needs.define-environment.outputs.branch_env }}
-      deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
-      runner_group: ${{ needs.define-environment.outputs.runner_group }}
-      app_version: ${{ needs.define-environment.outputs.app_version }}
-    secrets: inherit
+          RUNNER_GROUP: ${{ inputs.RUNNER_GROUP }}
+          SONAR_EXCLUSIONS: ""
+          SONAR_SOURCES: "./src"
+          SONAR_USER_HOME: ${{ github.workspace }}
+          continue-on-error: true
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          REPO_OWNER: ${{ inputs.REPO_OWNER }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
