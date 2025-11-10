@@ -112,9 +112,9 @@ jobs:
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           CPU_LIMIT: "200m"
-          MEMORY_LIMIT: ${{ vars.MEMORY_LIMIT }}
+          MEMORY_LIMIT: "200Mi"
           CPU_REQUEST: "100m"
-          MEMORY_REQUEST: ${{ vars.MEMORY_REQUEST }}
+          MEMORY_REQUEST: "100Mi"
           VAULT_SERVICE_ACCOUNT: ${{ vars.VAULT_SERVICE_ACCOUNT }}
           VAULT_AUTH_PATH: ${{ vars.VAULT_AUTH_PATH }}
           VAULT_CONFIG_PATH: ${{ vars.VAULT_CONFIG_PATH }}
