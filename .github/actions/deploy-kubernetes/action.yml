@@ -112,6 +112,10 @@ runs:
       if: ${{ inputs.NEURON == 'false' }}
       shell: bash
       run: |
+        helm registry login registry.pgn.co.id \
+        -u ${{ inputs.REGISTRY_USERNAME }} \
+        -p ${{ inputs.REGISTRY_PASSWORD }}
+
         HELM_CATALOG_APP="${{ inputs.HELM_CATALOG_APP }}"
         HELM_NAME="${{ inputs.HELM_NAME }}"
         helm package "${HELM_CATALOG_APP}"
