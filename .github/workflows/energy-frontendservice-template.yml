@@ -68,7 +68,6 @@ jobs:
     steps:
       - name: Build Node Application
         uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/node-build@migrasi
-        id: build_maven
         with:
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
           REPO_NAME: ${{ inputs.REPO_NAME }}
@@ -78,6 +77,17 @@ jobs:
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
+          APP_VERSION: ${{ inputs.APP_VERSION }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+      - name: Build and Push Docker Image
+        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
+        if: ${{ inputs.DOCKERFILE_NAME != '' }}
+        with:
+          REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          DOCKERFILE_NAME: ${{ inputs.DOCKERFILE_NAME }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
 
