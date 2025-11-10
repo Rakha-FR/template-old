@@ -111,9 +111,9 @@ jobs:
           HELM_NAME: ${{ vars.HELM_NAME }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
-          CPU_LIMIT: ${{ vars.CPU_LIMIT }}
+          CPU_LIMIT: "200Mi"
           MEMORY_LIMIT: ${{ vars.MEMORY_LIMIT }}
-          CPU_REQUEST: ${{ vars.CPU_REQUEST }}
+          CPU_REQUEST: "100Mi"
           MEMORY_REQUEST: ${{ vars.MEMORY_REQUEST }}
           VAULT_SERVICE_ACCOUNT: ${{ vars.VAULT_SERVICE_ACCOUNT }}
           VAULT_AUTH_PATH: ${{ vars.VAULT_AUTH_PATH }}
