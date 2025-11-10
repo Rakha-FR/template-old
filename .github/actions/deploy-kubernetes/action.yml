@@ -60,6 +60,10 @@ inputs:
     description: "Helm values file path"
     required: false
     default: "values.yaml"
+  NEURON:
+    description: "OCI IMAGE"
+    required: false
+    default: "true"
 
 runs:
   using: composite
@@ -86,7 +90,8 @@ runs:
       run: |
         kubectl get pods -n ${{ inputs.KUBE_NAMESPACE }}
     
-    - name: Deploy to Kubernetes using Helm
+    - name: Deploy to Kubernetes using Helm (Neuron-images)
+      if: ${{ inputs.NEURON == 'true' }}
       shell: bash
       run: |
         helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
@@ -102,3 +107,30 @@ runs:
           --set podAnnotations.vault.role=${{ inputs.VAULT_ROLE }} \
           --set podAnnotations.releaseNamespace=${{ inputs.KUBE_NAMESPACE }} \
           --set imagePullSecrets.name=${{ inputs.IMAGE_PULL_SECRET }} \
+
+    - name: Deploy to Kubernetes using Helm (NON-NEURON)
+      if: ${{ inputs.NEURON == 'false' }}
+      shell: bash
+      run: |
+        HELM_CATALOG_APP="${{ vars.HELM_CATALOG_APP }}"
+        HELM_NAME="${{ vars.HELM_NAME }}"
+        helm package "${HELM_CATALOG_APP}"
+        PREPARED_HELM_TO_PUSH="${{ vars.HELM_CATALOG_APP }}-0.1.0.tgz"
+        helm push "./${PREPARED_HELM_TO_PUSH}" "${HELM_NAME}"
+
+        HELM_CHART_PATH="${{ vars.HELM_NAME }}/${{ vars.HELM_CATALOG_APP }}"
+        HELM_CATALOG_APP="${{ vars.HELM_CATALOG_APP }}"
+        helm upgrade --install "${HELM_CATALOG_APP}" "${HELM_CHART_PATH}" --version 0.1.0 \
+          --namespace=${{ inputs.KUBE_NAMESPACE }} \
+          --set resources.limits.cpu="${{ vars.CPU_LIMIT }}" \
+          --set resources.limits.memory="${{ vars.MEMORY_LIMIT }}" \
+          --set resources.requests.cpu="${{ vars.CPU_REQUEST }}" \
+          --set resources.requests.memory="${{ vars.MEMORY_REQUEST }}" \
+          --set serviceAccount.name="${{ vars.VAULT_SERVICE_ACCOUNT }}" \
+          --set podAnnotations.vault.authPath="auth/energy-development-kubernetes" \
+          --set podAnnotations.vault.secretPath=${{ vars.VAULT_CONFIG_PATH }} \
+          --set imagePullSecrets.name=${{ vars.IMAGE_PULL_SECRET }} \
+          --set podAnnotations.releaseNamespace=${{ vars.KUBE_NAMESPACE }} \
+          --set image.name=${{ inputs.IMAGE_NAME }} \
+          --set image.tag=${{ inputs.APP_VERSION }} \
+          --set podAnnotations.vault.role=${{ vars.VAULT_ROLE }}
