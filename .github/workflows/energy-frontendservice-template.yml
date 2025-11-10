@@ -107,7 +107,7 @@ jobs:
           REGISTRY_URL: ${{ vars.REGISTRY_URL }}
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-          HELM_CATALOG_APP: ${{ vars.HELM_CATALOG_APP }}
+          HELM_CATALOG_APP: "pgn-frontend"
           HELM_NAME: ${{ vars.HELM_NAME }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           APP_VERSION: ${{ inputs.APP_VERSION }}
