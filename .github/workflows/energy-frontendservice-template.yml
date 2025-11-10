@@ -121,5 +121,5 @@ jobs:
           VAULT_ROLE: ${{ vars.VAULT_ROLE }}
           IMAGE_PULL_SECRET: ${{ vars.IMAGE_PULL_SECRET }}
           FILE_VALUES: "pgn-frontend/values.yaml"
-          NEURON: "true"
+          NEURON: "false"
 
