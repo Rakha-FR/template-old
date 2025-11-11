@@ -94,6 +94,8 @@ runs:
       if: ${{ inputs.NEURON == 'true' }}
       shell: bash
       run: |
+        echo "${{ inputs.IMAGE_NAME }} --- ${{ inputs.APP_VERSION }} "
+
         helm upgrade --install ${{ inputs.HELM_CATALOG_APP }} oci://registry.neuron.id/pub/helm-template \
           --values ${{ inputs.FILE_VALUES }} \
           --namespace ${{ inputs.KUBE_NAMESPACE }} \
