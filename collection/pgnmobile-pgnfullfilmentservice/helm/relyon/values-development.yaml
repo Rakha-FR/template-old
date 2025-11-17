@@ -1,0 +1,75 @@
+service:
+  type: ClusterIP
+  porthttp: 8080
+  targetPorthttp: 8080
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "2048m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/send-timeout: "600"
+    nginx.ingress.kubernetes.io/client-body-timeout: "600"
+    nginx.ingress.kubernetes.io/client-header-timeout: "600"
+  hosts:
+    - host: dev-fulfillment-pgnmobile.pgn.co.id
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: dev-relyon-fulfillment.pgn.co.id
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: tls-secret
+      hosts:
+        - dev-fulfillment-pgnmobile.pgn.co.id
+        - dev-relyon-fulfillment.pgn.co.id
+
+image:
+  repository: registry.pgn.co.id/neuron/pgnmobile-pgnfullfilmentservice
+  secret: new-pull-secret
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 50
+  targetMemoryUtilizationPercentage: 50
+
+resources:
+  limits:
+    cpu: 1024m
+    memory: 3Gi
+  requests:
+    cpu: 250m
+    memory: 1Gi
+
+secretref:
+  name: env-fs-secret
+
+serviceAccount:
+  name: relyon-vault
+
+vault:
+  enabled: true
+  annotations:
+    vault.hashicorp.com/auth-path: 'auth/kubernetes'
+    vault.hashicorp.com/agent-inject: 'true'
+    vault.hashicorp.com/role: 'relyon-development'
+    vault.hashicorp.com/agent-inject-secret-.env: 'relyon_dev/data/fulfillment/secret'
+    vault.hashicorp.com/secret-volume-path: '/vault/secret'
+    vault.hashicorp.com/template-static-secret-render-interval: '5'
+    vault.hashicorp.com/agent-share-process-namespace: 'true'
+    vault.hashicorp.com/agent-image: 'registry.pgn.co.id/base/vault-inject-custom:v1.2'
+    vault.hashicorp.com/agent-inject-command-.env: "sh /opt/restart_deployment.sh"
+    vault.hashicorp.com/agent-inject-template-.env: |
+            {{- with secret "relyon_dev/data/fulfillment/secret" }}{{ range $k, $v := .Data.data -}}
+            {{- $k }}={{ $v }}
+            {{ end }}{{ end -}}

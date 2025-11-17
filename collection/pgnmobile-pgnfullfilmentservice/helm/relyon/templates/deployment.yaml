@@ -1,0 +1,45 @@
+# k8s deployment menggunakan Helm --> see /.k8s-deploy.old.yml untuk versi non Helm (pada dasarnya sama)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: pgnmobile-pgnfullfilmentservice
+    meta.helm.sh/release-namespace: {{ .Values.name.space }}
+  labels:
+    app: pgnmobile-pgnfullfilmentservice
+    app.kubernetes.io/managed-by: Helm
+  name: pgnmobile-pgnfullfilmentservice
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: pgnmobile-pgnfullfilmentservice
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.vault.enabled }}
+        {{- with .Values.vault.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      labels:
+        app: pgnmobile-pgnfullfilmentservice
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.version }}
+        command: ["bash", "-c", "cat /vault/secret/.env > /app/.env  && apache2-foreground"]
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: pgnmobile-pgnfullfilmentservice
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.porthttp }}
+          name: http
+      #  envFrom:
+      #  - secretRef:
+      #      name: {{ .Values.secretref.name }}
+      imagePullSecrets:
+      - name: {{ .Values.image.secret }}

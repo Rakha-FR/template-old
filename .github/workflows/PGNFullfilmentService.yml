@@ -56,14 +56,14 @@ jobs:
       app_version: ${{ needs.define-environment.outputs.app_version }}
     secrets: inherit
 
-  # deploy:
-  #   needs: [define-environment, build]
-  #   if: needs.define-environment.result == 'success'
-  #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/deploy-template.yml@migrasi
-  #   with:
-  #     repo_name: ${{ needs.define-environment.outputs.repo_name }}
-  #     branch_env: ${{ needs.define-environment.outputs.branch_env }}
-  #     deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
-  #     runner_group: ${{ needs.define-environment.outputs.runner_group }}
-  #     app_version: ${{ needs.define-environment.outputs.app_version }}
-  #   secrets: inherit
+  deploy:
+    needs: [define-environment, build]
+    if: needs.define-environment.result == 'success'
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/deploy-template.yml@migrasi
+    with:
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      branch_env: ${{ needs.define-environment.outputs.branch_env }}
+      deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
+      runner_group: ${{ needs.define-environment.outputs.runner_group }}
+      app_version: ${{ needs.define-environment.outputs.app_version }}
+    secrets: inherit

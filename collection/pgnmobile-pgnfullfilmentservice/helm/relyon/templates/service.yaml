@@ -1,0 +1,18 @@
+# k8s service manifest
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: pgnmobile-pgnfullfilmentservice
+    app.kubernetes.io/managed-by: Helm
+  name: doorv3-pgnmobile-pgnfullfilmentservice
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.porthttp }}
+      targetPort: {{ .Values.service.targetPorthttp }}
+      protocol: TCP
+      name: http
+  selector:
+    app: pgnmobile-pgnfullfilmentservice
