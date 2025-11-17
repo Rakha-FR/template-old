@@ -1,0 +1,60 @@
+FROM registry.pgn.co.id/base/php82:v0.0.2-libreoffice AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.json
+COPY composer.lock composer.lock
+
+RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction --prefer-dist
+
+FROM node:24.2.0-alpine3.22 AS frontend
+RUN mkdir -p /app/public
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY vite.config.js ./
+COPY tsconfig.json ./
+COPY resources/ resources/
+RUN npm run build
+
+
+FROM registry.pgn.co.id/base/php82:v0.0.2-libreoffice
+
+# replace docroot di config apache dari /var/www/html ke /app/public
+RUN sed -ri -e 's!/var/www/html!/app/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/app/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -s -i -e "s/80/8080/" /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
+RUN a2enmod rewrite
+
+# enable mod headers dan mod rewrite di apache
+RUN a2enmod headers rewrite
+
+RUN sed -i 's/^post_max_size = .*/post_max_size = 30M/' /usr/local/etc/php/php.ini && \
+    sed -i 's/^upload_max_filesize = .*/upload_max_filesize = 30M/' /usr/local/etc/php/php.ini && \
+    sed -i 's/^memory_limit = .*/memory_limit = 3072M/' /usr/local/etc/php/php.ini && \
+    sed -i 's/^max_execution_time = .*/max_execution_time = 600/' /usr/local/etc/php/php.ini
+
+
+
+
+# Copy APP
+WORKDIR /app
+
+#Copy Folder APP
+COPY . .
+
+#COPY ./prebuild/public/build/ ./public/build/
+COPY --from=frontend /app/public/build ./public/build
+
+#COPY ./prebuild/vendor/ ./vendor/
+COPY --from=vendor /app/vendor ./vendor
+
+RUN mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache ./vendor /var/www \
+    && chmod -R 775 storage bootstrap/cache ./vendor /var/www
+
+# open port 8080 agar aplikasi bisa diakses (http)
+EXPOSE 8080

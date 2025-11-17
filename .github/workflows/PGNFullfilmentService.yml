@@ -44,17 +44,17 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  # build:
-  #   needs: define-environment
-  #   if: needs.define-environment.result == 'success'
-  #   uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
-  #   with:
-  #     repo_name: ${{ needs.define-environment.outputs.repo_name }}
-  #     branch_env: ${{ needs.define-environment.outputs.branch_env }}
-  #     deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
-  #     runner_group: ${{ needs.define-environment.outputs.runner_group }}
-  #     app_version: ${{ needs.define-environment.outputs.app_version }}
-  #   secrets: inherit
+  build:
+    needs: define-environment
+    if: needs.define-environment.result == 'success'
+    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
+    with:
+      repo_name: ${{ needs.define-environment.outputs.repo_name }}
+      branch_env: ${{ needs.define-environment.outputs.branch_env }}
+      deploy_targets: ${{ needs.define-environment.outputs.deploy_targets }}
+      runner_group: ${{ needs.define-environment.outputs.runner_group }}
+      app_version: ${{ needs.define-environment.outputs.app_version }}
+    secrets: inherit
 
   # deploy:
   #   needs: [define-environment, build]

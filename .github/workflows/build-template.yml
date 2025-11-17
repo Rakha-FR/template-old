@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      need_npm:
+        description: "Whether to install NPM"
+        required: false
+        type: boolean
+        default: false
 
 
 jobs:
@@ -66,7 +71,7 @@ jobs:
           neuron/data/${{ matrix.deploy-to }}-${{ inputs.branch_env }}/github-action/${{ inputs.repo_name }}/secret * ;
 
     - uses: actions/setup-node@v5
-      if: inputs.need_yarn == false 
+      if: inputs.need_npm
       with:
         node-version: ${{  inputs.node_version  }}
         cache: 'npm'
@@ -77,13 +82,13 @@ jobs:
         node-version: ${{  inputs.node_version  }}
 
     - name: Install dependencies and build (NPM)
-      if: inputs.need_yarn == false 
+      if: inputs.need_npm
       run: |
         npm install --legacy-peer-deps
         CI=false npm run build
 
     - name: Install dependencies and build (YARN)
-      if: inputs.need_yarn
+      if: inputs.need_npm
       run: |
         npm install -g yarn
         yarn install --immutable
