@@ -44,6 +44,55 @@ jobs:
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+
+  Unit-Test:
+    needs: [define-environment]
+    if: needs.define-environment.result == 'success'
+    name: Run tests
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    container:
+      image: registry.pgn.co.id/base/php82:v0.0.1
+      credentials:
+        username: ${{ secrets.HARBOR_USERNAME }}
+        password: ${{ secrets.HARBOR_TOKEN }}
+    continue-on-error: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies & prepare env
+        run: |
+          echo "::group::Install dependencies"
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          wget -O phpunit https://phar.phpunit.de/phpunit-8.phar -o /dev/null
+          chmod +x phpunit
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          echo "::endgroup::"
+
+      - name: Run Unit Test & generate JUnit report
+        run: |
+          echo "::group::Run PHPUnit"
+          mkdir -p build/test-results
+          php artisan test --log-junit build/test-results/phpunit-report.xml
+          echo "::endgroup::"
+
+      - name: Upload PHPUnit report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-junit-report
+          path: build/test-results/phpunit-report.xml
+
+      - name: Publish Unit Test Results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/phpunit-report.xml
+
   build:
     needs: define-environment
     if: needs.define-environment.result == 'success'
