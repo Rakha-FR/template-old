@@ -54,9 +54,6 @@ jobs:
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
     container:
       image: registry.pgn.co.id/base/php82:v0.0.1
-      credentials:
-        username: ${{ secrets.HARBOR_USERNAME }}
-        password: ${{ secrets.HARBOR_TOKEN }}
     continue-on-error: true
     steps:
       - name: Checkout Repository
