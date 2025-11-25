@@ -70,13 +70,11 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           echo "::endgroup::"
 
-      - name: Run Unit Test (JUnit + Coverage)
+      - name: Run Unit Test & generate JUnit report
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-          ./phpunit tests \
-            --log-junit build/test-results/phpunit-report.xml \
-            --coverage-clover build/test-results/coverage.xml
+          php artisan test --log-junit build/test-results/phpunit-report.xml
           echo "::endgroup::"
 
       - name: Upload PHPUnit report artifact
