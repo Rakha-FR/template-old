@@ -1,4 +1,4 @@
-name: Data Services Pipelines
+name: Fullfilment Services Pipelines
 on:
   workflow_call:
 
@@ -70,11 +70,13 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           echo "::endgroup::"
 
-      - name: Run Unit Test & generate JUnit report
+      - name: Run Unit Test (JUnit + Coverage)
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-          php artisan test --log-junit build/test-results/phpunit-report.xml
+          ./phpunit tests \
+            --log-junit build/test-results/phpunit-report.xml \
+            --coverage-clover build/test-results/coverage.xml
           echo "::endgroup::"
 
       - name: Upload PHPUnit report artifact
