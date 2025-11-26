@@ -55,7 +55,6 @@ jobs:
     container:
       image: registry.pgn.co.id/base/php82:v0.0.1
       env:
-        # kalau suatu saat xdebug dipasang, ini akan aktifkan mode coverage
         XDEBUG_MODE: coverage
     continue-on-error: true
 
@@ -72,17 +71,11 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           echo "::endgroup::"
 
-      - name: Run Unit Test (JUnit + Coverage)
+      - name: Run Unit Test & generate JUnit report
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-
-          php artisan test \
-            --log-junit build/test-results/phpunit-report.xml \
-            --coverage-clover build/test-results/coverage.xml || true
-
-          echo "Isi folder build/test-results:"
-          ls -l build/test-results || true
+          php artisan test --log-junit build/test-results/phpunit-report.xml
           echo "::endgroup::"
 
       - name: Publish Unit Test Results
@@ -90,11 +83,6 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: build/test-results/phpunit-report.xml
-
-      - name: Show coverage in job summary
-        if: always()
-        run: |
-          php -r '$p="build/test-results/coverage.xml"; if(!file_exists($p) || filesize($p)===0){echo "No coverage file found or file is empty at $p\n"; exit(0);} $xml=@simplexml_load_file($p); if($xml===false || !isset($xml->project->metrics)){echo "Cannot parse coverage XML or metrics not found.\n"; exit(0);} $m=$xml->project->metrics; $covered=(int)$m["coveredstatements"]; $total=(int)$m["statements"]; $pct=$total ? round($covered / $total * 100, 2) : 0; $summary="### Code coverage\n\nCoverage: **{$pct}%**\n"; $summaryFile=getenv("GITHUB_STEP_SUMMARY"); file_put_contents($summaryFile,$summary,FILE_APPEND);'
 
   build:
     needs: define-environment
