@@ -124,7 +124,7 @@ jobs:
           ./dependency-check/dependency-check/bin/dependency-check.sh \
             --project "PGNMobile-PGNFullfilmentService" \
             --scan . \
-            --nvdApiKey "${{ vars.NVD_API_KEY }}" \
+            --nvdApiKey "${{ secrets.NVD_API_KEY }}" \
             --format "HTML" \
             --format "XML" \
             --out build/dependency-check \
