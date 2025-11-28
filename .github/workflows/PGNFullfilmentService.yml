@@ -55,7 +55,7 @@ jobs:
     container:
       image: registry.pgn.co.id/base/php82:v0.0.1
       env:
-        XDEBUG_MODE: coverage
+        XDEBUG_MODE: coverage   
     continue-on-error: true
 
     steps:
@@ -71,11 +71,35 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           echo "::endgroup::"
 
-      - name: Run Unit Test & generate JUnit report
+      - name: Install Xdebug (temporary, via pecl)
+        run: |
+          echo "::group::Install Xdebug"
+          php -v
+          php -m | grep xdebug || echo "xdebug belum ada, install dulu"
+
+
+          apt-get update
+          apt-get install -y git zip unzip autoconf pkg-config build-essential
+
+          pecl install xdebug
+
+
+          EXT_DIR="$(php-config --extension-dir)"
+          echo "zend_extension=${EXT_DIR}/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini
+
+          echo "Loaded extensions:"
+          php -m | grep xdebug || echo "xdebug masih belum kedeteksi"
+          echo "::endgroup::"
+
+      - name: Run Unit Test & generate JUnit + Coverage
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-          php artisan test --log-junit build/test-results/phpunit-report.xml
+          php artisan test \
+            --log-junit build/test-results/phpunit-report.xml \
+            --coverage-clover build/test-results/coverage.xml
+          echo "Isi folder build/test-results:"
+          ls -l build/test-results || true
           echo "::endgroup::"
 
       - name: Publish Unit Test Results
@@ -83,6 +107,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: build/test-results/phpunit-report.xml
+
 
 
   dependency-check:
