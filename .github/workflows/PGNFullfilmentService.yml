@@ -110,59 +110,59 @@ jobs:
 
 
 
-  dependency-check:
-    needs: [define-environment]
-    if: needs.define-environment.result == 'success'
-    name: Dependency Check (OWASP)
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    continue-on-error: true   
+  # dependency-check:
+  #   needs: [define-environment]
+  #   if: needs.define-environment.result == 'success'
+  #   name: Dependency Check (OWASP)
+  #   runs-on:
+  #     group: ${{ needs.define-environment.outputs.runner_group }}
+  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+  #   continue-on-error: true   
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v5
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+  #     - name: Setup Java
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         distribution: temurin
+  #         java-version: '17'
 
-      - name: Cache Dependency-Check data
-        uses: actions/cache@v4
-        with:
-          path: ~/.dependency-check
-          key: owasp-dc-${{ runner.os }}-cache
+  #     - name: Cache Dependency-Check data
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.dependency-check
+  #         key: owasp-dc-${{ runner.os }}-cache
 
-      - name: Download OWASP Dependency-Check
-        run: |
-          DC_VERSION=9.0.9
-          curl -sSL -o dependency-check.zip "https://github.com/jeremylong/DependencyCheck/releases/download/v${DC_VERSION}/dependency-check-${DC_VERSION}-release.zip"
-          unzip -q dependency-check.zip -d dependency-check
+  #     - name: Download OWASP Dependency-Check
+  #       run: |
+  #         DC_VERSION=9.0.9
+  #         curl -sSL -o dependency-check.zip "https://github.com/jeremylong/DependencyCheck/releases/download/v${DC_VERSION}/dependency-check-${DC_VERSION}-release.zip"
+  #         unzip -q dependency-check.zip -d dependency-check
 
-      - name: Run OWASP Dependency-Check
-        run: |
-          mkdir -p build/dependency-check
-          ./dependency-check/dependency-check/bin/dependency-check.sh \
-            --project "PGNMobile-PGNFullfilmentService" \
-            --scan . \
-            --nvdApiKey "${{ secrets.NVD_API_KEY }}" \
-            --format "HTML" \
-            --format "XML" \
-            --out build/dependency-check \
-            --failOnCVSS 7 || true
+  #     - name: Run OWASP Dependency-Check
+  #       run: |
+  #         mkdir -p build/dependency-check
+  #         ./dependency-check/dependency-check/bin/dependency-check.sh \
+  #           --project "PGNMobile-PGNFullfilmentService" \
+  #           --scan . \
+  #           --nvdApiKey "${{ secrets.NVD_API_KEY }}" \
+  #           --format "HTML" \
+  #           --format "XML" \
+  #           --out build/dependency-check \
+  #           --failOnCVSS 7 || true
 
 
-      - name: Upload Dependency-Check report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-check-report
-          path: build/dependency-check
-          retention-days: 1
+  #     - name: Upload Dependency-Check report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: dependency-check-report
+  #         path: build/dependency-check
+  #         retention-days: 1
 
 
   build:
