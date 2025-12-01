@@ -62,6 +62,11 @@ jobs:
       env:
         XDEBUG_MODE: coverage
     continue-on-error: true
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout Repository
