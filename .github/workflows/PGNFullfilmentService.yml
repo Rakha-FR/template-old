@@ -94,8 +94,11 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
 
       - name: Install Xdebug
+        shell: bash -l {0}
         run: |
-          export XDEBUG_MODE=coverage        
+          set -euo pipefail
+          export XDEBUG_MODE=coverage
+
           if ! php -m | grep -q xdebug; then
             echo "📦 Installing Xdebug..."
             {
@@ -104,7 +107,7 @@ jobs:
               pecl install xdebug &&
               docker-php-ext-enable xdebug
             } > /dev/null 2>&1
-            
+
             if [ $? -eq 0 ]; then
               echo "✅ Installation completed"
             else
@@ -112,8 +115,19 @@ jobs:
               exit 1
             fi
           fi
-          php -m | grep xdebug
-          php -i | grep 'xdebug.mode'
+
+          for f in /usr/local/etc/php/conf.d/*xdebug*.ini; do
+            if [ -f "$f" ]; then
+              if grep -q '^xdebug.mode' "$f"; then
+                sed -i 's/^xdebug.mode=.*/xdebug.mode=coverage/' "$f"
+              else
+                echo 'xdebug.mode=coverage' >> "$f"
+              fi
+            fi
+          done
+
+          php -m | grep xdebug || true
+          php -i | grep 'xdebug.mode' || true
 
       - name: Run Unit Test with Coverage
         run: |
