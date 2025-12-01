@@ -84,7 +84,7 @@ jobs:
           mkdir -p build/test-results
           php artisan test -d memory_limit=512M \
             --log-junit build/test-results/phpunit-report.xml \
-            --coverage-clover build/test-result/clover-report.xml \
+            --coverage-clover build/test-results/clover-report.xml \
             --coverage-text
           echo "::endgroup::"
           
@@ -100,7 +100,7 @@ jobs:
     needs: 
       - Unit-Test
       - define-environment
-    if: always()
+    if: always() && needs.Unit-Test.result != 'skipped'
     name: Publish tests
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
