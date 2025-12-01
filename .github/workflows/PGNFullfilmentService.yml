@@ -48,7 +48,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   
-  LUnit-Test:
+  Unit-Test:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
     name: Run tests
