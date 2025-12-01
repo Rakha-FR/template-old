@@ -99,7 +99,7 @@ jobs:
   Publish-Unit-Test:
     needs: 
       - Unit-Test
-    if: needs.define-environment.result == 'success'
+    if: always()
     name: Publish tests
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
