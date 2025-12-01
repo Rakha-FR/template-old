@@ -72,15 +72,18 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Verify/Install Xdebug
+      - name: Install Xdebug
         run: |
           if ! php -m | grep -q xdebug; then
             echo "Installing Xdebug..."
-            apt-get update
-            apt-get install -y php-dev build-essential
+            apt-get update -qq
+            apt-get install -y -qq \
+              build-essential \
+              autoconf \
+              libc-dev \
+              pkg-config
             pecl install xdebug
             docker-php-ext-enable xdebug
-          fi
           php -m | grep xdebug
           
       - name: Cache Composer dependencies
