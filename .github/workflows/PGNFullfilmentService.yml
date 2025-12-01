@@ -62,18 +62,11 @@ jobs:
       env:
         XDEBUG_MODE: coverage
     continue-on-error: true
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
       - name: Install dependencies & prepare env
         run: |
           echo "::group::Install dependencies"
@@ -102,9 +95,6 @@ jobs:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
     continue-on-error: true
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
