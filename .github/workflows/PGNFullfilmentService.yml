@@ -161,7 +161,8 @@ jobs:
       - name: Generate Coverage Markdown
         if: always()
         run: |
-          COVERAGE_FILE=code-coverage-results.md
+          COVERAGE_FILE=build/code-coverage-results.md
+          mkdir -p build
           echo "## Code Coverage Report" > $COVERAGE_FILE
           echo "" >> $COVERAGE_FILE
           echo "**Commit:** \`${{ github.sha }}\`" >> $COVERAGE_FILE
