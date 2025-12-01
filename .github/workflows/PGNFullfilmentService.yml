@@ -123,19 +123,19 @@ jobs:
           mkdir -p build/test-results
           php artisan test -d memory_limit=512M \
             --log-junit build/test-results/phpunit-report.xml \
-            --coverage-corbetura build/test-results/corbetura-report.xml \
+            --coverage-cobertura build/test-results/cobertura-report.xml \
             --coverage-text | tee build/test-results/coverage-output.txt
-          
+
       - name: Verify Coverage Report
         if: always()
         run: |
-          if [ ! -f build/test-results/corbetura-report.xml ]; then
-            echo "❌ Corbetura report not generated!"
+          if [ ! -f build/test-results/cobertura-report.xml ]; then
+            echo "❌ cobertura report not generated!"
             exit 1
           fi
-          if ! grep -q -E 'coveredstatements|coveredelements|coveredmethods|lines-covered' build/test-results/corbetura-report.xml; then
-            echo "❌ Invalid coverage data in corbetura report!"
-            head -n 60 build/test-results/corbetura-report.xml || true
+          if ! grep -q -E 'coveredstatements|coveredelements|coveredmethods|lines-covered' build/test-results/cobertura-report.xml; then
+            echo "❌ Invalid coverage data in cobertura report!"
+            head -n 60 build/test-results/cobertura-report.xml || true
             exit 1
           fi
           echo "✅ Coverage report validated"
@@ -174,7 +174,7 @@ jobs:
       - name: Code Coverage Summary
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: build/test-results/corbetura-report.xml
+          filename: build/test-results/cobertura-report.xml
           badge: true
           fail_below_min: false
           format: markdown
