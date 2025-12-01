@@ -116,37 +116,26 @@ jobs:
             fi
           fi
 
-          for f in /usr/local/etc/php/conf.d/*xdebug*.ini; do
-            if [ -f "$f" ]; then
-              if grep -q '^xdebug.mode' "$f"; then
-                sed -i 's/^xdebug.mode=.*/xdebug.mode=coverage/' "$f"
-              else
-                echo 'xdebug.mode=coverage' >> "$f"
-              fi
-            fi
-          done
-
           php -m | grep xdebug || true
-          php -i | grep 'xdebug.mode' || true
 
       - name: Run Unit Test with Coverage
         run: |
           mkdir -p build/test-results
           php artisan test -d memory_limit=512M \
             --log-junit build/test-results/phpunit-report.xml \
-            --coverage-clover build/test-results/clover-report.xml \
+            --coverage-corbetura build/test-results/corbetura-report.xml \
             --coverage-text | tee build/test-results/coverage-output.txt
           
       - name: Verify Coverage Report
         if: always()
         run: |
-          if [ ! -f build/test-results/clover-report.xml ]; then
-            echo "❌ Clover report not generated!"
+          if [ ! -f build/test-results/corbetura-report.xml ]; then
+            echo "❌ Corbetura report not generated!"
             exit 1
           fi
-          if ! grep -q -E 'coveredstatements|coveredelements|coveredmethods|lines-covered' build/test-results/clover-report.xml; then
-            echo "❌ Invalid coverage data in clover report!"
-            head -n 60 build/test-results/clover-report.xml || true
+          if ! grep -q -E 'coveredstatements|coveredelements|coveredmethods|lines-covered' build/test-results/corbetura-report.xml; then
+            echo "❌ Invalid coverage data in corbetura report!"
+            head -n 60 build/test-results/corbetura-report.xml || true
             exit 1
           fi
           echo "✅ Coverage report validated"
@@ -185,7 +174,7 @@ jobs:
       - name: Code Coverage Summary
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: build/test-results/clover-report.xml
+          filename: build/test-results/corbetura-report.xml
           badge: true
           fail_below_min: false
           format: markdown
