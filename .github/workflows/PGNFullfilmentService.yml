@@ -158,18 +158,25 @@ jobs:
           output: file
           thresholds: '70 80'          
 
-      - name: Add Coverage to Job Summary
+      - name: Generate Coverage Markdown
         if: always()
         run: |
-          echo "# 📊 Code Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Run:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+          COVERAGE_FILE=code-coverage-results.md
+          echo "## Code Coverage Report" > $COVERAGE_FILE
+          echo "" >> $COVERAGE_FILE
+          echo "**Commit:** \`${{ github.sha }}\`" >> $COVERAGE_FILE
+          echo "" >> $COVERAGE_FILE
+          echo "---" >> $COVERAGE_FILE
+          echo "" >> $COVERAGE_FILE
+          cat code-coverage-results.md >> $COVERAGE_FILE
+          echo "Coverage markdown saved to $COVERAGE_FILE"
+
+      - name: Post Coverage Report as PR comment
+        if: always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: code-coverage-results.md
+          header: coverage-report
 
   trivy-dependency-scan:
     needs: [define-environment]
