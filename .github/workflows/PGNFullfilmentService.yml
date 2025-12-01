@@ -171,6 +171,11 @@ jobs:
           name: test-results-${{ github.run_number }}
           path: build/test-results
           
+      - name: Publish Test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/phpunit-report.xml
+
       - name: Code Coverage Summary
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
