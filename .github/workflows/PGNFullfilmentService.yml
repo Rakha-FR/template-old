@@ -180,7 +180,7 @@ jobs:
         if: always()
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: code-coverage-results.md
+          path: build/code-coverage-results.md
           header: coverage-report
 
   trivy-dependency-scan:
