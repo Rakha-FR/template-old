@@ -48,13 +48,13 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   
-  Unit-Test:
+  LUnit-Test:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
     name: Run tests
     runs-on: ubuntu-latest
     container:
-      image: composer:2.2.21
+      image: php:8.2-cli-bullseye
       env:
         XDEBUG_MODE: coverage
     continue-on-error: true
@@ -69,6 +69,17 @@ jobs:
         with:
           fetch-depth: 0
           
+      - name: Prepare container (install composer, git, unzip)
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git unzip curl ca-certificates $PHPIZE_DEPS
+          if ! command -v composer >/dev/null 2>&1; then
+            curl -sS https://getcomposer.org/installer -o composer-setup.php
+            php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+            rm composer-setup.php
+          fi
+          composer --version
+
       - name: Install Xdebug
         run: |
           if ! php -m | grep -q xdebug; then
