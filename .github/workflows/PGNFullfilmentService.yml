@@ -54,7 +54,7 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     container:
-      image: php:8.2.29
+      image: composer:2.2.21
       env:
         XDEBUG_MODE: coverage
     continue-on-error: true
@@ -130,9 +130,7 @@ jobs:
       - define-environment
     if: always() && needs.Unit-Test.result != 'skipped'
     name: Publish tests
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    runs-on: ubuntu-latest
     continue-on-error: true
     permissions:
       contents: read
@@ -171,9 +169,7 @@ jobs:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
     name: Dependency Scan (Trivy)
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    runs-on: ubuntu-latest
     continue-on-error: true
     permissions:
       security-events: write
