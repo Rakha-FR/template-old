@@ -140,62 +140,60 @@ jobs:
         run: |
           php -r '$p="build/test-results/coverage.xml"; if(!file_exists($p) || filesize($p)===0){echo "No coverage file found or file is empty at $p\n"; exit(0);} $xml=@simplexml_load_file($p); if($xml===false || !isset($xml->project->metrics)){echo "Cannot parse coverage XML or metrics not found.\n"; exit(0);} $m=$xml->project->metrics; $covered=(int)$m["coveredstatements"]; $total=(int)$m["statements"]; $pct=$total ? round($covered / $total * 100, 2) : 0; $summary="### Code coverage\n\nCoverage: **{$pct}%**\n"; $summaryFile=getenv("GITHUB_STEP_SUMMARY"); file_put_contents($summaryFile,$summary,FILE_APPEND);'
 
+  trivy-dependency-scan:
+    needs: [define-environment]
+    if: needs.define-environment.result == 'success'
+    name: Dependency Scan (Trivy)
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    continue-on-error: true  
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Cache Trivy DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}
+          restore-keys: |
+            trivy-db-
+      - name: Download Trivy binary
+        run: |
+          echo "Download Trivy..."
+          curl -sSL -o trivy.tar.gz \
+            https://github.com/aquasecurity/trivy/releases/latest/download/trivy_Linux-64bit.tar.gz
+          tar -xzf trivy.tar.gz
+          mv trivy /usr/local/bin/trivy || mv trivy ./trivy
 
+          echo "Trivy version:"
+          trivy --version || ./trivy --version
 
+      - name: Run Trivy filesystem scan (composer & deps)
+        run: |
+          # pakai 'trivy' kalau berhasil ditaruh di /usr/local/bin, kalau nggak pakai ./trivy
+          TRIVY_BIN="$(command -v trivy || echo ./trivy)"
 
-  # dependency-check:
-  #   needs: [define-environment]
-  #   if: needs.define-environment.result == 'success'
-  #   name: Dependency Check (OWASP)
-  #   runs-on:
-  #     group: ${{ needs.define-environment.outputs.runner_group }}
-  #     labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-  #   continue-on-error: true   
+          mkdir -p build/trivy
 
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v5
-  #       with:
-  #         fetch-depth: 0
+          $TRIVY_BIN fs \
+            --security-checks vuln \
+            --scanners vuln \
+            --ignore-unfixed \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            --format table \
+            . | tee build/trivy/trivy-deps.txt || true
 
-  #     - name: Setup Java
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: temurin
-  #         java-version: '17'
-
-  #     - name: Cache Dependency-Check data
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: ~/.dependency-check
-  #         key: owasp-dc-${{ runner.os }}-cache
-
-  #     - name: Download OWASP Dependency-Check
-  #       run: |
-  #         DC_VERSION=9.0.9
-  #         curl -sSL -o dependency-check.zip "https://github.com/jeremylong/DependencyCheck/releases/download/v${DC_VERSION}/dependency-check-${DC_VERSION}-release.zip"
-  #         unzip -q dependency-check.zip -d dependency-check
-
-  #     - name: Run OWASP Dependency-Check
-  #       run: |
-  #         mkdir -p build/dependency-check
-  #         ./dependency-check/dependency-check/bin/dependency-check.sh \
-  #           --project "PGNMobile-PGNFullfilmentService" \
-  #           --scan . \
-  #           --nvdApiKey "${{ secrets.NVD_API_KEY }}" \
-  #           --format "HTML" \
-  #           --format "XML" \
-  #           --out build/dependency-check \
-  #           --failOnCVSS 7 || true
-
-
-  #     - name: Upload Dependency-Check report
-  #       if: always()
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: dependency-check-report
-  #         path: build/dependency-check
-  #         retention-days: 1
+      - name: Upload Trivy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-dependency-report
+          path: build/trivy
+          retention-days: 1
 
 
   build:
