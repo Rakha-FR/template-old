@@ -83,7 +83,7 @@ jobs:
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-          php artisan test \
+          php artisan test -d memory_limit=512M \
             --log-junit build/test-results/phpunit-report.xml \
             --coverage-clover build/coverage/clover.xml \
             --coverage-html build/coverage/html \
