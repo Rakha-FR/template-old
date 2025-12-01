@@ -60,7 +60,7 @@ jobs:
     container:
       image: registry.pgn.co.id/base/php82:v0.0.1
       env:
-        XDEBUG_MODE: coverage   
+        XDEBUG_MODE: coverage
     continue-on-error: true
 
     steps:
@@ -76,74 +76,18 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           echo "::endgroup::"
 
-      - name: Install Xdebug (temporary, via pecl)
-        run: |
-          echo "::group::Install Xdebug"
-          php -v
-          php -m | grep xdebug || echo "xdebug belum ada, install dulu"
-
-
-          apt-get update
-          apt-get install -y git zip unzip autoconf pkg-config build-essential
-
-          pecl install xdebug
-
-
-          EXT_DIR="$(php-config --extension-dir)"
-          echo "zend_extension=${EXT_DIR}/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini
-
-          echo "Loaded extensions:"
-          php -m | grep xdebug || echo "xdebug masih belum kedeteksi"
-          echo "::endgroup::"
-
-      - name: Run Unit Test & generate JUnit + Coverage
+      - name: Run Unit Test & generate JUnit report
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-
-          # jalankan test, tapi catat exit code-nya
-          set +e
-          php artisan test \
-            --log-junit build/test-results/phpunit-report.xml \
-            --coverage-clover build/test-results/coverage.xml
-          EXIT_CODE=$?
-          set -e
-
-          echo "php artisan test exit code: $EXIT_CODE"
-          echo "Isi folder build/test-results:"
-          ls -l build/test-results || true
-
-          if [ ! -s build/test-results/phpunit-report.xml ]; then
-            echo "WARNING: phpunit-report.xml kosong atau tidak terbentuk dengan benar."
-          else
-            echo "phpunit-report.xml terbentuk dengan ukuran:"
-            stat build/test-results/phpunit-report.xml || true
-          fi
-
-          if [ ! -s build/test-results/coverage.xml ]; then
-            echo "WARNING: coverage.xml kosong atau tidak terbentuk dengan benar."
-          else
-            echo "coverage.xml terbentuk dengan ukuran:"
-            stat build/test-results/coverage.xml || true
-          fi
-
+          php artisan test --log-junit build/test-results/phpunit-report.xml
           echo "::endgroup::"
-
-          # biar step ini tetap dianggap sukses, supaya step berikutnya jalan
-          exit 0
-
-
 
       - name: Publish Unit Test Results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: build/test-results/phpunit-report.xml
-
-      - name: Show coverage in job summary
-        if: always()
-        run: |
-          php -r '$p="build/test-results/coverage.xml"; if(!file_exists($p) || filesize($p)===0){echo "No coverage file found or file is empty at $p\n"; exit(0);} $xml=@simplexml_load_file($p); if($xml===false || !isset($xml->project->metrics)){echo "Cannot parse coverage XML or metrics not found.\n"; exit(0);} $m=$xml->project->metrics; $covered=(int)$m["coveredstatements"]; $total=(int)$m["statements"]; $pct=$total ? round($covered / $total * 100, 2) : 0; $summary="### Code coverage\n\nCoverage: **{$pct}%**\n"; $summaryFile=getenv("GITHUB_STEP_SUMMARY"); file_put_contents($summaryFile,$summary,FILE_APPEND);'
 
   trivy-dependency-scan:
     needs: [define-environment]
