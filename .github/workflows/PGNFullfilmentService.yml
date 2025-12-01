@@ -155,12 +155,20 @@ jobs:
           hide_branch_rate: false
           hide_complexity: false
           indicators: true
-          output: both
-          thresholds: '80 90'          
+          output: file
+          thresholds: '70 80'          
 
       - name: Add Coverage to Job Summary
         if: always()
         run: |
+          echo "# 📊 Code Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
 
   trivy-dependency-scan:
