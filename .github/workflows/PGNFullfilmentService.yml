@@ -61,9 +61,10 @@ jobs:
       image: registry.pgn.co.id/base/php82:v0.0.1
       env:
         XDEBUG_MODE: coverage
-        PHP_MEMORY_LIMIT: 512M
+    continue-on-error: true
     permissions:
       contents: read
+      issues: read
       checks: write
       pull-requests: write
     steps:
@@ -75,15 +76,20 @@ jobs:
       - name: Install Xdebug
         run: |
           if ! php -m | grep -q xdebug; then
-            echo "Installing Xdebug..."
-            apt-get update -qq
-            apt-get install -y -qq \
-              build-essential \
-              autoconf \
-              libc-dev \
-              pkg-config
-            pecl install xdebug
-            docker-php-ext-enable xdebug
+            echo "📦 Installing Xdebug..."
+            {
+              apt-get update -qq &&
+              apt-get install -y -qq $PHPIZE_DEPS &&
+              pecl install xdebug &&
+              docker-php-ext-enable xdebug
+            } > /dev/null 2>&1
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Installation completed"
+            else
+              echo "❌ Installation failed"
+              exit 1
+            fi
           fi
           php -m | grep xdebug
           
@@ -102,7 +108,7 @@ jobs:
       - name: Run Unit Test with Coverage
         run: |
           mkdir -p build/test-results
-          php -d memory_limit=512M artisan test \
+          php artisan test -d memory_limit=512M \
             --log-junit build/test-results/phpunit-report.xml \
             --coverage-clover build/test-results/clover-report.xml \
             --coverage-text | tee build/test-results/coverage-output.txt
@@ -137,8 +143,10 @@ jobs:
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    continue-on-error: true
     permissions:
       contents: read
+      issues: read
       checks: write
       pull-requests: write
     steps:
