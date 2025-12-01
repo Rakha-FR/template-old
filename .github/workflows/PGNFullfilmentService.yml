@@ -95,17 +95,13 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: build/test-results/phpunit-report.xml
-          
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11" 
         
       - name: Publish Coverage Report
         if: always()
         uses: insightsengineering/coverage-action@v2
         with:
           path: build/coverage/clover.xml
+          python-version: "3.11.0"
           threshold: 80
           fail: false
           publish: true
