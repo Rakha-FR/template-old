@@ -96,7 +96,9 @@ jobs:
 
 
   Publish-Unit-Test:
-    needs: [define-environment]
+    needs: 
+      - define-environment
+      - Unit-Test
     if: needs.define-environment.result == 'success'
     name: Publish tests
     runs-on:
