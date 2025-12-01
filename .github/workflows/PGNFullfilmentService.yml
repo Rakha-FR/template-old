@@ -84,6 +84,7 @@ jobs:
               pkg-config
             pecl install xdebug
             docker-php-ext-enable xdebug
+          fi
           php -m | grep xdebug
           
       - name: Cache Composer dependencies
