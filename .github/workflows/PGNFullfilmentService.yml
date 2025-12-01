@@ -130,24 +130,16 @@ jobs:
         with:
           files: build/test-results/phpunit-report.xml
         
-      - name: Code Coverage Summary
+      - name: Publish Coverage Report
         if: always()
-        uses: irongut/CodeCoverageSummary@v1.3.0
+        uses: insightsengineering/coverage-action@v2
         with:
-          filename: build/coverage/clover.xml
-          badge: true
-          fail_below_min: false
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: false
-          indicators: true
-          output: both
-          thresholds: '80 90'
-
-      - name: Add Coverage to Job Summary
-        if: always()
-        run: |
-          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+          path: build/test-result/clover-report.xml
+          threshold: 80
+          fail: false
+          publish: true
+          coverage-reduction-failure: false
+          togglable-report: true
               
   trivy-dependency-scan:
     needs: [define-environment]
