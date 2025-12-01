@@ -132,7 +132,7 @@ jobs:
         if: always()
         uses: insightsengineering/coverage-action@v2
         with:
-          path: build/coverage/clover.xml
+          path: build/test-result/clover-report.xml
           threshold: 80
           fail: false
           publish: true
