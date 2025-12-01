@@ -78,18 +78,48 @@ jobs:
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           echo "::endgroup::"
-
       - name: Run Unit Test & generate JUnit report
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
           php artisan test -d memory_limit=512M \
             --log-junit build/test-results/phpunit-report.xml \
-            --coverage-clover build/coverage/clover.xml \
-            --coverage-html build/coverage/html \
+            --coverage-clover build/test-result/clover-report.xml \
             --coverage-text
           echo "::endgroup::"
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/test-results
 
+
+  Publish-Unit-Test:
+    needs: [define-environment]
+    if: needs.define-environment.result == 'success'
+    name: Publish tests
+    runs-on:
+      group: ${{ needs.define-environment.outputs.runner_group }}
+      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    continue-on-error: true
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: build/test-results
+          
       - name: Publish Unit Test Results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -101,7 +131,6 @@ jobs:
         uses: insightsengineering/coverage-action@v2
         with:
           path: build/coverage/clover.xml
-          python-version: "3.11.0"
           threshold: 80
           fail: false
           publish: true
