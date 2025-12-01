@@ -61,10 +61,9 @@ jobs:
       image: registry.pgn.co.id/base/php82:v0.0.1
       env:
         XDEBUG_MODE: coverage
-    continue-on-error: true
+        PHP_MEMORY_LIMIT: 512M
     permissions:
       contents: read
-      issues: read
       checks: write
       pull-requests: write
     steps:
@@ -72,39 +71,58 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Install Xdebug for coverage
+          
+      - name: Verify/Install Xdebug
         run: |
-          apk add --no-cache $PHPIZE_DEPS linux-headers || true
-          pecl install xdebug || true
-          docker-php-ext-enable xdebug || true
-          export XDEBUG_MODE=coverage
-          php -m | grep -i xdebug || echo "Xdebug not loaded!"
+          if ! php -m | grep -q xdebug; then
+            echo "Installing Xdebug..."
+            apk add --no-cache $PHPIZE_DEPS linux-headers
+            pecl install xdebug
+            docker-php-ext-enable xdebug
+          fi
+          php -m | grep xdebug
+          
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+          
       - name: Install dependencies & prepare env
         run: |
-          echo "::group::Install dependencies"
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           php -r "file_exists('.env') || copy('.env.example', '.env');"
-          echo "::endgroup::"
-      - name: Run Unit Test & generate JUnit report
+          
+      - name: Run Unit Test with Coverage
         run: |
-          echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-          php artisan test -d memory_limit=512M \
+          php -d memory_limit=512M artisan test \
             --log-junit build/test-results/phpunit-report.xml \
             --coverage-clover build/test-results/clover-report.xml \
-            --coverage-text
-          echo "::endgroup::"
-      - name: Verify Clover XML content
+            --coverage-text | tee build/test-results/coverage-output.txt
+          
+      - name: Verify Coverage Report
+        if: always()
         run: |
-          grep 'line-rate' build/test-results/clover-report.xml || echo "line-rate NOT FOUND → Coverage gagal!"
+          if [ ! -f build/test-results/clover-report.xml ]; then
+            echo "❌ Clover report not generated!"
+            exit 1
+          fi
+          if ! grep -q 'lines-covered' build/test-results/clover-report.xml; then
+            echo "❌ Invalid coverage data in clover report!"
+            exit 1
+          fi
+          echo "✅ Coverage report validated"
+          
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results
+          name: test-results-${{ github.run_number }}
           path: build/test-results
-
-
+          retention-days: 30
+  
   Publish-Unit-Test:
     needs: 
       - Unit-Test
@@ -114,27 +132,21 @@ jobs:
     runs-on:
       group: ${{ needs.define-environment.outputs.runner_group }}
       labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
-    continue-on-error: true
     permissions:
       contents: read
-      issues: read
       checks: write
       pull-requests: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          
+        
       - name: Download test results
         uses: actions/download-artifact@v4
-        if: always()
         with:
-          name: test-results
+          name: test-results-${{ github.run_number }}
           path: build/test-results
           
       - name: Code Coverage Summary
-        if: always()
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: build/test-results/clover-report.xml
@@ -145,13 +157,13 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-          thresholds: '80 90'
+          thresholds: '80 90'          
 
       - name: Add Coverage to Job Summary
         if: always()
         run: |
           cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
-              
+
   trivy-dependency-scan:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
