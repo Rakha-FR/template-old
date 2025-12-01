@@ -71,6 +71,7 @@ jobs:
           
       - name: Prepare container (install composer, git, unzip)
         run: |
+          set -euo pipefail
           apt-get update -qq
           DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git unzip curl ca-certificates $PHPIZE_DEPS
           if ! command -v composer >/dev/null 2>&1; then
@@ -79,11 +80,16 @@ jobs:
             rm composer-setup.php
           fi
           composer --version
-          composer update --no-ansi --no-interaction --no-progress --no-scripts --prefer-dist
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-            echo "composer install failed; retrying with --ignore-platform-reqs (temporary fallback)";
-            composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs;
-          }
+          # Validate and check platform requirements to surface issues early
+          composer validate --no-check-publish || true
+          composer check-platform-reqs || true
+
+          # Install dependencies. Do NOT run `composer update` in CI (it mutates lockfile).
+          if ! composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist; then
+            echo "composer install failed; retrying with --ignore-platform-reqs (temporary fallback)"
+            composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
+          fi
+
           php -r "file_exists('.env') || copy('.env.example', '.env');"
 
       - name: Install Xdebug
