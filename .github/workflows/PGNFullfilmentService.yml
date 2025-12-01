@@ -79,6 +79,12 @@ jobs:
             rm composer-setup.php
           fi
           composer --version
+          composer update --no-ansi --no-interaction --no-progress --no-scripts --prefer-dist
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+            echo "composer install failed; retrying with --ignore-platform-reqs (temporary fallback)";
+            composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs;
+          }
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
 
       - name: Install Xdebug
         run: |
@@ -99,17 +105,7 @@ jobs:
             fi
           fi
           php -m | grep xdebug
-          
-      - name: Install dependencies & prepare env
-        run: |
-          composer validate --no-check-publish || true
-          composer check-platform-reqs || echo "Platform reqs check finished with non-zero exit code"
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-            echo "composer install failed; retrying with --ignore-platform-reqs (temporary fallback)";
-            composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs;
-          }
-          php -r "file_exists('.env') || copy('.env.example', '.env');"
-          
+                    
       - name: Run Unit Test with Coverage
         run: |
           mkdir -p build/test-results
