@@ -83,7 +83,11 @@ jobs:
         run: |
           echo "::group::Run PHPUnit"
           mkdir -p build/test-results
-          php artisan test --log-junit build/test-results/phpunit-report.xml
+          php artisan test \
+            --log-junit build/test-results/phpunit-report.xml \
+            --coverage-clover build/coverage/clover.xml \
+            --coverage-html build/coverage/html \
+            --coverage-text
           echo "::endgroup::"
 
       - name: Publish Unit Test Results
@@ -91,7 +95,19 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: build/test-results/phpunit-report.xml
-
+          
+      - name: Publish Coverage Report
+        if: always()
+        uses: insightsengineering/coverage-action@v2
+        with:
+          path: build/coverage/clover.xml
+          threshold: 80
+          fail: false
+          publish: true
+          coverage-reduction-failure: false
+          check-name: "Code Coverage Report"
+          togglable-report: true
+          
   trivy-dependency-scan:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
