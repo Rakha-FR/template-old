@@ -88,7 +88,7 @@ jobs:
         CI=false npm run build
 
     - name: Install dependencies and build (YARN)
-      if: inputs.need_npm
+      if: inputs.need_yarn
       run: |
         npm install -g yarn
         yarn install --immutable
