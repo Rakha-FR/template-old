@@ -99,6 +99,7 @@ jobs:
   Publish-Unit-Test:
     needs: 
       - Unit-Test
+      - define-environment
     if: always()
     name: Publish tests
     runs-on:
