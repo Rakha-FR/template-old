@@ -177,7 +177,7 @@ jobs:
           files: build/test-results/phpunit-report.xml
 
       - name: Generate Coverage Report & Badge
-        uses: insightsengineering/coverage-action@v2
+        uses: insightsengineering/coverage-action@v3.0.1
         with:
           path: build/test-results/cobertura-report.xml
           threshold: 80
