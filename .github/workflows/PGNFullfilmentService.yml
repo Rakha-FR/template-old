@@ -162,14 +162,18 @@ jobs:
         if: always()
         run: |
           COVERAGE_FILE=build/code-coverage-results.md
+          TMP_FILE=$(mktemp)
           mkdir -p build
-          echo "## Code Coverage Report" > $COVERAGE_FILE
-          echo "" >> $COVERAGE_FILE
-          echo "**Commit:** \`${{ github.sha }}\`" >> $COVERAGE_FILE
-          echo "" >> $COVERAGE_FILE
-          echo "---" >> $COVERAGE_FILE
-          echo "" >> $COVERAGE_FILE
-          cat code-coverage-results.md >> $COVERAGE_FILE
+          echo "## Code Coverage Report" > $TMP_FILE
+          echo "" >> $TMP_FILE
+          echo "**Commit:** \`${{ github.sha }}\`" >> $TMP_FILE
+          echo "" >> $TMP_FILE
+          echo "---" >> $TMP_FILE
+          echo "" >> $TMP_FILE
+          if [ -f code-coverage-results.md ]; then
+            cat code-coverage-results.md >> $TMP_FILE
+          fi
+          mv $TMP_FILE $COVERAGE_FILE
           echo "Coverage markdown saved to $COVERAGE_FILE"
 
       - name: Post Coverage Report as PR comment
