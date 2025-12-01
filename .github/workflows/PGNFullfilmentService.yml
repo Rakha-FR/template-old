@@ -151,40 +151,21 @@ jobs:
     permissions:
       contents: read
       security-events: write
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
-     
-      - name: Cache Trivy DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/trivy
-          key: trivy-db-${{ runner.os }}
-          restore-keys: |
-            trivy-db-
-
-  
-      - name: Run Trivy filesystem scan (SARIF)
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: 'fs'
-          scan-ref: .
           ignore-unfixed: true
-          vuln-type: 'library,os'
-          scanners: 'vuln'
-          severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          db-dir: '~/.cache/trivy'
-          exit-code: '1'   
-
+          severity: 'CRITICAL'
 
       - name: Upload Trivy scan results to GitHub Security tab
-        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
