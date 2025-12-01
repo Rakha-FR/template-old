@@ -147,29 +147,6 @@ jobs:
           name: test-results-${{ github.run_number }}
           path: build/test-results
           retention-days: 30
-  
-  Publish-Unit-Test:
-    needs: 
-      - Unit-Test
-      - define-environment
-    if: always() && needs.Unit-Test.result != 'skipped'
-    name: Publish tests
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-        
-      - name: Download test results
-        uses: actions/download-artifact@v4
-        with:
-          name: test-results-${{ github.run_number }}
-          path: build/test-results
           
       - name: Publish Test results
         uses: EnricoMi/publish-unit-test-result-action@v2
