@@ -30,9 +30,7 @@ on:
 
 jobs:
   condition-check:
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+    runs-on: ubuntu-latest
     outputs:
       SQ_RULES: ${{ steps.check-condition.outputs.SQ_RULES }}
       MERGED_RULES: ${{ steps.check-condition.outputs.MERGED_RULES }}
@@ -40,14 +38,12 @@ jobs:
     steps:
       - name: Check Conditions
         id: check-condition
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/condition-check@migrasi
+        uses: Rakha-FR/template-old/.github/actions/condition-check@migrasi
 
   prepare-environment:
     needs: condition-check
     if: ${{ needs.condition-check.outputs.SQ_RULES == 'true' || needs.condition-check.outputs.MERGED_RULES == 'true' || needs.condition-check.outputs.MANUAL_RULES == 'true' }}
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+    runs-on: ubuntu-latest
     outputs:
       APP_VERSION: ${{ steps.prepare-environment.outputs.APP_VERSION }}
       ENV_SERVER: ${{ steps.prepare-environment.outputs.ENV_SERVER }}
@@ -57,4 +53,4 @@ jobs:
     steps:
       - name: Prepare Version and Environment
         id: prepare-environment
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/prepare-environment@migrasi
+        uses: Rakha-FR/template-old/.github/actions/prepare-environment@migrasi

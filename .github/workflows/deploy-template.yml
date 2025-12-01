@@ -40,7 +40,7 @@ jobs:
     - name: Checkout DevOps repository
       uses: actions/checkout@v5
       with:
-        repository: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService
+        repository: Rakha-FR/template-old
         token: ${{ secrets.TOKEN }}
         path: devops-repo
         ref: migrasi

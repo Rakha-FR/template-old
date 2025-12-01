@@ -48,7 +48,7 @@ jobs:
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     steps:
       - name: SonarQube Scan
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/sonar-scan@migrasi
+        uses: Rakha-FR/template-old/.github/actions/sonar-scan@migrasi
         with:
           RUNNER_GROUP: ${{ inputs.RUNNER_GROUP }}
           SONAR_EXCLUSIONS: ""
@@ -69,7 +69,7 @@ jobs:
       mvn_version: ${{ steps.build_maven.outputs.mvn_version }}
     steps:
       - name: Build Maven Application
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/mvn-build@migrasi
+        uses: Rakha-FR/template-old/.github/actions/mvn-build@migrasi
         id: build_maven
         with:
           REPO_OWNER: ${{ inputs.REPO_OWNER }}
@@ -78,7 +78,7 @@ jobs:
           PACKAGE_NAME: ${{ vars.PACKAGE_NAME }}
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: Build and Push Docker Image
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/docker-build@migrasi
+        uses: Rakha-FR/template-old/.github/actions/docker-build@migrasi
         if: ${{ inputs.DOCKERFILE_NAME != '' }}
         with:
           REGISTRY_URL: ${{ vars.REGISTRY_URL }}
@@ -98,7 +98,7 @@ jobs:
       labels: [self-hosted, Linux, X64, "${{ inputs.RUNNER_GROUP }}"]
     steps:
       - name: Deploy to Kubernetes
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/actions/deploy-kubernetes@migrasi
+        uses: Rakha-FR/template-old/.github/actions/deploy-kubernetes@migrasi
         with:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
           KUBE_NAMESPACE: ${{ vars.KUBE_NAMESPACE }}

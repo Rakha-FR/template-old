@@ -15,9 +15,7 @@ jobs:
         github.event.pull_request.state == 'open' ||
         github.event.action == 'synchronize')) ||
       (github.event_name == 'workflow_dispatch')
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+    runs-on: ubuntu-latest
     outputs:
       branch_env: ${{ steps.branch.outputs.environment }}
       runner_group: ${{ steps.branch.outputs.runner_group }}
@@ -28,7 +26,7 @@ jobs:
     steps:
       - name: Define Env
         id: branch
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        uses: Rakha-FR/template-old/neuron-actions/set-enviroment@migrasi
         with:
           deploy_to: 'RELYON'
           allowed_branches: "253-devops---move-jenkins-to-github-actions"
@@ -36,7 +34,7 @@ jobs:
   code-quality:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    uses: Rakha-FR/template-old/.github/workflows/code-quality.yml@migrasi
     with:
       grouprunner: ${{ needs.define-environment.outputs.runner_group }}
       SONAR_EXCLUSIONS: '**/*.html,**/*.phtml,**/*.css,**/*.js'
@@ -54,11 +52,9 @@ jobs:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
     name: Run tests
-    runs-on:
-      group: ${{ needs.define-environment.outputs.runner_group }}
-      labels: [self-hosted, Linux, X64, "${{ needs.define-environment.outputs.runner_group }}"]
+    runs-on: ubuntu-latest
     container:
-      image: registry.pgn.co.id/base/php82:v0.0.1
+      image: php:8.2.29
       env:
         XDEBUG_MODE: coverage
     continue-on-error: true
@@ -92,13 +88,6 @@ jobs:
             fi
           fi
           php -m | grep xdebug
-          
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: composer-
           
       - name: Install dependencies & prepare env
         run: |
@@ -234,7 +223,7 @@ jobs:
   build:
     needs: define-environment
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
+    uses: Rakha-FR/template-old/.github/workflows/build-template.yml@migrasi
     with:
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       branch_env: ${{ needs.define-environment.outputs.branch_env }}
@@ -246,7 +235,7 @@ jobs:
   deploy:
     needs: [define-environment, build]
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/deploy-template.yml@migrasi
+    uses: Rakha-FR/template-old/.github/workflows/deploy-template.yml@migrasi
     with:
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       branch_env: ${{ needs.define-environment.outputs.branch_env }}

@@ -10,9 +10,7 @@ jobs:
         github.event.pull_request.state == 'open' ||
         github.event.action == 'synchronize')) ||
       (github.event_name == 'workflow_dispatch')
-    runs-on:
-      group: Development
-      labels: [self-hosted, Linux, X64, Development]
+    runs-on: ubuntu-latest
     outputs:
       branch_env: ${{ steps.branch.outputs.environment }}
       runner_group: ${{ steps.branch.outputs.runner_group }}
@@ -23,7 +21,7 @@ jobs:
     steps:
       - name: Define Env
         id: branch
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        uses: Rakha-FR/template-old/neuron-actions/set-enviroment@migrasi
         with:
           deploy_to: 'RELYON'
           allowed_branches: "163-devops---migrasi-jenkins-to-github-action-relyon"
@@ -31,7 +29,7 @@ jobs:
   code-quality:
     needs: [define-environment]
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/code-quality.yml@migrasi
+    uses: Rakha-FR/template-old/.github/workflows/code-quality.yml@migrasi
     with:
       grouprunner: ${{ needs.define-environment.outputs.runner_group }}
       SONAR_EXCLUSIONS: '**/*.html,**/*.phtml,**/*.css,**/*.js'
@@ -47,7 +45,7 @@ jobs:
   build:
     needs: define-environment
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/build-template.yml@migrasi
+    uses: Rakha-FR/template-old/.github/workflows/build-template.yml@migrasi
     with:
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       branch_env: ${{ needs.define-environment.outputs.branch_env }}
@@ -59,7 +57,7 @@ jobs:
   deploy:
     needs: [define-environment, build]
     if: needs.define-environment.result == 'success'
-    uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/.github/workflows/deploy-template.yml@migrasi
+    uses: Rakha-FR/template-old/.github/workflows/deploy-template.yml@migrasi
     with:
       repo_name: ${{ needs.define-environment.outputs.repo_name }}
       branch_env: ${{ needs.define-environment.outputs.branch_env }}

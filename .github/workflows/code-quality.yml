@@ -36,9 +36,7 @@ jobs:
   code-quality:
     if: github.event_name == 'pull_request' && !github.event.pull_request.merged
     name: Scan with SonarQube
-    runs-on:
-      group: ${{ inputs.grouprunner }}
-      labels: [self-hosted, Linux, X64, "${{ inputs.grouprunner }}"]
+    runs-on: ubuntu-latest
     continue-on-error: ${{ inputs.continue-on-error }}
     steps:
       - name: Checkout Repository

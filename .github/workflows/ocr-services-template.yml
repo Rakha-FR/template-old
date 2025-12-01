@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Define Env
         id: branch
-        uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/set-enviroment@migrasi
+        uses: Rakha-FR/template-old/neuron-actions/set-enviroment@migrasi
         with:
           allowed_branches: "7-devops---setup-github-action"  
   ssh:
@@ -36,7 +36,7 @@ jobs:
     environment: ${{ needs.define-environment.outputs.branch_env  }}
     steps:
     - name: Start SSH Agent and Add Key
-      uses: PT-Perusahaan-Gas-Negara-Tbk/DevSecOps-DataService/neuron-actions/SSH-OCR@migrasi
+      uses: Rakha-FR/template-old/neuron-actions/SSH-OCR@migrasi
       with:
         host: ${{ vars.HOST }}
         user: ${{ vars.USER }}
