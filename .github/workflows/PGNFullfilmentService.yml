@@ -120,8 +120,9 @@ jobs:
             echo "❌ Clover report not generated!"
             exit 1
           fi
-          if ! grep -q 'lines-covered' build/test-results/clover-report.xml; then
+          if ! grep -q -E 'coveredstatements|coveredelements|coveredmethods|lines-covered' build/test-results/clover-report.xml; then
             echo "❌ Invalid coverage data in clover report!"
+            head -n 60 build/test-results/clover-report.xml || true
             exit 1
           fi
           echo "✅ Coverage report validated"
