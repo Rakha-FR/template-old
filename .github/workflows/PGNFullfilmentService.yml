@@ -54,7 +54,7 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     container:
-      image: php:8.2-cli-bullseye
+      image: rakhafr/php8.2
       env:
         XDEBUG_MODE: coverage
     continue-on-error: true
