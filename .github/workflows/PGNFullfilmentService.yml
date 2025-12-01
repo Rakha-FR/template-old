@@ -113,15 +113,16 @@ jobs:
             fi
           fi
           php -m | grep xdebug
-                    
+          php -i | grep 'xdebug.mode'
+
       - name: Run Unit Test with Coverage
         run: |
-          mkdir -p build/test-results
-          php artisan test -d memory_limit=512M \
+          vendor/bin/phpunit \
+            -d memory_limit=2G \
             --log-junit build/test-results/phpunit-report.xml \
             --coverage-clover build/test-results/clover-report.xml \
             --coverage-text | tee build/test-results/coverage-output.txt
-          
+                      
       - name: Verify Coverage Report
         if: always()
         run: |
