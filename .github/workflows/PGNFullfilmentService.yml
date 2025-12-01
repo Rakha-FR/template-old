@@ -72,6 +72,13 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - name: Install Xdebug for coverage
+        run: |
+          apk add --no-cache $PHPIZE_DEPS linux-headers || true
+          pecl install xdebug || true
+          docker-php-ext-enable xdebug || true
+          export XDEBUG_MODE=coverage
+          php -m | grep -i xdebug || echo "Xdebug not loaded!"
       - name: Install dependencies & prepare env
         run: |
           echo "::group::Install dependencies"
@@ -87,7 +94,9 @@ jobs:
             --coverage-clover build/test-results/clover-report.xml \
             --coverage-text
           echo "::endgroup::"
-          
+      - name: Verify Clover XML content
+        run: |
+          grep 'line-rate' build/test-results/clover-report.xml || echo "line-rate NOT FOUND → Coverage gagal!"
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
