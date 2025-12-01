@@ -76,7 +76,8 @@ jobs:
         run: |
           if ! php -m | grep -q xdebug; then
             echo "Installing Xdebug..."
-            apk add --no-cache $PHPIZE_DEPS linux-headers
+            apt-get update
+            apt-get install -y php-dev build-essential
             pecl install xdebug
             docker-php-ext-enable xdebug
           fi
